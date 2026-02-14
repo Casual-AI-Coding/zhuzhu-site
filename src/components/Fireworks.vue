@@ -104,9 +104,8 @@ function launchFirework() {
 function animate() {
   if (!ctx || !canvas.value) return;
   
-  // 清除画布 - 轻微拖尾效果
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-  ctx.fillRect(0, 0, canvas.value.width, canvas.value.height);
+  // 清除画布 - 使用 clearRect 保持透明
+  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
   
   // 更新烟花
   for (let i = fireworks.length - 1; i >= 0; i--) {
@@ -173,6 +172,7 @@ onUnmounted(() => {
 .fireworks-container canvas {
   width: 100%;
   height: 100%;
+  background: transparent;
 }
 
 .firework-trigger {
