@@ -141,12 +141,22 @@ export async function fetchMessages() {
 // 发送新留言
 export async function addMessage(content, sender, mood = '开心') {
   try {
-    // 先查询当前有多少条记录来确定ID
+    // 查询所有留言获取最大ID
     const existing = await notionRequest(`/databases/${DATABASES.messages}/query`, {
       method: 'POST',
-      body: JSON.stringify({ page_size: 1 }),
+      body: JSON.stringify({ page_size: 100 }),
     });
-    const newId = (existing.results.length + 1).toString();
+    
+    // 计算最大ID
+    let maxId = 0;
+    for (const page of existing.results) {
+      const idText = page.properties['Id']?.title[0]?.plain_text || '0';
+      const idNum = parseInt(idText, 10);
+      if (!isNaN(idNum) && idNum > maxId) {
+        maxId = idNum;
+      }
+    }
+    const newId = (maxId + 1).toString();
 
     const response = await notionRequest('/pages', {
       method: 'POST',

@@ -195,9 +195,8 @@ function createExplosion(x, y, color) {
 function animate() {
   if (!ctx || !canvas.value) return;
   
-  // 使用极低透明度创建拖尾效果
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-  ctx.fillRect(0, 0, canvas.value.width, canvas.value.height);
+  // 清除画布，保持透明
+  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
   
   // 更新烟花
   for (let i = fireworks.length - 1; i >= 0; i--) {
@@ -233,9 +232,7 @@ onMounted(() => {
     ctx = canvas.value.getContext('2d');
     canvas.value.width = window.innerWidth;
     canvas.value.height = window.innerHeight;
-    // 初始黑色背景
-    ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, canvas.value.width, canvas.value.height);
+    // 不设置黑色背景，保持透明
     window.addEventListener('resize', handleResize);
     animate();
   }
