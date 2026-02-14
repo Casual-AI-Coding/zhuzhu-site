@@ -33,36 +33,47 @@
         <!-- 心情选择 -->
         <div class="flex items-center gap-2 mt-4">
           <span class="text-text-secondary text-sm">心情:</span>
-          <div class="flex gap-2">
+          <div class="flex gap-1.5">
             <button
               v-for="moodItem in moodOptions"
               :key="moodItem.value"
               @click="mood = moodItem.value"
-              class="px-3 py-1.5 rounded-lg text-lg transition-all"
+              class="w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all"
               :class="mood === moodItem.value 
                 ? 'bg-primary/20 ring-2 ring-primary' 
-                : 'bg-card hover:bg-primary/10'"
+                : 'hover:bg-primary/10'"
+              :title="moodItem.value"
             >
               {{ moodItem.emoji }}
             </button>
           </div>
         </div>
         
+        <!-- 发送者 + 发送按钮 -->
         <div class="flex items-center justify-between mt-4">
-          <select
-            v-model="sender"
-            class="bg-card border border-border rounded-lg px-4 py-2 text-text-main focus:outline-none focus:border-primary"
-          >
-            <option value="大萝卜">大萝卜</option>
-            <option value="猪猪">猪猪</option>
-            <option value="小葡萄">小葡萄</option>
-          </select>
+          <div class="flex items-center gap-2 bg-card rounded-xl p-1 border border-border">
+            <button
+              v-for="senderItem in senderOptions"
+              :key="senderItem.value"
+              @click="sender = senderItem.value"
+              class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all"
+              :class="sender === senderItem.value 
+                ? 'bg-primary text-white' 
+                : 'text-text-secondary hover:text-text-main hover:bg-primary/5'"
+            >
+              <span>{{ senderItem.emoji }}</span>
+              <span>{{ senderItem.label }}</span>
+            </button>
+          </div>
           <button
             @click="addMessage"
-            class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 active:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-6 py-2.5 bg-gradient-to-r from-primary to-pink-400 text-white rounded-xl font-medium hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25"
             :disabled="!newMessage.trim() || sending"
           >
-            {{ sending ? '发送中...' : '发送' }}
+            <span v-if="sending">发送中...</span>
+            <span v-else class="flex items-center gap-2">
+              {{ moodEmoji[mood] }} 发送
+            </span>
           </button>
         </div>
       </div>
@@ -133,6 +144,12 @@ const moodOptions = [
   { value: '甜蜜', emoji: '🍯' },
   { value: '害羞', emoji: '🫣' },
   { value: '调皮', emoji: '😜' },
+];
+
+const senderOptions = [
+  { value: '大萝卜', label: '大萝卜', emoji: '🥕' },
+  { value: '猪猪', label: '猪猪', emoji: '🐷' },
+  { value: '小葡萄', label: '小葡萄', emoji: '🍇' },
 ];
 
 function showToast(message, type = 'success') {
