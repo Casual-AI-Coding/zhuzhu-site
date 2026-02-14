@@ -62,6 +62,24 @@ export function useDaysCount() {
     });
   }
 
+  // 相对时间显示 (刚刚、5分钟前等)
+  function formatRelativeTime(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffSec < 60) return '刚刚';
+    if (diffMin < 60) return `${diffMin}分钟前`;
+    if (diffHour < 24) return `${diffHour}小时前`;
+    if (diffDay < 7) return `${diffDay}天前`;
+    return formatDate(dateString);
+  }
+
   // 计算距离某日期还有多少天（可正可负，负数表示已过）
   function getDaysUntil(dateString) {
     if (!dateString) return 0;
@@ -91,6 +109,7 @@ export function useDaysCount() {
     formattedStartDate,
     startDate: START_DATE,
     formatDate,
+    formatRelativeTime,
     getDaysUntil,
   };
 }

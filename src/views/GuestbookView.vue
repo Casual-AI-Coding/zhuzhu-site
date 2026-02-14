@@ -24,11 +24,22 @@
         </Transition>
         
         <textarea
+          ref="textareaRef"
           v-model="newMessage"
           placeholder="写下你的留言..."
-          class="w-full bg-transparent border border-border rounded-xl p-4 text-text-main placeholder-text-secondary resize-none focus:outline-none focus:border-primary transition-colors"
-          rows="3"
+          class="w-full bg-transparent border rounded-xl p-4 text-text-main placeholder-text-secondary resize-none focus:outline-none transition-colors"
+          :class="isOverLimit ? 'border-red-400' : 'border-border focus:border-primary'"
+          :rows="textareaRows"
+          :maxlength="MAX_LENGTH + 50"
+          @keydown="handleKeydown"
         ></textarea>
+        
+        <!-- 字符计数 -->
+        <div class="flex justify-end mt-1">
+          <span class="text-xs" :class="isOverLimit ? 'text-red-500' : 'text-text-secondary'">
+            {{ charCount }}/{{ MAX_LENGTH }}
+          </span>
+        </div>
         
         <!-- 心情选择 -->
         <div class="flex items-center gap-2 mt-4">
@@ -69,7 +80,7 @@
           <button
             @click="addMessage"
             class="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-primary to-pink-400 text-white rounded-xl font-medium hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25 whitespace-nowrap"
-            :disabled="!newMessage.trim() || sending"
+            :disabled="!newMessage.trim() || sending || isOverLimit"
           >
             <span v-if="sending">发送中...</span>
             <span v-else class="flex items-center gap-1 sm:gap-2">
@@ -85,16 +96,26 @@
       </div>
       
       <!-- Empty State -->
-      <div v-else-if="messages.length === 0" class="text-center text-text-secondary">
-        暂无留言
+      <div v-else-if="messages.length === 0" class="text-center py-12">
+        <div class="text-6xl mb-4">💌</div>
+        <p class="text-text-secondary">还没有留言</p>
+        <p class="text-text-secondary text-sm mt-1">写下第一句想说的话吧</p>
       </div>
       
       <!-- Messages Grid -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <TransitionGroup 
+        name="message" 
+        tag="div" 
+        class="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
         <div
           v-for="message in messages"
           :key="message.id"
-          class="glass-nav rounded-2xl p-6 card-hover"
+          class="glass-nav rounded-2xl p-6 card-hover cursor-pointer select-none"
+          @touchstart="handleTouchStart($event, message.content)"
+          @touchend="handleTouchEnd"
+          @contextmenu="handleContextMenu($event, message.content)"
+          title="长按或右键复制"
         >
           <div class="flex items-start gap-3 mb-3">
             <div
@@ -105,25 +126,25 @@
             </div>
             <div>
               <p class="font-medium text-text-main">{{ message.sender }}</p>
-              <p class="text-text-secondary text-sm">{{ formatDate(message.time) }}</p>
+              <p class="text-text-secondary text-sm">{{ formatRelativeTime(message.time) }}</p>
             </div>
           </div>
-          <p class="text-text-main">{{ message.content }}</p>
+          <p class="text-text-main whitespace-pre-wrap">{{ message.content }}</p>
           <div class="mt-3 flex items-center gap-2">
             <span class="text-2xl">{{ moodEmoji[message.mood] || '😊' }}</span>
           </div>
         </div>
-      </div>
+      </TransitionGroup>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { fetchMessages, addMessage as addMessageToNotion } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
-const { formatDate } = useDaysCount();
+const { formatDate, formatRelativeTime } = useDaysCount();
 
 const newMessage = ref('');
 const sender = ref('猪猪');
@@ -131,6 +152,18 @@ const mood = ref('开心');
 const messages = ref([]);
 const loading = ref(true);
 const sending = ref(false);
+const textareaRef = ref(null);
+
+const MAX_LENGTH = 500;
+
+const charCount = computed(() => newMessage.value.length);
+const isOverLimit = computed(() => charCount.value > MAX_LENGTH);
+
+// 动态计算 textarea 行数
+const textareaRows = computed(() => {
+  const lines = newMessage.value.split('\n').length;
+  return Math.max(3, Math.min(lines, 8));
+});
 
 const toast = ref({
   show: false,
@@ -185,7 +218,7 @@ onMounted(async () => {
 });
 
 async function addMessage() {
-  if (!newMessage.value.trim() || sending.value) return;
+  if (!newMessage.value.trim() || sending.value || isOverLimit.value) return;
   
   sending.value = true;
   
@@ -207,7 +240,41 @@ async function addMessage() {
   }
   
   newMessage.value = '';
+  if (textareaRef.value) {
+    textareaRef.value.style.height = 'auto';
+  }
   sending.value = false;
+}
+
+// 键盘快捷键发送
+function handleKeydown(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    if (!isOverLimit.value && newMessage.value.trim()) {
+      addMessage();
+    }
+  }
+}
+
+// 长按复制
+let pressTimer = null;
+function handleTouchStart(e, content) {
+  pressTimer = setTimeout(() => {
+    navigator.clipboard.writeText(content);
+    showToast('已复制到剪贴板', 'success');
+  }, 500);
+}
+function handleTouchEnd() {
+  if (pressTimer) {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+  }
+}
+
+// 右键复制
+function handleContextMenu(e, content) {
+  e.preventDefault();
+  navigator.clipboard.writeText(content);
+  showToast('已复制到剪贴板', 'success');
 }
 </script>
 
@@ -220,5 +287,24 @@ async function addMessage() {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 留言入场动画 */
+.message-enter-active {
+  transition: all 0.4s ease-out;
+}
+
+.message-enter-from {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.message-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.message-move {
+  transition: transform 0.4s ease;
 }
 </style>
