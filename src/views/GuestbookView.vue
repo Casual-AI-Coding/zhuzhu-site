@@ -57,7 +57,7 @@
               v-for="senderItem in senderOptions"
               :key="senderItem.value"
               @click="sender = senderItem.value"
-              class="flex-none flex items-center justify-center gap-0.5 sm:gap-1.5 px-1 py-2 sm:px-3 rounded-lg text-[9px] sm:text-sm transition-all whitespace-nowrap"
+              class="flex-none flex items-center justify-center gap-0.5 sm:gap-1.5 px-1 py-2 sm:px-3 rounded-lg text-[10px] sm:text-sm transition-all whitespace-nowrap"
               :class="sender === senderItem.value 
                 ? 'bg-primary text-white' 
                 : 'text-text-secondary hover:text-text-main hover:bg-primary/5'"
