@@ -129,7 +129,7 @@ export async function fetchMessages() {
       id: page.id,
       content: page.properties['内容']?.rich_text[0]?.plain_text || '',
       sender: page.properties['发送者']?.select?.name || '',
-      time: page.createdTime,
+      time: page.created_time,
       mood: page.properties['心情']?.select?.name || '',
     }));
   } catch (error) {
@@ -183,7 +183,7 @@ export async function addMessage(content, sender, mood = '开心') {
       id: response.id,
       content,
       sender,
-      time: response.createdTime,
+      time: response.created_time,
       mood,
     };
   } catch (error) {
