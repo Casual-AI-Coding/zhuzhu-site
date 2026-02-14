@@ -1,12 +1,22 @@
 <template>
-  <div class="falling-hearts">
+  <div class="falling-effects">
+    <!-- 爱心 -->
     <div
       v-for="heart in hearts"
-      :key="heart.id"
+      :key="'h' + heart.id"
       class="falling-heart"
       :style="heart.style"
     >
       {{ heart.emoji }}
+    </div>
+    <!-- 星星 -->
+    <div
+      v-for="star in stars"
+      :key="'s' + star.id"
+      class="falling-star"
+      :style="star.style"
+    >
+      {{ star.emoji }}
     </div>
   </div>
 </template>
@@ -14,62 +24,102 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
-const emojis = ['💕', '💗', '💖', '💘', '💞', '💟', '❤️'];
+const emojis = ['💕', '💗', '💖', '💘', '💞', '💟', '❤️', '🧡', '💜', '🩷', '🩵', '💚'];
+const starEmojis = ['✨', '⭐', '🌟', '💫'];
+
 const hearts = ref([]);
+const stars = ref([]);
 let heartId = 0;
-let intervalId = null;
+let starId = 0;
+let heartInterval = null;
+let starInterval = null;
 
 function createHeart() {
   const screenWidth = window.innerWidth;
-  const count = Math.floor(screenWidth / 50); // 约15-20个
+  const count = Math.floor(screenWidth / 60);
   
-  // 每隔一段时间添加一个新爱心
   if (hearts.value.length < count) {
     const id = ++heartId;
     const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-    const left = Math.random() * 100; // 0-100%
-    const delay = Math.random() * 2;
-    const duration = 8 + Math.random() * 6; // 8-14秒
-    const size = 12 + Math.random() * 8; // 12-20px
+    const left = Math.random() * 100;
+    const delay = Math.random() * 3;
+    const duration = 10 + Math.random() * 8;
+    const size = 14 + Math.random() * 12;
+    const rotation = Math.random() * 360;
     
     hearts.value.push({
       id,
       emoji,
       style: {
         left: `${left}%`,
-        top: '-30px',
+        top: '-40px',
         fontSize: `${size}px`,
         animationDuration: `${duration}s`,
         animationDelay: `${delay}s`,
+        '--rotation': `${rotation}deg`,
       },
     });
     
-    // 移除超出屏幕的爱心
     setTimeout(() => {
       hearts.value = hearts.value.filter(h => h.id !== id);
     }, (duration + delay) * 1000);
   }
 }
 
+function createStar() {
+  const screenWidth = window.innerWidth;
+  const count = Math.floor(screenWidth / 100);
+  
+  if (stars.value.length < count) {
+    const id = ++starId;
+    const emoji = starEmojis[Math.floor(Math.random() * starEmojis.length)];
+    const left = Math.random() * 100;
+    const delay = Math.random() * 4;
+    const duration = 12 + Math.random() * 6;
+    const size = 8 + Math.random() * 8;
+    
+    stars.value.push({
+      id,
+      emoji,
+      style: {
+        left: `${left}%`,
+        top: '-20px',
+        fontSize: `${size}px`,
+        animationDuration: `${duration}s`,
+        animationDelay: `${delay}s`,
+      },
+    });
+    
+    setTimeout(() => {
+      stars.value = stars.value.filter(s => s.id !== id);
+    }, (duration + delay) * 1000);
+  }
+}
+
 onMounted(() => {
-  // 初始化一些爱心
-  for (let i = 0; i < 10; i++) {
-    setTimeout(createHeart, i * 200);
+  // 初始一些爱心
+  for (let i = 0; i < 8; i++) {
+    setTimeout(createHeart, i * 300);
   }
   
-  // 持续添加爱心
-  intervalId = setInterval(createHeart, 1500);
+  // 初始一些星星
+  for (let i = 0; i < 4; i++) {
+    setTimeout(createStar, i * 500);
+  }
+  
+  // 持续添加
+  heartInterval = setInterval(createHeart, 2000);
+  starInterval = setInterval(createStar, 3500);
 });
 
 onUnmounted(() => {
-  if (intervalId) {
-    clearInterval(intervalId);
-  }
+  if (heartInterval) clearInterval(heartInterval);
+  if (starInterval) clearInterval(starInterval);
 });
 </script>
 
 <style scoped>
-.falling-hearts {
+.falling-effects {
   position: fixed;
   top: 0;
   left: 0;
@@ -82,25 +132,66 @@ onUnmounted(() => {
 
 .falling-heart {
   position: absolute;
-  top: -30px;
-  opacity: 0.6;
-  animation: fall linear infinite;
-  text-shadow: 0 0 5px rgba(255, 105, 180, 0.3);
+  top: -40px;
+  opacity: 0.7;
+  animation: fall-rotate linear infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 105, 180, 0.4));
 }
 
-@keyframes fall {
+.falling-star {
+  position: absolute;
+  top: -20px;
+  opacity: 0.6;
+  animation: star-fall linear infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+}
+
+@keyframes fall-rotate {
   0% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0) rotate(var(--rotation, 0deg)) scale(0.8);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.7;
+    transform: translateY(20px) rotate(calc(var(--rotation, 0deg) + 20deg)) scale(1);
+  }
+  20% {
+    transform: translateY(100px) rotate(calc(var(--rotation, 0deg) - 30deg)) scale(1.1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(50vh) rotate(calc(var(--rotation, 0deg) + 45deg)) scale(1);
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(100vh) rotate(calc(var(--rotation, 0deg) + 90deg)) scale(0.6);
+    opacity: 0;
+  }
+}
+
+@keyframes star-fall {
+  0% {
+    transform: translateY(0) scale(0);
     opacity: 0;
   }
   10% {
-    opacity: 0.6;
+    opacity: 0.8;
+    transform: translateY(30px) scale(1.2);
   }
-  90% {
-    opacity: 0.6;
+  30% {
+    transform: translateY(80px) scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(120px) scale(1.1);
+  }
+  80% {
+    opacity: 0.4;
   }
   100% {
-    transform: translateY(100vh) rotate(360deg);
+    transform: translateY(100vh) scale(0.5);
     opacity: 0;
   }
 }
