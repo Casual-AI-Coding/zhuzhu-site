@@ -89,15 +89,21 @@ const cacheKey = computed(() => {
 
 // 检查缓存
 async function checkCache() {
+  if (typeof caches === 'undefined') {
+    console.warn('Caches API not available - need HTTPS');
+    return false;
+  }
   try {
     const cache = await caches.open('custom-images');
     const cachedResponse = await cache.match(cacheKey.value);
     if (cachedResponse) {
+      console.log('Cache HIT:', cacheKey.value);
       const blob = await cachedResponse.blob();
       cachedUrl.value = URL.createObjectURL(blob);
       loading.value = false;
       return true;
     }
+    console.log('Cache MISS:', cacheKey.value);
   } catch (e) {
     console.warn('Cache check failed:', e);
   }
@@ -106,12 +112,14 @@ async function checkCache() {
 
 // 存入缓存
 async function saveToCache(blob) {
+  if (typeof caches === 'undefined') return;
   try {
     const cache = await caches.open('custom-images');
     const response = new Response(blob, {
       headers: { 'Content-Type': blob.type || 'image/jpeg' },
     });
     await cache.put(cacheKey.value, response);
+    console.log('Cached:', cacheKey.value);
   } catch (e) {
     console.warn('Cache save failed:', e);
   }
