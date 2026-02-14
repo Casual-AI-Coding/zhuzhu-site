@@ -29,6 +29,25 @@
           class="w-full bg-transparent border border-border rounded-xl p-4 text-text-main placeholder-text-secondary resize-none focus:outline-none focus:border-primary transition-colors"
           rows="3"
         ></textarea>
+        
+        <!-- 心情选择 -->
+        <div class="flex items-center gap-2 mt-4">
+          <span class="text-text-secondary text-sm">心情:</span>
+          <div class="flex gap-2">
+            <button
+              v-for="moodItem in moodOptions"
+              :key="moodItem.value"
+              @click="mood = moodItem.value"
+              class="px-3 py-1.5 rounded-lg text-lg transition-all"
+              :class="mood === moodItem.value 
+                ? 'bg-primary/20 ring-2 ring-primary' 
+                : 'bg-card hover:bg-primary/10'"
+            >
+              {{ moodItem.emoji }}
+            </button>
+          </div>
+        </div>
+        
         <div class="flex items-center justify-between mt-4">
           <select
             v-model="sender"
@@ -96,6 +115,7 @@ const { formatDate } = useDaysCount();
 
 const newMessage = ref('');
 const sender = ref('猪猪');
+const mood = ref('开心');
 const messages = ref([]);
 const loading = ref(true);
 const sending = ref(false);
@@ -105,6 +125,15 @@ const toast = ref({
   message: '',
   type: 'success',
 });
+
+const moodOptions = [
+  { value: '开心', emoji: '😊' },
+  { value: '感动', emoji: '🥰' },
+  { value: '想念', emoji: '😢' },
+  { value: '甜蜜', emoji: '🍯' },
+  { value: '害羞', emoji: '🫣' },
+  { value: '调皮', emoji: '😜' },
+];
 
 function showToast(message, type = 'success') {
   toast.value = { show: true, message, type };
@@ -143,7 +172,7 @@ async function addMessage() {
   sending.value = true;
   
   try {
-    const result = await addMessageToNotion(newMessage.value, sender.value, '开心');
+    const result = await addMessageToNotion(newMessage.value, sender.value, mood.value);
     messages.value.unshift(result);
     showToast('留言成功！', 'success');
   } catch (error) {
@@ -153,7 +182,7 @@ async function addMessage() {
       id: Date.now(),
       content: newMessage.value,
       sender: sender.value,
-      mood: '开心',
+      mood: mood.value,
       time: new Date().toISOString(),
     });
     showToast('发送失败，已保存到本地', 'error');
