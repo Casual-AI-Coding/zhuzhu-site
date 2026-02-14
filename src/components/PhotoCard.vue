@@ -8,7 +8,7 @@
     <!-- 图片：进入可视区域后加载 -->
     <img
       v-show="!loading && !error"
-      :src="cachedUrl || (visible ? src : undefined)"
+      :src="visible ? src : undefined"
       :alt="alt"
       class="w-full h-full object-cover transition-all duration-500"
       :class="{ 'opacity-0': loading }"
@@ -71,84 +71,16 @@ const loading = ref(true);
 const error = ref(false);
 const visible = ref(false);
 const cardRef = ref(null);
-const cachedUrl = ref(null);
 
 let observer = null;
 
-// 从 URL 中提取文件名作为缓存 key
-const cacheKey = computed(() => {
-  try {
-    const url = new URL(props.src);
-    const pathname = url.pathname;
-    const filename = pathname.split('/').pop() || 'image';
-    return filename.split('?')[0]; // 去掉查询参数
-  } catch {
-    return 'image';
-  }
-});
-
-// 检查缓存
-async function checkCache() {
-  if (typeof caches === 'undefined') {
-    console.warn('Caches API not available - need HTTPS');
-    return false;
-  }
-  try {
-    const cache = await caches.open('custom-images');
-    const cachedResponse = await cache.match(cacheKey.value);
-    if (cachedResponse) {
-      console.log('Cache HIT:', cacheKey.value);
-      const blob = await cachedResponse.blob();
-      cachedUrl.value = URL.createObjectURL(blob);
-      loading.value = false;
-      return true;
-    }
-    console.log('Cache MISS:', cacheKey.value);
-  } catch (e) {
-    console.warn('Cache check failed:', e);
-  }
-  return false;
-}
-
-// 存入缓存
-async function saveToCache(blob) {
-  if (typeof caches === 'undefined') return;
-  try {
-    const cache = await caches.open('custom-images');
-    const response = new Response(blob, {
-      headers: { 'Content-Type': blob.type || 'image/jpeg' },
-    });
-    await cache.put(cacheKey.value, response);
-    console.log('Cached:', cacheKey.value);
-  } catch (e) {
-    console.warn('Cache save failed:', e);
-  }
-}
-
 function onLoad() {
   loading.value = false;
-  // 获取图片 Blob 并缓存
-  if (props.src) {
-    fetch(props.src)
-      .then(res => res.blob())
-      .then(blob => saveToCache(blob))
-      .catch(() => {});
-  }
 }
 
 function onError() {
   loading.value = false;
   error.value = true;
-}
-
-// 加载图片
-async function loadImage() {
-  // 先检查缓存
-  const cached = await checkCache();
-  if (cached) return;
-  
-  // 缓存不存在，使用原始 URL
-  cachedUrl.value = null;
 }
 
 onMounted(() => {
@@ -158,13 +90,12 @@ onMounted(() => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           visible.value = true;
-          loadImage();
           observer.unobserve(entry.target);
         }
       });
     },
     {
-      rootMargin: '200px', // 提前 200px 开始加载
+      rootMargin: '200px',
       threshold: 0.1,
     }
   );
@@ -177,10 +108,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (observer) {
     observer.disconnect();
-  }
-  // 清理 Object URL
-  if (cachedUrl.value) {
-    URL.revokeObjectURL(cachedUrl.value);
   }
 });
 </script>
