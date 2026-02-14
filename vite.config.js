@@ -29,6 +29,39 @@ export default defineConfig({
           },
         ],
       },
+      // 图片缓存策略
+      runtimeCaching: [
+        {
+          // 缓存 Notion 图片 CDN
+          urlPattern: /^https:\/\/.*\.notion\.so\/.*/,
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'notion-images',
+            expiration: {
+              maxEntries: 100,
+              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 天
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+        {
+          // 缓存 Notion API 响应
+          urlPattern: /^https:\/\/api\.notion\.com\/v1\/.*/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'notion-api',
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 60 * 60, // 1 小时
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
     }),
   ],
   resolve: {
