@@ -1,180 +1,120 @@
 <template>
-  <div class="music-player fixed z-[10000] group" :style="{ top: '140px', right: '20px' }">
-    <!-- 悬停/点击展开的控制面板 -->
-    <Transition
-      enter-active-class="transition-all duration-300 ease-out"
-      enter-from-class="opacity-0 scale-90"
-      enter-to-class="opacity-100 scale-100"
-      leave-active-class="transition-all duration-200 ease-in"
-      leave-from-class="opacity-100 scale-100"
-      leave-to-class="opacity-0 scale-90"
-    >
-      <div 
-        v-show="showControls"
-        class="absolute bottom-0 right-16 sm:right-18 bg-card/95 dark:bg-card-dark/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl border border-border/30 dark:border-border-dark/30"
-        @mouseenter="showControls = true"
-        @mouseleave="showControls = false"
-      >
-        <!-- 歌曲信息 -->
-        <div class="min-w-[160px] max-w-[200px] mb-3">
-          <p class="text-sm font-medium text-text-main dark:text-text-main-dark truncate">
-            {{ currentSong?.title || '未加载' }}
-          </p>
-          <p class="text-xs text-text-secondary dark:text-text-secondary-dark truncate">
-            {{ currentSong?.artist || '点击播放' }}
-          </p>
-        </div>
-
-        <!-- 播放控制 -->
-        <div class="flex items-center justify-center gap-3">
-          <button
-            @click.stop="prev"
-            class="p-2 rounded-full hover:bg-primary/10 active:scale-95 transition-all"
-            :disabled="playlist.length === 0"
-          >
-            <SkipBack class="w-5 h-5 text-text-secondary dark:text-text-secondary-dark" />
-          </button>
-          
-          <button
-            @click.stop="toggle"
-            class="p-3 rounded-full bg-primary text-white hover:bg-primary/90 active:scale-95 transition-all"
-            :disabled="playlist.length === 0"
-          >
-            <Pause v-if="isPlaying" class="w-5 h-5" />
-            <Play v-else class="w-5 h-5" />
-          </button>
-          
-          <button
-            @click.stop="next"
-            class="p-2 rounded-full hover:bg-primary/10 active:scale-95 transition-all"
-            :disabled="playlist.length === 0"
-          >
-            <SkipForward class="w-5 h-5 text-text-secondary dark:text-text-secondary-dark" />
-          </button>
-        </div>
-
-        <!-- 进度条 -->
-        <div v-if="playlist.length > 0" class="mt-3">
-          <div class="h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden cursor-pointer" @click="seekTo">
-            <div 
-              class="h-full bg-primary transition-all duration-300"
-              :style="{ width: `${progress}%` }"
-            ></div>
-          </div>
-          <div class="flex justify-between mt-1 text-xs text-text-secondary dark:text-text-secondary-dark">
-            <span>{{ formatTime(currentTime) }}</span>
-            <span>{{ formatTime(duration) }}</span>
-          </div>
-        </div>
-      </div>
-    </Transition>
-
-    <!-- 唱片机主体 -->
-    <div 
-      class="relative w-14 h-14 sm:w-16 sm:h-16 cursor-pointer"
-      @click="handleClick"
-      @mouseenter="showControls = true"
-    >
-      <!-- 旋转底盘 -->
-      <div 
-        class="absolute inset-0 rounded-full shadow-xl transition-transform duration-500"
-        :class="{ 'animate-spin-slow': isPlaying }"
-        style="background: linear-gradient(145deg, #2a2a2a, #1a1a1a);"
-      >
-        <!-- 唱片纹理 -->
-        <div class="absolute inset-1 rounded-full overflow-hidden">
-          <div class="w-full h-full" style="background: linear-gradient(145deg, #1a1a1a, #0a0a0a);">
-            <!-- 音轨纹理 -->
-            <div class="absolute inset-2 rounded-full border-2" style="border-color: rgba(100,100,100,0.3)"></div>
-            <div class="absolute inset-4 rounded-full border-2" style="border-color: rgba(100,100,100,0.2)"></div>
-            <div class="absolute inset-6 rounded-full border-2" style="border-color: rgba(100,100,100,0.1)"></div>
-          </div>
-        </div>
-        
-        <!-- 中心标签 -->
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full shadow-lg" style="background: var(--color-primary, #D4A574);"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 隐藏的 audio 元素 -->
-    <audio
-      ref="audioEl"
-      :src="currentSong?.url"
-      @timeupdate="onTimeUpdate"
-      @loadedmetadata="onLoadedMetadata"
-      @ended="onEnded"
-      @play="isPlaying = true"
-      @pause="isPlaying = false"
-    ></audio>
-  </div>
+  <!-- 启用音乐按钮 -->
+  <button
+    v-if="!isEnabled"
+    @click="enableMusic"
+    class="music-enable-btn"
+    title="点击启用音乐"
+  >
+    🎵
+  </button>
+  
+  <!-- 播放器 -->
+  <div class="netease-mini-player music-player"
+    :class="{ 'player-ready': isEnabled }"
+    data-playlist-id="17760528164"
+    data-embed="false"
+    data-position="bottom-right"
+    data-lyric="false"
+    data-theme="auto"
+    data-autoplay="false"
+    data-default-minimized="true"
+  ></div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { Play, Pause, SkipBack, SkipForward } from 'lucide-vue-next';
-import { useMusicPlayer } from '@/composables/useMusicPlayer.js';
+import { ref, onMounted } from 'vue';
 
-const showControls = ref(false);
-const audioEl = ref(null);
+const isEnabled = ref(false);
 
-const {
-  playlist,
-  currentSong,
-  isPlaying,
-  currentTime,
-  duration,
-  toggle,
-  next,
-  prev,
-  onTimeUpdate,
-  onLoadedMetadata,
-  onEnded,
-  setAudioRef,
-  formatTime,
-} = useMusicPlayer();
+function enableMusic() {
+  isEnabled.value = true;
+  
+  // 加载 CSS
+  const linkEl = document.createElement('link');
+  linkEl.rel = 'stylesheet';
+  linkEl.href = '/netease-mini-player-v2.css';
+  document.head.appendChild(linkEl);
 
-const progress = computed(() => {
-  if (!duration.value) return 0;
-  return (currentTime.value / duration.value) * 100;
-});
-
-function handleClick() {
-  if (showControls.value) {
-    // 如果控制面板显示，点击唱片机则播放/暂停
-    toggle();
-  } else {
-    // 否则显示控制面板
-    showControls.value = true;
-  }
+  // 加载 JS
+  const scriptEl = document.createElement('script');
+  scriptEl.src = '/netease-mini-player-v2.js';
+  scriptEl.onload = () => {
+    console.log('NeteaseMiniPlayer loaded successfully');
+    
+    // 等待播放器初始化后手动播放
+    const checkPlayer = setInterval(() => {
+      const playerEl = document.querySelector('.music-player');
+      if (playerEl?.neteasePlayer?.audio) {
+        // 设置音量为 0.2
+        playerEl.neteasePlayer.audio.volume = 0.2;
+        playerEl.neteasePlayer.volume = 0.2;
+        
+        // 手动调用播放（用户点击后应该可以播放）
+        playerEl.neteasePlayer.play().then(() => {
+          console.log('音乐播放成功');
+        }).catch(err => {
+          console.log('播放失败:', err);
+        });
+        
+        clearInterval(checkPlayer);
+      }
+    }, 100);
+    
+    setTimeout(() => clearInterval(checkPlayer), 5000);
+  };
+  document.body.appendChild(scriptEl);
 }
-
-function seekTo(event) {
-  if (!audioEl.value || !duration.value) return;
-  const rect = event.target.getBoundingClientRect();
-  const percent = (event.clientX - rect.left) / rect.width;
-  audioEl.value.currentTime = percent * duration.value;
-}
-
-onMounted(() => {
-  if (audioEl.value) {
-    setAudioRef(audioEl.value);
-  }
-});
 </script>
 
-<style scoped>
-@keyframes spin-slow {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+<style>
+/* 启用音乐按钮 - 与烟花按钮风格一致 */
+.music-enable-btn {
+  position: fixed;
+  top: 150px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  font-size: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 9998;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
-.animate-spin-slow {
-  animation: spin-slow 3s linear infinite;
+.music-enable-btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+}
+
+/* 调整播放器位置和最小化大小，与烟花按钮一致 */
+.music-player {
+  top: 150px !important;
+  right: 20px !important;
+}
+
+/* 最小化状态 */
+.music-player.minimized {
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 50% !important;
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
+}
+
+/* 禁用自动最小化到边缘的动画 */
+.music-player.minimized.idle,
+.music-player.minimized.docked-right,
+.music-player.minimized.docked-left,
+.music-player.minimized.fading-out,
+.music-player.minimized.fading-in {
+  opacity: 1 !important;
+  transform: none !important;
+  animation: none !important;
 }
 </style>
