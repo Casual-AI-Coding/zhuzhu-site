@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/notion-api/:match*",
-      "destination": "/api/proxy.cjs"
+      "source": "/notion-api/(.*)",
+      "destination": "/api/proxy"
     }
   ]
 }
