@@ -75,11 +75,15 @@ export async function fetchPhotos() {
     return response.results.map(page => {
       const files = page.properties['图片']?.files || [];
       const imageUrl = files[0]?.file?.url || files[0]?.external?.url || '';
+      
+      // 优先使用 Notion 缩略图
+      const thumbnailUrl = page.thumbnail?.file?.url || page.thumbnail?.external?.url || '';
 
       return {
         id: page.id,
         title: page.properties['标题']?.rich_text[0]?.plain_text || '',
         url: imageUrl,
+        thumbnailUrl: thumbnailUrl, // 缩略图
         date: page.properties['日期']?.date?.start || '',
         place: page.properties['地点']?.place?.name || '',
         tags: page.properties['标签']?.multi_select?.map(tag => tag.name) || [],

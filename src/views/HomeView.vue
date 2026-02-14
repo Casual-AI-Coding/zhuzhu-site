@@ -65,7 +65,7 @@
             @click="$router.push('/gallery')"
           >
             <PhotoCard
-              :src="photo.url"
+              :src="photo.thumbnailUrl || photo.url"
               :alt="photo.title"
               :title="photo.title"
               :date="formatDate(photo.date)"

@@ -29,6 +29,8 @@ export default defineConfig({
           },
         ],
       },
+      // 用 Cache API 在主线程缓存
+      // 不通过 SW，直接在页面用 caches API
     }),
   ],
   resolve: {
