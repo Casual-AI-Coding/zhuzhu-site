@@ -62,6 +62,19 @@ export function useDaysCount() {
     });
   }
 
+  // 格式化日期+时间
+  function formatDateTime(dateString) {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+
   // 相对时间显示 (刚刚、5分钟前等)
   function formatRelativeTime(dateString) {
     if (!dateString) return '';
@@ -77,7 +90,7 @@ export function useDaysCount() {
     if (diffMin < 60) return `${diffMin}分钟前`;
     if (diffHour < 24) return `${diffHour}小时前`;
     if (diffDay < 7) return `${diffDay}天前`;
-    return formatDate(dateString);
+    return formatDateTime(dateString);
   }
 
   // 计算距离某日期还有多少天（可正可负，负数表示已过）
@@ -109,6 +122,7 @@ export function useDaysCount() {
     formattedStartDate,
     startDate: START_DATE,
     formatDate,
+    formatDateTime,
     formatRelativeTime,
     getDaysUntil,
   };

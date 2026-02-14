@@ -144,7 +144,7 @@ import { ref, onMounted, computed } from 'vue';
 import { fetchMessages, addMessage as addMessageToNotion } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
-const { formatDate, formatRelativeTime } = useDaysCount();
+const { formatDate, formatDateTime, formatRelativeTime } = useDaysCount();
 
 const newMessage = ref('');
 const sender = ref('猪猪');

@@ -121,7 +121,7 @@ export async function fetchMessages() {
     const response = await notionRequest(`/databases/${DATABASES.messages}/query`, {
       method: 'POST',
       body: JSON.stringify({
-        sorts: [{ property: '时间', direction: 'descending' }],
+        sorts: [{ timestamp: 'created_time', direction: 'descending' }],
       }),
     });
 
@@ -129,7 +129,7 @@ export async function fetchMessages() {
       id: page.id,
       content: page.properties['内容']?.rich_text[0]?.plain_text || '',
       sender: page.properties['发送者']?.select?.name || '',
-      time: page.properties['时间']?.date?.start || '',
+      time: page.createdTime,
       mood: page.properties['心情']?.select?.name || '',
     }));
   } catch (error) {
@@ -175,9 +175,6 @@ export async function addMessage(content, sender, mood = '开心') {
           '心情': {
             select: { name: mood },
           },
-          '时间': {
-            date: { start: new Date().toISOString().split('T')[0] },
-          },
         },
       }),
     });
@@ -186,7 +183,7 @@ export async function addMessage(content, sender, mood = '开心') {
       id: response.id,
       content,
       sender,
-      time: new Date().toISOString(),
+      time: response.createdTime,
       mood,
     };
   } catch (error) {
