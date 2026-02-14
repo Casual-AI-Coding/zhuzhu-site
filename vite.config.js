@@ -8,7 +8,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: '猪猪网站',
         short_name: '猪猪',
@@ -16,6 +16,9 @@ export default defineConfig({
         theme_color: '#D4A574',
         background_color: '#F5EDE4',
         display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/',
+        scope: '/',
         icons: [
           {
             src: '/icon-192.png',
@@ -27,10 +30,14 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
           },
+          {
+            src: '/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any maskable',
+          },
         ],
       },
-      // 用 Cache API 在主线程缓存
-      // 不通过 SW，直接在页面用 caches API
     }),
   ],
   resolve: {
