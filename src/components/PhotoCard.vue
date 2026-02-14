@@ -1,16 +1,15 @@
 <template>
-  <div class="relative rounded-2xl overflow-hidden bg-gray-100" :class="aspectClass">
+  <div ref="cardRef" class="relative rounded-2xl overflow-hidden bg-gray-100" :class="aspectClass">
     <!-- 加载占位符 -->
     <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-200">
       <div class="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
     </div>
     
-    <!-- 加载完成显示图片 -->
+    <!-- 图片：进入可视区域后加载 -->
     <img
       v-show="!loading && !error"
-      :src="src"
+      :src="visible ? src : undefined"
       :alt="alt"
-      loading="lazy"
       class="w-full h-full object-cover transition-all duration-500"
       :class="{ 'opacity-0': loading }"
       @load="onLoad"
@@ -52,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Image as ImageIcon, MapPin } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -70,6 +69,10 @@ const emit = defineEmits(['click']);
 
 const loading = ref(true);
 const error = ref(false);
+const visible = ref(false);
+const cardRef = ref(null);
+
+let observer = null;
 
 function onLoad() {
   loading.value = false;
@@ -79,4 +82,33 @@ function onError() {
   loading.value = false;
   error.value = true;
 }
+
+onMounted(() => {
+  // 使用 IntersectionObserver 实现预加载
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          // 进入可视区域时，触发加载
+          visible.value = true;
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      rootMargin: '200px', // 提前 200px 开始加载
+      threshold: 0.1,
+    }
+  );
+
+  if (cardRef.value) {
+    observer.observe(cardRef.value);
+  }
+});
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+});
 </script>
