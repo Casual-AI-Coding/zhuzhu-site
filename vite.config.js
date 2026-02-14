@@ -32,8 +32,8 @@ export default defineConfig({
       // 图片和 API 缓存策略
       runtimeCaching: [
         {
-          // 缓存图片 - 支持 Notion S3 和外部链接（带签名参数）
-          urlPattern: /^https:\/\/.*\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i,
+          // 缓存所有图片请求 - 简单粗暴
+          urlPattern: /^https:\/\/.+\.(png|jpg|jpeg|gif|webp|svg)/i,
           handler: 'StaleWhileRevalidate',
           options: {
             cacheName: 'images-cache',
