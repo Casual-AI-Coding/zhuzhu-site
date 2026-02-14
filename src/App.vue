@@ -30,6 +30,9 @@
         <ArrowUp class="w-5 h-5" />
       </button>
     </Transition>
+
+    <!-- Music Player -->
+    <MusicPlayer />
   </div>
 </template>
 
@@ -39,6 +42,7 @@ import Navigation from '@/components/Navigation.vue';
 import FallingHearts from '@/components/FallingHearts.vue';
 import ClickHearts from '@/components/ClickHearts.vue';
 import Fireworks from '@/components/Fireworks.vue';
+import MusicPlayer from '@/components/MusicPlayer.vue';
 import { ArrowUp } from 'lucide-vue-next';
 
 const showBackToTop = ref(false);
