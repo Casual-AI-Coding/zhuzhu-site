@@ -48,8 +48,12 @@
               </div>
             </div>
             <div class="text-right">
-              <p class="text-2xl font-display text-primary">{{ getDaysUntil(anniversary.date) }}</p>
-              <p class="text-text-secondary text-sm">天后</p>
+              <p class="text-2xl font-display" :class="getDaysUntil(anniversary.date) < 0 ? 'text-gray-400' : 'text-primary'">
+                {{ Math.abs(getDaysUntil(anniversary.date)) }}
+              </p>
+              <p class="text-text-secondary text-sm">
+                {{ getDaysUntil(anniversary.date) < 0 ? '天前' : getDaysUntil(anniversary.date) === 0 ? '就是今天!' : '天后' }}
+              </p>
             </div>
           </div>
         </div>

@@ -62,14 +62,14 @@ export function useDaysCount() {
     });
   }
 
-  // 计算距离某日期还有多少天
+  // 计算距离某日期还有多少天（可正可负，负数表示已过）
   function getDaysUntil(dateString) {
     if (!dateString) return 0;
     const target = new Date(dateString);
     const todayDate = new Date();
     const diffTime = target.getTime() - todayDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
+    return diffDays;
   }
   
   // 更新今天的日期（每天更新一次）

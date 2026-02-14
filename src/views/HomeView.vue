@@ -49,20 +49,17 @@
         
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
-            v-for="photo in photos.slice(0, 3)"
+            v-for="photo in photos.slice(0, featuredCount)"
             :key="photo.id"
-            class="relative aspect-square rounded-2xl overflow-hidden card-hover cursor-pointer group"
+            class="card-hover cursor-pointer"
+            @click="$router.push('/gallery')"
           >
-            <img
+            <PhotoCard
               :src="photo.url"
               :alt="photo.title"
-              class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              :title="photo.title"
+              :date="formatDate(photo.date)"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <p class="absolute bottom-4 left-4 text-white font-handwriting text-lg">
-                {{ photo.title }}
-              </p>
-            </div>
           </div>
         </div>
         
@@ -81,15 +78,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { Image } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchPhotos } from '@/lib/notion.js';
+import PhotoCard from '@/components/PhotoCard.vue';
 
-const { totalDays, nextMilestone, nextAnniversary, formattedStartDate } = useDaysCount();
+const { totalDays, nextMilestone, nextAnniversary, formattedStartDate, formatDate } = useDaysCount();
 
 const photos = ref([]);
 const loading = ref(true);
+
+// 根据屏幕宽度动态显示照片数量
+const featuredCount = computed(() => {
+  const width = window.innerWidth;
+  if (width >= 1024) return 3;
+  if (width >= 640) return 2;
+  return 1;
+});
 
 onMounted(async () => {
   photos.value = await fetchPhotos();
