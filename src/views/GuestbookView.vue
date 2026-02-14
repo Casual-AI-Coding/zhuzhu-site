@@ -91,8 +91,22 @@
       </div>
       
       <!-- Loading -->
-      <div v-if="loading" class="text-center text-text-secondary">
-        加载中...
+      <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-for="i in 4" :key="i" class="animate-pulse">
+          <div class="glass-nav rounded-2xl p-6">
+            <div class="flex items-start gap-3 mb-3">
+              <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+              <div class="space-y-2">
+                <div class="h-4 bg-gray-200 rounded w-20"></div>
+                <div class="h-3 bg-gray-200 rounded w-24"></div>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <div class="h-4 bg-gray-200 rounded w-full"></div>
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- Empty State -->

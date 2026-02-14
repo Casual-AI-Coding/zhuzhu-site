@@ -39,12 +39,22 @@
       <div class="mt-12 sm:mt-16">
         <h2 class="font-display text-xl sm:text-2xl text-text-main text-center mb-6 sm:mb-8">精选瞬间</h2>
         
-        <div v-if="loading" class="text-center text-text-secondary">
-          加载中...
+        <!-- Skeleton Loading -->
+        <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div v-for="i in featuredCount" :key="i" class="animate-pulse">
+            <div class="bg-card rounded-2xl overflow-hidden">
+              <div class="aspect-[4/3] bg-gray-200"></div>
+              <div class="p-4 space-y-2">
+                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div v-else-if="photos.length === 0" class="text-center text-text-secondary">
-          暂无照片
+        <div v-else-if="photos.length === 0" class="text-center py-12">
+          <div class="text-6xl mb-4">📷</div>
+          <p class="text-text-secondary">暂无照片</p>
         </div>
         
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

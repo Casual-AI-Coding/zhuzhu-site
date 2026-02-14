@@ -10,6 +10,7 @@
       v-show="!loading && !error"
       :src="src"
       :alt="alt"
+      loading="lazy"
       class="w-full h-full object-cover transition-all duration-500"
       :class="{ 'opacity-0': loading }"
       @load="onLoad"

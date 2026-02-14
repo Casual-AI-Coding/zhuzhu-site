@@ -12,8 +12,16 @@
       </div>
       
       <!-- Loading -->
-      <div v-if="loading" class="text-center text-text-secondary">
-        加载中...
+      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div v-for="i in 6" :key="i" class="animate-pulse">
+          <div class="bg-card rounded-2xl overflow-hidden">
+            <div class="aspect-[4/3] bg-gray-200"></div>
+            <div class="p-4 space-y-2">
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- Empty State -->
@@ -54,7 +62,11 @@
       <div
         v-if="selectedPhoto"
         class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-        @click="selectedPhoto = null"
+        @click="closeLightbox"
+        @wheel="handleWheel"
+        @touchstart="handleTouchStart"
+        @touchmove="handleTouchMove"
+        @touchend="handleTouchEnd"
       >
         <div class="max-w-4xl max-h-full" @click.stop>
           <!-- 错误降级 -->
@@ -64,14 +76,24 @@
               <p class="text-gray-400">图片加载失败</p>
             </div>
           </div>
-          <!-- 正常图片 -->
-          <img
+          <!-- 正常图片 - 支持缩放 -->
+          <div 
             v-show="!lightboxError"
-            :src="selectedPhoto.url"
-            :alt="selectedPhoto.title"
-            class="max-w-full max-h-[70vh] object-contain rounded-lg"
-            @error="lightboxError = true"
-          />
+            class="overflow-hidden"
+            :style="{ transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)` }"
+            style="transition: transform 0.1s ease-out"
+          >
+            <img
+              :src="selectedPhoto.url"
+              :alt="selectedPhoto.title"
+              class="max-w-full max-h-[70vh] object-contain rounded-lg"
+              @error="lightboxError = true"
+            />
+          </div>
+          <!-- 缩放提示 -->
+          <div class="text-center mt-2 text-white/50 text-xs">
+            滚轮/双指缩放 · ESC 关闭
+          </div>
           <!-- 详情信息 -->
           <div class="text-center mt-4 space-y-2">
             <p class="text-white font-handwriting text-xl">{{ selectedPhoto.title }}</p>
@@ -100,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Image as ImageIcon, MapPin } from 'lucide-vue-next';
 import { fetchPhotos } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
@@ -113,13 +135,75 @@ const loading = ref(true);
 const selectedPhoto = ref(null);
 const lightboxError = ref(false);
 
-onMounted(async () => {
-  photos.value = await fetchPhotos();
-  loading.value = false;
-});
+// 图片缩放
+const scale = ref(1);
+const isDragging = ref(false);
+const position = ref({ x: 0, y: 0 });
+const startPos = ref({ x: 0, y: 0 });
 
 function openLightbox(photo) {
   lightboxError.value = false;
   selectedPhoto.value = photo;
+  scale.value = 1;
+  position.value = { x: 0, y: 0 };
 }
+
+function closeLightbox() {
+  selectedPhoto.value = null;
+  scale.value = 1;
+  position.value = { x: 0, y: 0 };
+}
+
+// ESC 关闭
+function handleKeydown(e) {
+  if (e.key === 'Escape' && selectedPhoto.value) {
+    closeLightbox();
+  }
+}
+
+// 滚轮缩放
+function handleWheel(e) {
+  if (!selectedPhoto.value) return;
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -0.1 : 0.1;
+  scale.value = Math.min(Math.max(0.5, scale.value + delta), 4);
+}
+
+// 触摸缩放
+let initialDistance = 0;
+function handleTouchStart(e) {
+  if (e.touches.length === 2) {
+    initialDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+  }
+}
+
+function handleTouchMove(e) {
+  if (e.touches.length === 2 && initialDistance) {
+    e.preventDefault();
+    const currentDistance = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    const scaleDelta = currentDistance / initialDistance;
+    scale.value = Math.min(Math.max(0.5, scale.value * scaleDelta), 4);
+    initialDistance = currentDistance;
+  }
+}
+
+function handleTouchEnd() {
+  initialDistance = 0;
+}
+
+onMounted(async () => {
+  photos.value = await fetchPhotos();
+  loading.value = false;
+  window.addEventListener('keydown', handleKeydown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown);
+});
 </script>
