@@ -34,6 +34,9 @@
             :alt="photo.title"
             :title="photo.title"
             :date="formatDate(photo.date)"
+            :place="photo.place"
+            :tags="photo.tags"
+            :description="photo.description"
           />
         </div>
       </div>
@@ -53,7 +56,7 @@
         class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
         @click="selectedPhoto = null"
       >
-        <div class="max-w-4xl max-h-full">
+        <div class="max-w-4xl max-h-full" @click.stop>
           <!-- 错误降级 -->
           <div v-if="lightboxError" class="w-full h-[60vh] flex items-center justify-center bg-gray-800 rounded-lg">
             <div class="text-center">
@@ -66,10 +69,30 @@
             v-show="!lightboxError"
             :src="selectedPhoto.url"
             :alt="selectedPhoto.title"
-            class="max-w-full max-h-[80vh] object-contain rounded-lg"
+            class="max-w-full max-h-[70vh] object-contain rounded-lg"
             @error="lightboxError = true"
           />
-          <p class="text-white text-center mt-4 font-handwriting text-xl">{{ selectedPhoto.title }}</p>
+          <!-- 详情信息 -->
+          <div class="text-center mt-4 space-y-2">
+            <p class="text-white font-handwriting text-xl">{{ selectedPhoto.title }}</p>
+            <p class="text-white/60 text-sm">{{ formatDate(selectedPhoto.date) }}</p>
+            <div v-if="selectedPhoto.place" class="flex items-center justify-center gap-1 text-white/80 text-sm">
+              <MapPin class="w-4 h-4" />
+              <span>{{ selectedPhoto.place }}</span>
+            </div>
+            <div v-if="selectedPhoto.tags && selectedPhoto.tags.length" class="flex justify-center gap-2 mt-2">
+              <span 
+                v-for="tag in selectedPhoto.tags" 
+                :key="tag"
+                class="px-3 py-1 bg-white/10 rounded-full text-white/80 text-xs"
+              >
+                {{ tag }}
+              </span>
+            </div>
+            <p v-if="selectedPhoto.description" class="text-white/60 text-sm mt-3 max-w-md mx-auto">
+              {{ selectedPhoto.description }}
+            </p>
+          </div>
         </div>
       </div>
     </Transition>
@@ -78,7 +101,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Image as ImageIcon } from 'lucide-vue-next';
+import { Image as ImageIcon, MapPin } from 'lucide-vue-next';
 import { fetchPhotos } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import PhotoCard from '@/components/PhotoCard.vue';

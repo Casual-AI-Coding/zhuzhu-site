@@ -27,11 +27,24 @@
     <!-- 悬停层 -->
     <div 
       v-if="!error && !loading"
-      class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+      class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4"
     >
-      <div class="absolute bottom-4 left-4 right-4">
-        <p class="text-white font-handwriting text-lg mb-1">{{ title }}</p>
-        <p class="text-white/70 text-sm">{{ date }}</p>
+      <p class="text-white font-handwriting text-lg mb-1">{{ title }}</p>
+      <p class="text-white/70 text-sm mb-2">{{ date }}</p>
+      <!-- 地点 -->
+      <div v-if="place" class="flex items-center gap-1 text-white/80 text-sm mb-2">
+        <MapPin class="w-3.5 h-3.5" />
+        <span>{{ place }}</span>
+      </div>
+      <!-- 标签 -->
+      <div v-if="tags && tags.length" class="flex flex-wrap gap-1">
+        <span 
+          v-for="tag in tags" 
+          :key="tag"
+          class="px-2 py-0.5 bg-white/20 rounded-full text-white text-xs"
+        >
+          {{ tag }}
+        </span>
       </div>
     </div>
   </div>
@@ -39,13 +52,16 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Image as ImageIcon } from 'lucide-vue-next';
+import { Image as ImageIcon, MapPin } from 'lucide-vue-next';
 
 const props = defineProps({
   src: { type: String, required: true },
   alt: { type: String, default: '' },
   title: { type: String, default: '' },
   date: { type: String, default: '' },
+  place: { type: String, default: '' },
+  tags: { type: Array, default: () => [] },
+  description: { type: String, default: '' },
   aspectClass: { type: String, default: 'aspect-square' },
 });
 
