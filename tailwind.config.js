@@ -4,20 +4,29 @@ export default {
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       screens: {
         'xs': '480px',
       },
       colors: {
-        primary: '#D4A574',
-        background: '#F5EDE4',
-        card: '#FFF8F0',
-        text: {
-          main: '#3D3D3D',
-          secondary: '#8B7355',
+        primary: {
+          DEFAULT: 'var(--color-primary)',
         },
-        border: '#E8DDD0',
+        background: {
+          DEFAULT: 'var(--color-background)',
+        },
+        card: {
+          DEFAULT: 'var(--color-card)',
+        },
+        text: {
+          main: 'var(--color-text-main)',
+          secondary: 'var(--color-text-secondary)',
+        },
+        border: {
+          DEFAULT: 'var(--color-border)',
+        },
       },
       fontFamily: {
         display: ['Playfair Display', 'serif'],

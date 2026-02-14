@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #D4A574;
+  --color-background: #F5EDE4;
+  --color-card: #FFF8F0;
+  --color-text-main: #3D3D3D;
+  --color-text-secondary: #8B7355;
+  --color-border: #E8DDD0;
+}
+
+.dark {
+  --color-primary: #E8C9A8;
+  --color-background: #1A1A2E;
+  --color-card: #252542;
+  --color-text-main: #E8E8E8;
+  --color-text-secondary: #A0A0A0;
+  --color-border: #3D3D5C;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -14,7 +32,9 @@
 
 @layer components {
   .glass-nav {
-    @apply bg-card/80 backdrop-blur-md border border-border/50;
+    @apply backdrop-blur-md border;
+    background-color: rgb(from var(--color-card) r g b / 80%);
+    border-color: rgb(from var(--color-border) r g b / 50%);
   }
   
   .film-grain {
@@ -27,6 +47,10 @@
     z-index: 9999;
     opacity: 0.03;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  
+  .dark .film-grain {
+    opacity: 0.05;
   }
   
   .card-hover {

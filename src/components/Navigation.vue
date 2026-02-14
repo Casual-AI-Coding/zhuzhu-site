@@ -17,16 +17,37 @@
             :label="item.label"
             :icon="item.icon"
           />
+          
+          <!-- Dark Mode Toggle -->
+          <button
+            @click="toggleDark"
+            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors ml-2"
+          >
+            <Sun v-if="isDark" class="w-5 h-5 text-primary" />
+            <Moon v-else class="w-5 h-5 text-text-main" />
+          </button>
         </div>
         
-        <!-- Mobile Menu Button -->
-        <button 
-          @click="isMobileMenuOpen = !isMobileMenuOpen"
-          class="md:hidden p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
-        >
-          <Menu v-if="!isMobileMenuOpen" class="w-6 h-6 text-text-main" />
-          <X v-else class="w-6 h-6 text-text-main" />
-        </button>
+        <!-- Mobile Right Buttons -->
+        <div class="flex items-center gap-1 md:hidden">
+          <!-- Dark Mode Toggle -->
+          <button
+            @click="toggleDark"
+            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
+          >
+            <Sun v-if="isDark" class="w-5 h-5 text-primary" />
+            <Moon v-else class="w-5 h-5 text-text-main" />
+          </button>
+          
+          <!-- Mobile Menu Button -->
+          <button 
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
+          >
+            <Menu v-if="!isMobileMenuOpen" class="w-6 h-6 text-text-main dark:text-text-main-dark" />
+            <X v-else class="w-6 h-6 text-text-main dark:text-text-main-dark" />
+          </button>
+        </div>
       </div>
       
       <!-- Mobile Menu -->
@@ -38,7 +59,7 @@
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-2"
       >
-        <div v-if="isMobileMenuOpen" class="md:hidden mt-3 pt-3 border-t border-border/50">
+        <div v-if="isMobileMenuOpen" class="md:hidden mt-3 pt-3 border-t border-border/50 dark:border-border-dark/50">
           <div class="flex flex-col gap-1">
             <MobileNavLink
               v-for="item in navItems"
@@ -57,9 +78,12 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Heart, Menu, X, Home, Calendar, Image, Clock, MessageCircle } from 'lucide-vue-next';
+import { Heart, Menu, X, Home, Calendar, Image, Clock, MessageCircle, Sun, Moon } from 'lucide-vue-next';
 import NavLink from './NavLink.vue';
 import MobileNavLink from './MobileNavLink.vue';
+import { useDarkMode } from '@/composables/useDarkMode.js';
+
+const { isDark, toggle: toggleDark } = useDarkMode();
 
 const isMobileMenuOpen = ref(false);
 
