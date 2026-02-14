@@ -39,7 +39,7 @@ export default defineConfig({
             cacheName: 'notion-images',
             expiration: {
               maxEntries: 100,
-              maxAgeSeconds: 60 * 60 * 24 * 30, // 30 天
+              maxAgeSeconds: 60 * 60 * 24 * 7, // 7 天
             },
             cacheableResponse: {
               statuses: [0, 200],
@@ -54,7 +54,7 @@ export default defineConfig({
             cacheName: 'notion-api',
             expiration: {
               maxEntries: 50,
-              maxAgeSeconds: 60 * 5, // 5 分钟
+              maxAgeSeconds: 60, // 1 分钟
             },
             cacheableResponse: {
               statuses: [0, 200],
