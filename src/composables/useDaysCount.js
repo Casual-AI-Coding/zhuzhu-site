@@ -13,33 +13,49 @@ export function useDaysCount() {
     return Math.max(0, diffDays);
   });
   
-  // 计算下一个100天纪念日
+  // 计算下一个百天纪念日（一定是未来的）
   const nextMilestone = computed(() => {
     const days = totalDays.value;
     const nextHundred = Math.ceil((days + 1) / 100) * 100;
     const daysUntilNext = nextHundred - days;
     return {
       days: nextHundred,
-      until: daysUntilNext,
+      daysUntil: daysUntilNext,
+      isPast: false,
     };
   });
   
-  // 计算周年纪念日
+  // 计算下一个周年纪念日（一定是未来的）
   const nextAnniversary = computed(() => {
-    const startYear = START_DATE.getFullYear();
-    const currentYear = today.value.getFullYear();
+    const days = totalDays.value;
+    const currentYear = Math.floor(days / 365);
     const nextYear = currentYear + 1;
-    
-    const nextDate = new Date(START_DATE);
-    nextDate.setFullYear(nextYear);
-    
-    const diffTime = nextDate.getTime() - today.value.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const daysInCurrentYear = days % 365;
+    const daysUntilNextYear = 365 - daysInCurrentYear;
     
     return {
-      year: nextYear - startYear,
-      daysUntil: diffDays,
+      year: nextYear,
+      daysUntil: daysUntilNextYear,
+      isPast: false,
     };
+  });
+  
+  // 获取最近百天的详细日期
+  const nearestMilestoneDate = computed(() => {
+    const milestone = nearestMilestone.value;
+    const targetDate = new Date(START_DATE);
+    targetDate.setDate(targetDate.getDate() + milestone.days);
+    targetDate.setHours(0, 0, 0, 0);
+    return targetDate;
+  });
+  
+  // 获取最近周年的详细日期
+  const nearestAnniversaryDate = computed(() => {
+    const anniversary = nearestAnniversary.value;
+    const targetDate = new Date(START_DATE);
+    targetDate.setFullYear(START_DATE.getFullYear() + anniversary.year);
+    targetDate.setHours(0, 0, 0, 0);
+    return targetDate;
   });
   
   // 格式化日期显示
@@ -122,15 +138,20 @@ export function useDaysCount() {
   
   // 获取下次纪念日的详细日期
   const nextAnniversaryDate = computed(() => {
-    const startYear = START_DATE.getFullYear();
-    const currentYear = today.value.getFullYear();
-    const nextYear = currentYear + 1;
-    
-    const nextDate = new Date(START_DATE);
-    nextDate.setFullYear(nextYear);
-    nextDate.setHours(0, 0, 0, 0);
-    
-    return nextDate;
+    const anniversary = nextAnniversary.value;
+    const targetDate = new Date(START_DATE);
+    targetDate.setFullYear(START_DATE.getFullYear() + anniversary.year);
+    targetDate.setHours(0, 0, 0, 0);
+    return targetDate;
+  });
+  
+  // 获取下次百天纪念日的详细日期
+  const nextMilestoneDate = computed(() => {
+    const milestone = nextMilestone.value;
+    const targetDate = new Date(START_DATE);
+    targetDate.setDate(targetDate.getDate() + milestone.days);
+    targetDate.setHours(0, 0, 0, 0);
+    return targetDate;
   });
   
   // 更新今天的日期（每天更新一次）
@@ -144,10 +165,11 @@ export function useDaysCount() {
   onUnmounted(() => {
     if (intervalId) clearInterval(intervalId);
   });
-  
+
   return {
     totalDays,
     nextMilestone,
+    nextMilestoneDate,
     nextAnniversary,
     nextAnniversaryDate,
     formattedStartDate,

@@ -23,17 +23,30 @@
         
         <!-- Next Milestone & Countdown -->
         <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[140px]">
-            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextMilestone.days }} 天</p>
-            <p class="text-xl sm:text-2xl font-display text-primary">{{ nextMilestone.until }} 天</p>
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px]">
+            <p class="text-text-secondary text-xs sm:text-sm mb-2 text-center">距离 {{ nextMilestone.days }} 天</p>
+            <div v-if="milestoneCountdown" class="flex items-baseline justify-center gap-1 text-primary">
+              <span class="text-xl sm:text-2xl font-display font-bold">{{ milestoneCountdown.days }}</span>
+              <span class="text-xs">天</span>
+              <span class="text-xl sm:text-2xl font-display font-bold">{{ milestoneCountdown.hours }}</span>
+              <span class="text-xs">时</span>
+              <span class="text-xl sm:text-2xl font-display font-bold">{{ milestoneCountdown.minutes }}</span>
+              <span class="text-xs">分</span>
+            </div>
+            <p v-else class="text-xl sm:text-2xl font-display text-primary text-center">{{ nextMilestone.daysUntil }} 天</p>
           </div>
           
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[140px]">
-            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextAnniversary.year }} 周年</p>
-            <p v-if="countdown" class="text-xl sm:text-2xl font-display text-primary">
-              {{ countdown.days }}天 {{ countdown.hours }}时 {{ countdown.minutes }}分
-            </p>
-            <p v-else class="text-xl sm:text-2xl font-display text-primary">{{ nextAnniversary.daysUntil }} 天</p>
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px]">
+            <p class="text-text-secondary text-xs sm:text-sm mb-2 text-center">距离 {{ nextAnniversary.year }} 周年</p>
+            <div v-if="countdown" class="flex items-baseline justify-center gap-1 text-primary">
+              <span class="text-xl sm:text-2xl font-display font-bold">{{ countdown.days }}</span>
+              <span class="text-xs">天</span>
+              <span class="text-xl sm:text-2xl font-display font-bold">{{ countdown.hours }}</span>
+              <span class="text-xs">时</span>
+              <span class="text-xl sm:text-2xl font-display font-bold">{{ countdown.minutes }}</span>
+              <span class="text-xs">分</span>
+            </div>
+            <p v-else class="text-xl sm:text-2xl font-display text-primary text-center">{{ nextAnniversary.daysUntil }} 天</p>
           </div>
         </div>
       </div>
@@ -97,16 +110,18 @@ import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchPhotos } from '@/lib/notion.js';
 import PhotoCard from '@/components/PhotoCard.vue';
 
-const { totalDays, nextMilestone, nextAnniversary, nextAnniversaryDate, formattedStartDate, formatDate, getCountdown } = useDaysCount();
+const { totalDays, nextMilestone, nextMilestoneDate, nextAnniversary, nextAnniversaryDate, formattedStartDate, formatDate, getCountdown } = useDaysCount();
 
 const photos = ref([]);
 const loading = ref(true);
 const countdown = ref(null);
+const milestoneCountdown = ref(null);
 
 let countdownTimer = null;
 
 function updateCountdown() {
   countdown.value = getCountdown(nextAnniversaryDate.value);
+  milestoneCountdown.value = getCountdown(nextMilestoneDate.value);
 }
 
 // 根据屏幕宽度动态显示照片数量
