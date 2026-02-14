@@ -54,7 +54,7 @@ export default defineConfig({
             cacheName: 'notion-api',
             expiration: {
               maxEntries: 50,
-              maxAgeSeconds: 60 * 60, // 1 小时
+              maxAgeSeconds: 60 * 5, // 5 分钟
             },
             cacheableResponse: {
               statuses: [0, 200],
