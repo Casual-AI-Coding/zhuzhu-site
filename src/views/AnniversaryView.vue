@@ -2,19 +2,19 @@
   <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
       <!-- Header -->
-      <div class="text-center mb-12">
-        <h1 class="font-display text-4xl sm:text-5xl text-text-main mb-4">
+      <div class="text-center mb-8 sm:mb-12">
+        <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl text-text-main mb-3 sm:mb-4">
           纪念日
         </h1>
-        <p class="text-text-secondary text-lg">
+        <p class="text-text-secondary text-sm sm:text-lg">
           记录我们共同的每一个重要时刻
         </p>
       </div>
       
       <!-- Days Counter Card -->
-      <div class="glass-nav rounded-3xl p-8 mb-12 text-center">
+      <div class="glass-nav rounded-3xl p-6 sm:p-8 mb-8 sm:mb-12 text-center">
         <p class="text-text-secondary mb-2">我们在一起已经</p>
-        <div class="text-6xl sm:text-7xl font-display text-primary font-bold mb-2">
+        <div class="text-4xl sm:text-6xl lg:text-7xl font-display text-primary font-bold mb-2">
           {{ totalDays }}
         </div>
         <p class="text-text-secondary">天</p>

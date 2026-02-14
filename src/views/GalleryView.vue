@@ -2,11 +2,11 @@
   <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
-      <div class="text-center mb-12">
-        <h1 class="font-display text-4xl sm:text-5xl text-text-main mb-4">
+      <div class="text-center mb-8 sm:mb-12">
+        <h1 class="font-display text-3xl sm:text-4xl lg:text-5xl text-text-main mb-3 sm:mb-4">
           相册墙
         </h1>
-        <p class="text-text-secondary text-lg">
+        <p class="text-text-secondary text-sm sm:text-lg">
           记录我们的每一个美好瞬间
         </p>
       </div>

@@ -7,37 +7,37 @@
           从 {{ formattedStartDate }} 开始
         </p>
         
-        <h1 class="font-display text-5xl sm:text-7xl text-text-main mb-6">
+        <h1 class="font-display text-3xl sm:text-5xl lg:text-7xl text-text-main mb-4 sm:mb-6">
           我们在一起
         </h1>
         
         <!-- Days Counter -->
         <div class="relative inline-block">
-          <div class="text-8xl sm:text-9xl font-display text-primary font-bold tracking-tight">
+          <div class="text-5xl sm:text-7xl lg:text-9xl font-display text-primary font-bold tracking-tight">
             {{ totalDays }}
           </div>
-          <div class="text-xl sm:text-2xl text-text-secondary mt-2">
+          <div class="text-base sm:text-xl lg:text-2xl text-text-secondary mt-1 sm:mt-2">
             天
           </div>
         </div>
         
         <!-- Next Milestone -->
-        <div class="mt-8 flex flex-wrap justify-center gap-4">
-          <div class="glass-nav rounded-2xl px-6 py-4">
-            <p class="text-text-secondary text-sm mb-1">距离 {{ nextMilestone.days }} 天还有</p>
-            <p class="text-2xl font-display text-primary">{{ nextMilestone.until }} 天</p>
+        <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
+            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextMilestone.days }} 天还有</p>
+            <p class="text-xl sm:text-2xl font-display text-primary">{{ nextMilestone.until }} 天</p>
           </div>
           
-          <div class="glass-nav rounded-2xl px-6 py-4">
-            <p class="text-text-secondary text-sm mb-1">距离 {{ nextAnniversary.year }} 周年还有</p>
-            <p class="text-2xl font-display text-primary">{{ nextAnniversary.daysUntil }} 天</p>
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
+            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextAnniversary.year }} 周年还有</p>
+            <p class="text-xl sm:text-2xl font-display text-primary">{{ nextAnniversary.daysUntil }} 天</p>
           </div>
         </div>
       </div>
       
       <!-- Featured Photos Preview -->
-      <div class="mt-16">
-        <h2 class="font-display text-2xl text-text-main text-center mb-8">精选瞬间</h2>
+      <div class="mt-12 sm:mt-16">
+        <h2 class="font-display text-xl sm:text-2xl text-text-main text-center mb-6 sm:mb-8">精选瞬间</h2>
         
         <div v-if="loading" class="text-center text-text-secondary">
           加载中...
