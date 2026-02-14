@@ -22,7 +22,7 @@
         <!-- Mobile Menu Button -->
         <button 
           @click="isMobileMenuOpen = !isMobileMenuOpen"
-          class="md:hidden p-2 rounded-lg hover:bg-primary/10 transition-colors"
+          class="md:hidden p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
         >
           <Menu v-if="!isMobileMenuOpen" class="w-6 h-6 text-text-main" />
           <X v-else class="w-6 h-6 text-text-main" />

@@ -69,7 +69,7 @@
         <div class="text-center mt-8">
           <RouterLink
             to="/gallery"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 active:bg-primary/80 transition-colors"
           >
             <Image class="w-5 h-5" />
             查看更多照片

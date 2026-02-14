@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="to"
-    class="flex items-center gap-3 px-4 py-3 rounded-xl text-text-secondary hover:text-text-main hover:bg-primary/5 transition-all duration-300"
+    class="flex items-center gap-3 px-4 py-3 rounded-xl text-text-secondary hover:text-text-main hover:bg-primary/5 active:bg-primary/10 transition-all duration-300"
     :class="isActive ? 'text-primary bg-primary/5' : ''"
     @click="$emit('click')"
   >

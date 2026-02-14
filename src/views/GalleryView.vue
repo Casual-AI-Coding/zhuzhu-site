@@ -26,22 +26,15 @@
         <div
           v-for="photo in photos"
           :key="photo.id"
-          class="break-inside-avoid rounded-2xl overflow-hidden card-hover cursor-pointer group"
+          class="break-inside-avoid card-hover cursor-pointer group"
           @click="openLightbox(photo)"
         >
-          <div class="relative">
-            <img
-              :src="photo.url"
-              :alt="photo.title"
-              class="w-full h-auto object-cover"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div class="absolute bottom-4 left-4 right-4">
-                <p class="text-white font-handwriting text-lg mb-1">{{ photo.title }}</p>
-                <p class="text-white/70 text-sm">{{ formatDate(photo.date) }}</p>
-              </div>
-            </div>
-          </div>
+          <PhotoCard
+            :src="photo.url"
+            :alt="photo.title"
+            :title="photo.title"
+            :date="formatDate(photo.date)"
+          />
         </div>
       </div>
     </div>
@@ -61,10 +54,20 @@
         @click="selectedPhoto = null"
       >
         <div class="max-w-4xl max-h-full">
+          <!-- 错误降级 -->
+          <div v-if="lightboxError" class="w-full h-[60vh] flex items-center justify-center bg-gray-800 rounded-lg">
+            <div class="text-center">
+              <ImageIcon class="w-16 h-16 text-gray-500 mx-auto mb-4" />
+              <p class="text-gray-400">图片加载失败</p>
+            </div>
+          </div>
+          <!-- 正常图片 -->
           <img
+            v-show="!lightboxError"
             :src="selectedPhoto.url"
             :alt="selectedPhoto.title"
             class="max-w-full max-h-[80vh] object-contain rounded-lg"
+            @error="lightboxError = true"
           />
           <p class="text-white text-center mt-4 font-handwriting text-xl">{{ selectedPhoto.title }}</p>
         </div>
@@ -75,14 +78,17 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { Image as ImageIcon } from 'lucide-vue-next';
 import { fetchPhotos } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
+import PhotoCard from '@/components/PhotoCard.vue';
 
 const { formatDate } = useDaysCount();
 
 const photos = ref([]);
 const loading = ref(true);
 const selectedPhoto = ref(null);
+const lightboxError = ref(false);
 
 onMounted(async () => {
   photos.value = await fetchPhotos();
@@ -90,6 +96,7 @@ onMounted(async () => {
 });
 
 function openLightbox(photo) {
+  lightboxError.value = false;
   selectedPhoto.value = photo;
 }
 </script>
