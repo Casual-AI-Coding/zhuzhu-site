@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/notion-api/:match*", "destination": "/api/notion/:match*" }
+  ]
+}
