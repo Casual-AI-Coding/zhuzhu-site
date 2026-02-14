@@ -1,5 +1,19 @@
 <template>
-  <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+  <div 
+    class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8"
+    @touchstart="handlePullStart"
+    @touchmove="handlePullMove"
+    @touchend="handlePullEnd"
+  >
+    <!-- Pull to refresh indicator -->
+    <div 
+      v-if="refreshing"
+      class="fixed top-20 left-1/2 -translate-x-1/2 px-4 py-2 bg-primary text-white rounded-full shadow-lg z-50 flex items-center gap-2"
+    >
+      <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+      <span class="text-sm">刷新中...</span>
+    </div>
+    
     <div class="max-w-4xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-8 sm:mb-12">
@@ -22,7 +36,7 @@
             <p class="text-white font-medium">{{ toast.message }}</p>
           </div>
         </Transition>
-        
+         
         <textarea
           ref="textareaRef"
           v-model="newMessage"
@@ -32,6 +46,7 @@
           :rows="textareaRows"
           :maxlength="MAX_LENGTH + 50"
           @keydown="handleKeydown"
+          @focus="handleFocus"
         ></textarea>
         
         <!-- 字符计数 -->
@@ -48,7 +63,7 @@
             <button
               v-for="moodItem in moodOptions"
               :key="moodItem.value"
-              @click="mood = moodItem.value"
+              @click="mood = moodItem.value; triggerHaptic()"
               class="w-9 h-9 rounded-lg text-lg flex items-center justify-center transition-all"
               :class="mood === moodItem.value 
                 ? 'bg-primary/20 ring-2 ring-primary' 
@@ -67,7 +82,7 @@
             <button
               v-for="senderItem in senderOptions"
               :key="senderItem.value"
-              @click="sender = senderItem.value"
+              @click="sender = senderItem.value; triggerHaptic()"
               class="flex-none flex items-center justify-center gap-0.5 sm:gap-1.5 px-1 py-2 sm:px-3 rounded-lg text-[10px] sm:text-sm transition-all whitespace-nowrap"
               :class="sender === senderItem.value 
                 ? 'bg-primary text-white' 
@@ -78,7 +93,7 @@
             </button>
           </div>
           <button
-            @click="addMessage"
+            @click="addMessage(); triggerHaptic()"
             class="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-primary to-pink-400 text-white rounded-xl font-medium hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25 whitespace-nowrap"
             :disabled="!newMessage.trim() || sending || isOverLimit"
           >
@@ -154,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { fetchMessages, addMessage as addMessageToNotion } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
@@ -166,6 +181,7 @@ const mood = ref('开心');
 const messages = ref([]);
 const loading = ref(true);
 const sending = ref(false);
+const refreshing = ref(false);
 const textareaRef = ref(null);
 
 const MAX_LENGTH = 500;
@@ -269,6 +285,19 @@ function handleKeydown(e) {
   }
 }
 
+// 移动端键盘避让
+function handleFocus() {
+  // 延迟执行，确保键盘已弹出
+  setTimeout(() => {
+    if (textareaRef.value) {
+      textareaRef.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, 300);
+}
+
 // 长按复制
 let pressTimer = null;
 function handleTouchStart(e, content) {
@@ -289,6 +318,39 @@ function handleContextMenu(e, content) {
   e.preventDefault();
   navigator.clipboard.writeText(content);
   showToast('已复制到剪贴板', 'success');
+}
+
+// 下拉刷新
+let pullStartY = 0;
+function handlePullStart(e) {
+  if (window.scrollY === 0) {
+    pullStartY = e.touches[0].clientY;
+  }
+}
+
+function handlePullMove(e) {
+  if (pullStartY > 0 && window.scrollY === 0) {
+    const pullCurrentY = e.touches[0].clientY;
+    if (pullCurrentY - pullStartY > 100 && !refreshing.value && !loading.value) {
+      refreshing.value = true;
+      fetchMessages().then(() => {
+        refreshing.value = false;
+        showToast('刷新成功', 'success');
+      });
+      pullStartY = 0;
+    }
+  }
+}
+
+function handlePullEnd() {
+  pullStartY = 0;
+}
+
+// 触感反馈
+function triggerHaptic() {
+  if (navigator.vibrate) {
+    navigator.vibrate(10);
+  }
 }
 </script>
 

@@ -103,6 +103,36 @@ export function useDaysCount() {
     return diffDays;
   }
   
+  // 获取详细倒计时（天、时、分、秒）
+  function getCountdown(dateString) {
+    if (!dateString) return null;
+    const target = new Date(dateString);
+    const now = new Date();
+    const diffMs = target.getTime() - now.getTime();
+    
+    if (diffMs <= 0) return null;
+    
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+    
+    return { days, hours, minutes, seconds };
+  }
+  
+  // 获取下次纪念日的详细日期
+  const nextAnniversaryDate = computed(() => {
+    const startYear = START_DATE.getFullYear();
+    const currentYear = today.value.getFullYear();
+    const nextYear = currentYear + 1;
+    
+    const nextDate = new Date(START_DATE);
+    nextDate.setFullYear(nextYear);
+    nextDate.setHours(0, 0, 0, 0);
+    
+    return nextDate;
+  });
+  
   // 更新今天的日期（每天更新一次）
   let intervalId;
   onMounted(() => {
@@ -119,11 +149,13 @@ export function useDaysCount() {
     totalDays,
     nextMilestone,
     nextAnniversary,
+    nextAnniversaryDate,
     formattedStartDate,
     startDate: START_DATE,
     formatDate,
     formatDateTime,
     formatRelativeTime,
     getDaysUntil,
+    getCountdown,
   };
 }

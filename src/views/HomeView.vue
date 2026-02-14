@@ -21,16 +21,19 @@
           </div>
         </div>
         
-        <!-- Next Milestone -->
+        <!-- Next Milestone & Countdown -->
         <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
-            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextMilestone.days }} 天还有</p>
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[140px]">
+            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextMilestone.days }} 天</p>
             <p class="text-xl sm:text-2xl font-display text-primary">{{ nextMilestone.until }} 天</p>
           </div>
           
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4">
-            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextAnniversary.year }} 周年还有</p>
-            <p class="text-xl sm:text-2xl font-display text-primary">{{ nextAnniversary.daysUntil }} 天</p>
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[140px]">
+            <p class="text-text-secondary text-xs sm:text-sm mb-1">距离 {{ nextAnniversary.year }} 周年</p>
+            <p v-if="countdown" class="text-xl sm:text-2xl font-display text-primary">
+              {{ countdown.days }}天 {{ countdown.hours }}时 {{ countdown.minutes }}分
+            </p>
+            <p v-else class="text-xl sm:text-2xl font-display text-primary">{{ nextAnniversary.daysUntil }} 天</p>
           </div>
         </div>
       </div>
@@ -88,16 +91,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Image } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchPhotos } from '@/lib/notion.js';
 import PhotoCard from '@/components/PhotoCard.vue';
 
-const { totalDays, nextMilestone, nextAnniversary, formattedStartDate, formatDate } = useDaysCount();
+const { totalDays, nextMilestone, nextAnniversary, nextAnniversaryDate, formattedStartDate, formatDate, getCountdown } = useDaysCount();
 
 const photos = ref([]);
 const loading = ref(true);
+const countdown = ref(null);
+
+let countdownTimer = null;
+
+function updateCountdown() {
+  countdown.value = getCountdown(nextAnniversaryDate.value);
+}
 
 // 根据屏幕宽度动态显示照片数量
 const featuredCount = computed(() => {
@@ -110,5 +120,11 @@ const featuredCount = computed(() => {
 onMounted(async () => {
   photos.value = await fetchPhotos();
   loading.value = false;
+  updateCountdown();
+  countdownTimer = setInterval(updateCountdown, 1000);
+});
+
+onUnmounted(() => {
+  if (countdownTimer) clearInterval(countdownTimer);
 });
 </script>
