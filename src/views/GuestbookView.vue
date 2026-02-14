@@ -50,28 +50,29 @@
         </div>
         
         <!-- 发送者 + 发送按钮 -->
-        <div class="flex items-center justify-between mt-4">
-          <div class="flex items-center gap-2 bg-card rounded-xl p-1 border border-border">
+        <div class="flex items-center justify-between gap-2 mt-4">
+          <!-- 发送者选择器 -->
+          <div class="flex sm:inline-flex justify-start bg-card rounded-xl p-1 border border-border">
             <button
               v-for="senderItem in senderOptions"
               :key="senderItem.value"
               @click="sender = senderItem.value"
-              class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all"
+              class="flex-none flex items-center justify-center gap-0.5 sm:gap-1.5 px-1 py-2 sm:px-3 rounded-lg text-[9px] sm:text-sm transition-all whitespace-nowrap"
               :class="sender === senderItem.value 
                 ? 'bg-primary text-white' 
                 : 'text-text-secondary hover:text-text-main hover:bg-primary/5'"
             >
-              <span>{{ senderItem.emoji }}</span>
+              <span class="text-[10px] sm:text-sm">{{ senderItem.emoji }}</span>
               <span>{{ senderItem.label }}</span>
             </button>
           </div>
           <button
             @click="addMessage"
-            class="px-6 py-2.5 bg-gradient-to-r from-primary to-pink-400 text-white rounded-xl font-medium hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25"
+            class="px-4 py-2 sm:px-6 sm:py-2.5 bg-gradient-to-r from-primary to-pink-400 text-white rounded-xl font-medium hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/25 whitespace-nowrap"
             :disabled="!newMessage.trim() || sending"
           >
             <span v-if="sending">发送中...</span>
-            <span v-else class="flex items-center gap-2">
+            <span v-else class="flex items-center gap-1 sm:gap-2">
               {{ moodEmoji[mood] }} 发送
             </span>
           </button>
