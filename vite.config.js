@@ -29,39 +29,6 @@ export default defineConfig({
           },
         ],
       },
-      // 图片和 API 缓存策略
-      runtimeCaching: [
-        {
-          // 缓存所有图片请求 - 简单粗暴
-          urlPattern: /^https:\/\/.+\.(png|jpg|jpeg|gif|webp|svg)/i,
-          handler: 'StaleWhileRevalidate',
-          options: {
-            cacheName: 'images-cache',
-            expiration: {
-              maxEntries: 100,
-              maxAgeSeconds: 60 * 60 * 24 * 7, // 7 天
-            },
-            cacheableResponse: {
-              statuses: [0, 200],
-            },
-          },
-        },
-        {
-          // 缓存 Notion API 响应
-          urlPattern: /^https:\/\/api\.notion\.com\/v1\/.*/,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'notion-api',
-            expiration: {
-              maxEntries: 50,
-              maxAgeSeconds: 60, // 1 分钟
-            },
-            cacheableResponse: {
-              statuses: [0, 200],
-            },
-          },
-        },
-      ],
     }),
   ],
   resolve: {
