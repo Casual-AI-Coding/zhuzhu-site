@@ -201,9 +201,19 @@ onMounted(async () => {
   photos.value = await fetchPhotos();
   loading.value = false;
   window.addEventListener('keydown', handleKeydown);
+  window.addEventListener('refresh-data', handleRefresh);
 });
+
+function handleRefresh() {
+  loading.value = true;
+  fetchPhotos().then(data => {
+    photos.value = data;
+    loading.value = false;
+  });
+}
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown);
+  window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>

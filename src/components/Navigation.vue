@@ -18,10 +18,19 @@
             :icon="item.icon"
           />
           
+          <!-- Refresh Data Button -->
+          <button
+            @click="refreshData"
+            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors ml-2"
+            title="刷新数据"
+          >
+            <RotateCcw class="w-5 h-5 text-text-main" />
+          </button>
+          
           <!-- Dark Mode Toggle -->
           <button
             @click="toggleDark"
-            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors ml-2"
+            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
           >
             <Sun v-if="isDark" class="w-5 h-5 text-primary" />
             <Moon v-else class="w-5 h-5 text-text-main" />
@@ -30,6 +39,15 @@
         
         <!-- Mobile Right Buttons -->
         <div class="flex items-center gap-1 md:hidden">
+          <!-- Refresh Data Button -->
+          <button
+            @click="refreshData"
+            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
+            title="刷新数据"
+          >
+            <RotateCcw class="w-5 h-5 text-text-main" />
+          </button>
+          
           <!-- Dark Mode Toggle -->
           <button
             @click="toggleDark"
@@ -78,7 +96,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { Heart, Menu, X, Home, Calendar, Image, Clock, MessageCircle, Sun, Moon } from 'lucide-vue-next';
+import { Heart, Menu, X, Home, Calendar, Image, Clock, MessageCircle, Sun, Moon, RotateCcw } from 'lucide-vue-next';
 import NavLink from './NavLink.vue';
 import MobileNavLink from './MobileNavLink.vue';
 import { useDarkMode } from '@/composables/useDarkMode.js';
@@ -86,6 +104,10 @@ import { useDarkMode } from '@/composables/useDarkMode.js';
 const { isDark, toggle: toggleDark } = useDarkMode();
 
 const isMobileMenuOpen = ref(false);
+
+function refreshData() {
+  window.dispatchEvent(new CustomEvent('refresh-data'));
+}
 
 const navItems = [
   { name: 'home', path: '/', label: '首页', icon: Home },

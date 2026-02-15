@@ -1,34 +1,45 @@
 const API_BASE = '/notion-api';
 const NOTION_VERSION = '2022-06-28';
+const MAX_RETRIES = 2;
 
 // 获取 token
 function getToken() {
   return import.meta.env.VITE_NOTION_TOKEN;
 }
 
-// 通用请求方法
-async function notionRequest(endpoint, options = {}) {
+// 带重试机制的请求方法
+async function notionRequest(endpoint, options = {}, retryCount = 0) {
   const token = getToken();
   if (!token) {
     throw new Error('Missing VITE_NOTION_TOKEN');
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Notion-Version': NOTION_VERSION,
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-  });
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Notion-Version': NOTION_VERSION,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || `Notion API error: ${response.status}`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || `Notion API error: ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    // 如果还有重试次数，等待一下再试
+    if (retryCount < MAX_RETRIES) {
+      console.warn(`Notion API 请求失败，100ms后重试... (${retryCount + 1}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      return notionRequest(endpoint, options, retryCount + 1);
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 // 数据库 ID

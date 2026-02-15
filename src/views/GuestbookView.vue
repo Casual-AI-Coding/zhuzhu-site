@@ -245,7 +245,16 @@ const moodEmoji = {
 onMounted(async () => {
   messages.value = await fetchMessages();
   loading.value = false;
+  window.addEventListener('refresh-data', handleRefresh);
 });
+
+function handleRefresh() {
+  loading.value = true;
+  fetchMessages().then(data => {
+    messages.value = data;
+    loading.value = false;
+  });
+}
 
 async function addMessage() {
   if (!newMessage.value.trim() || sending.value || isOverLimit.value) return;
@@ -352,6 +361,10 @@ function triggerHaptic() {
     navigator.vibrate(10);
   }
 }
+
+onUnmounted(() => {
+  window.removeEventListener('refresh-data', handleRefresh);
+});
 </script>
 
 <style scoped>

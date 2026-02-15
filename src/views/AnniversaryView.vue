@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { Heart } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchAnniversaries } from '@/lib/notion.js';
@@ -76,5 +76,18 @@ const loading = ref(true);
 onMounted(async () => {
   anniversaries.value = await fetchAnniversaries();
   loading.value = false;
+  window.addEventListener('refresh-data', handleRefresh);
+});
+
+function handleRefresh() {
+  loading.value = true;
+  fetchAnniversaries().then(data => {
+    anniversaries.value = data;
+    loading.value = false;
+  });
+}
+
+onUnmounted(() => {
+  window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>

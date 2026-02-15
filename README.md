@@ -1,5 +1,7 @@
 # 🧡 猪猪网站
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/2516867d-602d-4e33-ba0d-ac6471e12862/deploy-status)](https://app.netlify.com/projects/zhuzhu-site/deploys)
+
 我们的恋爱记录网站，纪念我们在一起的每一天。
 
 ## ✨ 功能特性

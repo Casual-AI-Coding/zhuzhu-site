@@ -137,9 +137,21 @@ onMounted(async () => {
   loading.value = false;
   updateCountdown();
   countdownTimer = setInterval(updateCountdown, 1000);
+  
+  // 监听刷新数据事件
+  window.addEventListener('refresh-data', handleRefresh);
 });
+
+function handleRefresh() {
+  loading.value = true;
+  fetchPhotos().then(data => {
+    photos.value = data;
+    loading.value = false;
+  });
+}
 
 onUnmounted(() => {
   if (countdownTimer) clearInterval(countdownTimer);
+  window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>

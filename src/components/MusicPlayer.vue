@@ -71,7 +71,7 @@ function enableMusic() {
 /* 启用音乐按钮 - 与烟花按钮风格一致 */
 .music-enable-btn {
   position: fixed;
-  top: 150px;
+  top: 170px;
   right: 20px;
   width: 52px;
   height: 52px;
@@ -93,7 +93,7 @@ function enableMusic() {
 
 /* 调整播放器位置和最小化大小，与烟花按钮一致 */
 .music-player {
-  top: 150px !important;
+  top: 170px !important;
   right: 20px !important;
 }
 

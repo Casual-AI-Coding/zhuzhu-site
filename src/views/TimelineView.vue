@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { fetchTimeline } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
@@ -80,5 +80,18 @@ const importanceClasses = {
 onMounted(async () => {
   events.value = await fetchTimeline();
   loading.value = false;
+  window.addEventListener('refresh-data', handleRefresh);
+});
+
+function handleRefresh() {
+  loading.value = true;
+  fetchTimeline().then(data => {
+    events.value = data;
+    loading.value = false;
+  });
+}
+
+onUnmounted(() => {
+  window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>
