@@ -9,7 +9,7 @@
   --color-text-main: #3D3D3D;
   --color-text-secondary: #8B7355;
   --color-border: #E8DDD0;
-  
+
   /* 动画变量 */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -17,6 +17,12 @@
   --duration-fast: 150ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
+
+  /* iPhone 安全区域 */
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-right: env(safe-area-inset-right);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  --safe-area-inset-left: env(safe-area-inset-left);
 }
 
 .dark {
@@ -35,6 +41,11 @@
 
   body {
     @apply bg-background text-text-main font-body antialiased;
+    /* 确保内容不被刘海和底部条遮挡 */
+    padding-top: var(--safe-area-inset-top);
+    padding-right: var(--safe-area-inset-right);
+    padding-bottom: var(--safe-area-inset-bottom);
+    padding-left: var(--safe-area-inset-left);
   }
 
   /* 自定义滚动条 */

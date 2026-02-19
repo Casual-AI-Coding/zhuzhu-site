@@ -93,8 +93,8 @@ function enableMusic() {
 
 /* 调整播放器位置和最小化大小，与烟花按钮一致 */
 .music-player {
-  top: 170px !important;
-  right: 20px !important;
+  top: calc(170px + var(--safe-area-inset-top)) !important;
+  right: calc(20px + var(--safe-area-inset-right)) !important;
 }
 
 /* 最小化状态 */

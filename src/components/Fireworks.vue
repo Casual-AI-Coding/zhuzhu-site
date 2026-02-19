@@ -265,8 +265,8 @@ onUnmounted(() => {
 
 .firework-trigger {
   position: fixed;
-  top: 100px;
-  right: 20px;
+  top: calc(100px + var(--safe-area-inset-top));
+  right: calc(20px + var(--safe-area-inset-right));
   width: 52px;
   height: 52px;
   font-size: 26px;
