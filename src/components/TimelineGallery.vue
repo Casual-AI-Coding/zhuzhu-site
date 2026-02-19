@@ -21,15 +21,34 @@
         <div
           v-for="photo in datePhotos"
           :key="photo.id"
-          class="aspect-square rounded-lg overflow-hidden cursor-pointer group"
+          class="aspect-square rounded-lg overflow-hidden cursor-pointer group relative"
           @click="$emit('select', photo)"
         >
+          <!-- 图片 -->
           <img
+            v-if="!imgErrors[photo.id]"
             :src="photo.thumbnailUrl || photo.url"
             :alt="photo.title"
             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             loading="lazy"
+            @error="imgErrors[photo.id] = true"
           />
+          
+          <!-- 加载失败占位 -->
+          <div 
+            v-else 
+            class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+          >
+            <ImageIcon class="w-6 h-6 text-gray-400" />
+          </div>
+          
+          <!-- 悬停信息层 -->
+          <div 
+            class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-2"
+          >
+            <p class="text-white text-xs truncate">{{ photo.title }}</p>
+            <p class="text-white/70 text-[10px]">{{ formatDate(photo.date) }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -37,7 +56,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, reactive } from 'vue';
+import { Image as ImageIcon } from 'lucide-vue-next';
 
 const props = defineProps({
   photos: { type: Array, default: () => [] },
@@ -45,6 +65,16 @@ const props = defineProps({
 });
 
 defineEmits(['select']);
+
+// 图片加载错误状态
+const imgErrors = reactive({});
+
+// 格式化日期
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return `${date.getMonth() + 1}/${date.getDate()}`;
+}
 
 // 按日期分组照片
 const groupedPhotos = computed(() => {

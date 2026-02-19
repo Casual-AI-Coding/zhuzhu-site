@@ -35,33 +35,37 @@
         暂无照片
       </div>
       
-      <!-- Masonry Grid -->
-      <div v-else-if="viewMode === 'masonry'" class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
-        <div
-          v-for="photo in photos"
-          :key="photo.id"
-          class="break-inside-avoid card-hover cursor-pointer group"
-          @click="openLightbox(photo)"
-        >
-          <PhotoCard
-            :src="photo.thumbnailUrl || photo.url"
-            :alt="photo.title"
-            :title="photo.title"
-            :date="formatDate(photo.date)"
-            :place="photo.place"
-            :tags="photo.tags"
-            :description="photo.description"
-          />
+      <!-- View Container with Transition -->
+      <Transition name="view-fade" mode="out-in">
+        <!-- Masonry Grid -->
+        <div v-if="viewMode === 'masonry'" key="masonry" class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+          <div
+            v-for="photo in photos"
+            :key="photo.id"
+            class="break-inside-avoid card-hover cursor-pointer group"
+            @click="openLightbox(photo)"
+          >
+            <PhotoCard
+              :src="photo.thumbnailUrl || photo.url"
+              :alt="photo.title"
+              :title="photo.title"
+              :date="formatDate(photo.date)"
+              :place="photo.place"
+              :tags="photo.tags"
+              :description="photo.description"
+            />
+          </div>
         </div>
-      </div>
-      
-      <!-- Timeline View -->
-      <TimelineGallery
-        v-else
-        :photos="photos"
-        :group-by="groupBy"
-        @select="openLightbox"
-      />
+        
+        <!-- Timeline View -->
+        <TimelineGallery
+          v-else
+          key="timeline"
+          :photos="photos"
+          :group-by="groupBy"
+          @select="openLightbox"
+        />
+      </Transition>
     </div>
     
     <!-- Lightbox -->
@@ -235,3 +239,16 @@ onUnmounted(() => {
   window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>
+
+<style scoped>
+/* 视图切换动画 */
+.view-fade-enter-active,
+.view-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.view-fade-enter-from,
+.view-fade-leave-to {
+  opacity: 0;
+}
+</style>
