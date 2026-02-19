@@ -18,17 +18,7 @@
       />
       
       <!-- Loading -->
-      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="i in 6" :key="i" class="animate-pulse">
-          <div class="bg-card rounded-2xl overflow-hidden">
-            <div class="aspect-[4/3] bg-gray-200"></div>
-            <div class="p-4 space-y-2">
-              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SkeletonGrid v-if="loading" :count="6" aspect-class="aspect-[4/3]" />
       
       <!-- Empty State -->
       <div v-else-if="photos.length === 0" class="text-center text-text-secondary">
@@ -169,6 +159,7 @@ import { fetchPhotos } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { useGalleryView } from '@/composables/useGalleryView.js';
 import PhotoCard from '@/components/PhotoCard.vue';
+import SkeletonGrid from '@/components/SkeletonGrid.vue';
 import GalleryToolbar from '@/components/GalleryToolbar.vue';
 import TimelineGallery from '@/components/TimelineGallery.vue';
 
