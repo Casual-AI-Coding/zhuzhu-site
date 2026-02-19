@@ -28,7 +28,7 @@
       <!-- View Container with Transition -->
       <Transition name="view-fade" mode="out-in">
         <!-- Masonry Grid -->
-        <div v-if="viewMode === 'masonry'" key="masonry" class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+        <div v-if="viewMode === 'masonry'" key="masonry" class="columns-1 sm:columns-2 lg:columns-3 landscape:columns-2 gap-4 space-y-4">
           <div
             v-for="photo in photos"
             :key="photo.id"

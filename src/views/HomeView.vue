@@ -75,7 +75,7 @@
           <p class="text-text-secondary">暂无照片</p>
         </div>
         
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 landscape:grid-cols-2 gap-4">
           <div
             v-for="(photo, index) in photos.slice(0, featuredCount)"
             :key="photo.id"
