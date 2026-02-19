@@ -61,6 +61,17 @@
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
   }
+
+  /* 选中文本样式 */
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-background);
+  }
+
+  ::-moz-selection {
+    background-color: var(--color-primary);
+    color: var(--color-background);
+  }
 }
 
 @layer components {
