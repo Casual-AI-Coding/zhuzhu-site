@@ -23,32 +23,34 @@
           </div>
         </div>
         
-        <!-- Next Milestone & Countdown -->
-        <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px] animate-pulse-subtle">
-            <p class="text-text-secondary dark:text-text-secondary-dark text-xs sm:text-sm mb-2 text-center">距离 {{ nextMilestone.days }} 天</p>
-            <div v-if="milestoneCountdown" class="flex items-baseline justify-center gap-1 text-primary">
-              <span class="text-xl sm:text-2xl font-display font-bold">{{ milestoneCountdown.days }}</span>
-              <span class="text-xs">天</span>
-              <span class="text-xl sm:text-2xl font-display font-bold">{{ milestoneCountdown.hours }}</span>
-              <span class="text-xs">时</span>
-              <span class="text-xl sm:text-2xl font-display font-bold">{{ milestoneCountdown.minutes }}</span>
-              <span class="text-xs">分</span>
-            </div>
-            <p v-else class="text-xl sm:text-2xl font-display text-primary text-center">{{ nextMilestone.daysUntil }} 天</p>
+        <!-- Next Milestone & Countdown with Flip Clock -->
+        <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-4 sm:gap-6">
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-4 sm:py-6 min-w-[280px] sm:min-w-[340px]">
+            <p class="text-text-secondary dark:text-text-secondary-dark text-sm mb-3 text-center">
+              距离 <span class="font-display text-primary font-bold">{{ nextMilestone.days }}</span> 天纪念日
+            </p>
+            <FlipClock
+              v-if="milestoneCountdown"
+              :days="milestoneCountdown.days"
+              :hours="milestoneCountdown.hours"
+              :minutes="milestoneCountdown.minutes"
+              :seconds="milestoneCountdown.seconds"
+            />
+            <p v-else class="text-2xl font-display text-primary text-center py-4">{{ nextMilestone.daysUntil }} 天</p>
           </div>
-          
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px] animate-pulse-subtle">
-            <p class="text-text-secondary text-xs sm:text-sm mb-2 text-center">距离 {{ nextAnniversary.year }} 周年</p>
-            <div v-if="countdown" class="flex items-baseline justify-center gap-1 text-primary">
-              <span class="text-xl sm:text-2xl font-display font-bold">{{ countdown.days }}</span>
-              <span class="text-xs">天</span>
-              <span class="text-xl sm:text-2xl font-display font-bold">{{ countdown.hours }}</span>
-              <span class="text-xs">时</span>
-              <span class="text-xl sm:text-2xl font-display font-bold">{{ countdown.minutes }}</span>
-              <span class="text-xs">分</span>
-            </div>
-            <p v-else class="text-xl sm:text-2xl font-display text-primary text-center">{{ nextAnniversary.daysUntil }} 天</p>
+
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-4 sm:py-6 min-w-[280px] sm:min-w-[340px]">
+            <p class="text-text-secondary text-sm mb-3 text-center">
+              距离 <span class="font-display text-primary font-bold">{{ nextAnniversary.year }}</span> 周年
+            </p>
+            <FlipClock
+              v-if="countdown"
+              :days="countdown.days"
+              :hours="countdown.hours"
+              :minutes="countdown.minutes"
+              :seconds="countdown.seconds"
+            />
+            <p v-else class="text-2xl font-display text-primary text-center py-4">{{ nextAnniversary.daysUntil }} 天</p>
           </div>
         </div>
       </div>
@@ -112,6 +114,7 @@ import { Image } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchPhotos } from '@/lib/notion.js';
 import PhotoCard from '@/components/PhotoCard.vue';
+import FlipClock from '@/components/FlipClock.vue';
 
 const { totalDays, nextMilestone, nextMilestoneDate, nextAnniversary, nextAnniversaryDate, formattedStartDate, formatDate, getCountdown } = useDaysCount();
 
