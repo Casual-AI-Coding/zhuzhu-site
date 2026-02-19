@@ -77,9 +77,9 @@
           <p class="text-text-secondary">暂无照片</p>
         </div>
         
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 landscape:grid-cols-2 gap-4">
+        <div v-else class="grid gap-4" :class="gridColsClass">
           <div
-            v-for="(photo, index) in photos.slice(0, featuredCount)"
+            v-for="(photo, index) in displayedPhotos"
             :key="photo.id"
             class="card-hover cursor-pointer photo-item"
             :style="{ animationDelay: `${index * 0.1}s` }"
@@ -128,18 +128,38 @@ const milestoneCountdown = ref(null);
 
 let countdownTimer = null;
 
-function updateCountdown() {
-  countdown.value = getCountdown(nextAnniversaryDate.value);
-  milestoneCountdown.value = getCountdown(nextMilestoneDate.value);
+// 响应式窗口宽度
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+function updateWindowWidth() {
+  windowWidth.value = window.innerWidth;
 }
 
-// 根据屏幕宽度动态显示照片数量
+// 根据屏幕宽度动态计算列数
+const gridColsClass = computed(() => {
+  const width = windowWidth.value;
+  if (width >= 1024) return 'grid-cols-3';
+  if (width >= 640) return 'grid-cols-2';
+  return 'grid-cols-1';
+});
+
+// 只显示一行的照片数量
 const featuredCount = computed(() => {
-  const width = window.innerWidth;
+  const width = windowWidth.value;
   if (width >= 1024) return 3;
   if (width >= 640) return 2;
   return 1;
 });
+
+// 只展示一行的照片
+const displayedPhotos = computed(() => {
+  return photos.value.slice(0, featuredCount.value);
+});
+
+function updateCountdown() {
+  countdown.value = getCountdown(nextAnniversaryDate.value);
+  milestoneCountdown.value = getCountdown(nextMilestoneDate.value);
+}
 
 onMounted(async () => {
   photos.value = await fetchPhotos();
@@ -147,7 +167,8 @@ onMounted(async () => {
   updateCountdown();
   countdownTimer = setInterval(updateCountdown, 1000);
   
-  // 监听刷新数据事件
+  // 监听窗口大小变化
+  window.addEventListener('resize', updateWindowWidth);
   window.addEventListener('refresh-data', handleRefresh);
 });
 
@@ -161,6 +182,7 @@ function handleRefresh() {
 
 onUnmounted(() => {
   if (countdownTimer) clearInterval(countdownTimer);
+  window.removeEventListener('resize', updateWindowWidth);
   window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>

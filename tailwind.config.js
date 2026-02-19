@@ -42,7 +42,7 @@ export default {
         },
       },
       fontFamily: {
-        display: ['Playfair Display', 'serif'],
+        display: ['Outfit', 'sans-serif'],
         body: ['Inter', 'sans-serif'],
         handwriting: ['Caveat', 'cursive'],
       },

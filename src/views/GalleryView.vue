@@ -27,23 +27,29 @@
       
       <!-- View Container with Transition -->
       <Transition name="view-fade" mode="out-in">
-        <!-- Masonry Grid -->
-        <div v-if="viewMode === 'masonry'" key="masonry" class="columns-1 sm:columns-2 lg:columns-3 landscape:columns-2 gap-4 space-y-4">
-          <div
-            v-for="photo in photos"
-            :key="photo.id"
-            class="break-inside-avoid card-hover cursor-pointer group"
-            @click="openLightbox(photo)"
+        <!-- Masonry Grid - 均匀分布 -->
+        <div v-if="viewMode === 'masonry'" key="masonry" class="grid gap-4" :class="gridColsClass">
+          <div 
+            v-for="(column, colIndex) in masonryColumns" 
+            :key="colIndex" 
+            class="flex flex-col gap-4"
           >
-            <PhotoCard
-              :src="photo.thumbnailUrl || photo.url"
-              :alt="photo.title"
-              :title="photo.title"
-              :date="formatDate(photo.date)"
-              :place="photo.place"
-              :tags="photo.tags"
-              :description="photo.description"
-            />
+            <div
+              v-for="photo in column"
+              :key="photo.id"
+              class="card-hover cursor-pointer group"
+              @click="openLightbox(photo)"
+            >
+              <PhotoCard
+                :src="photo.thumbnailUrl || photo.url"
+                :alt="photo.title"
+                :title="photo.title"
+                :date="formatDate(photo.date)"
+                :place="photo.place"
+                :tags="photo.tags"
+                :description="photo.description"
+              />
+            </div>
           </div>
         </div>
         
@@ -96,7 +102,7 @@
           <!-- 正常图片 - 支持缩放 -->
           <div 
             v-show="!lightboxError"
-            class="overflow-hidden"
+            class="overflow-hidden flex items-center justify-center"
             :style="{ transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)` }"
             style="transition: transform 0.1s ease-out"
           >
@@ -171,6 +177,41 @@ const loading = ref(true);
 const selectedPhoto = ref(null);
 const lightboxError = ref(false);
 const currentIndex = ref(0);
+
+// 响应式窗口宽度
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+function updateWindowWidth() {
+  windowWidth.value = window.innerWidth;
+}
+
+// 根据屏幕宽度计算列数
+const columnCount = computed(() => {
+  const width = windowWidth.value;
+  if (width >= 1024) return 3;
+  if (width >= 640) return 2;
+  return 1;
+});
+
+// Grid 列样式
+const gridColsClass = computed(() => {
+  const cols = columnCount.value;
+  return `grid-cols-${cols}`;
+});
+
+// 将照片均匀分配到各列（从上到下填充，而非从左到右）
+const masonryColumns = computed(() => {
+  const cols = columnCount.value;
+  const result = Array.from({ length: cols }, () => []);
+  
+  photos.value.forEach((photo, index) => {
+    // 计算当前应该放入哪一列
+    const colIndex = index % cols;
+    result[colIndex].push(photo);
+  });
+  
+  return result;
+});
 
 // 图片缩放
 const scale = ref(1);
@@ -299,6 +340,7 @@ onMounted(async () => {
   photos.value = await fetchPhotos();
   loading.value = false;
   window.addEventListener('keydown', handleKeydown);
+  window.addEventListener('resize', updateWindowWidth);
   window.addEventListener('refresh-data', handleRefresh);
 });
 
@@ -312,6 +354,7 @@ function handleRefresh() {
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown);
+  window.removeEventListener('resize', updateWindowWidth);
   window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>
