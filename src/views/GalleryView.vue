@@ -69,7 +69,7 @@
     >
       <div
         v-if="selectedPhoto"
-        class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+        class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 landscape:p-2"
         @click="closeLightbox"
         @wheel="handleWheel"
         @touchstart="handleTouchStart"
@@ -85,7 +85,7 @@
           <ChevronLeft class="w-6 h-6 text-white" />
         </button>
         
-        <div class="max-w-4xl max-h-full" @click.stop>
+        <div class="max-w-4xl max-h-full landscape:max-w-none landscape:w-full landscape:h-full" @click.stop>
           <!-- 错误降级 -->
           <div v-if="lightboxError" class="w-full h-[60vh] flex items-center justify-center bg-gray-800 rounded-lg">
             <div class="text-center">

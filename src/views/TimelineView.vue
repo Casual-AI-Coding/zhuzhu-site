@@ -27,7 +27,7 @@
         <div class="absolute left-4 sm:left-1/2 top-0 bottom-0 w-0.5 bg-border sm:-translate-x-1/2"></div>
         
         <!-- Timeline Items -->
-        <div class="space-y-8">
+        <div class="space-y-8 landscape:space-y-4">
           <div
             v-for="(event, index) in events"
             :key="event.id"
