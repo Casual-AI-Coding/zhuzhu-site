@@ -45,6 +45,7 @@
     --font-size-lg: 24px;
     --font-size-xl: 28px;
   }
+}
 
 .dark {
   --color-primary: #E8C9A8;
