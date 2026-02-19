@@ -25,7 +25,7 @@
         
         <!-- Next Milestone & Countdown -->
         <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px]">
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px] animate-pulse-subtle">
             <p class="text-text-secondary dark:text-text-secondary-dark text-xs sm:text-sm mb-2 text-center">距离 {{ nextMilestone.days }} 天</p>
             <div v-if="milestoneCountdown" class="flex items-baseline justify-center gap-1 text-primary">
               <span class="text-xl sm:text-2xl font-display font-bold">{{ milestoneCountdown.days }}</span>
@@ -38,7 +38,7 @@
             <p v-else class="text-xl sm:text-2xl font-display text-primary text-center">{{ nextMilestone.daysUntil }} 天</p>
           </div>
           
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px]">
+          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-3 sm:py-4 min-w-[160px] animate-pulse-subtle">
             <p class="text-text-secondary text-xs sm:text-sm mb-2 text-center">距离 {{ nextAnniversary.year }} 周年</p>
             <div v-if="countdown" class="flex items-baseline justify-center gap-1 text-primary">
               <span class="text-xl sm:text-2xl font-display font-bold">{{ countdown.days }}</span>
