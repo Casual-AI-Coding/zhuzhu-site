@@ -11,6 +11,12 @@
         </p>
       </div>
       
+      <!-- Toolbar -->
+      <GalleryToolbar
+        v-model:viewMode="viewMode"
+        v-model:groupBy="groupBy"
+      />
+      
       <!-- Loading -->
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div v-for="i in 6" :key="i" class="animate-pulse">
@@ -30,7 +36,7 @@
       </div>
       
       <!-- Masonry Grid -->
-      <div v-else class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
+      <div v-else-if="viewMode === 'masonry'" class="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
         <div
           v-for="photo in photos"
           :key="photo.id"
@@ -48,6 +54,14 @@
           />
         </div>
       </div>
+      
+      <!-- Timeline View -->
+      <TimelineGallery
+        v-else
+        :photos="photos"
+        :group-by="groupBy"
+        @select="openLightbox"
+      />
     </div>
     
     <!-- Lightbox -->
@@ -126,9 +140,13 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { Image as ImageIcon, MapPin } from 'lucide-vue-next';
 import { fetchPhotos } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
+import { useGalleryView } from '@/composables/useGalleryView.js';
 import PhotoCard from '@/components/PhotoCard.vue';
+import GalleryToolbar from '@/components/GalleryToolbar.vue';
+import TimelineGallery from '@/components/TimelineGallery.vue';
 
 const { formatDate } = useDaysCount();
+const { viewMode, groupBy } = useGalleryView();
 
 const photos = ref([]);
 const loading = ref(true);
