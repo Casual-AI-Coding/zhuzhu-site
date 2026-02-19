@@ -19,16 +19,16 @@
           />
           
           <!-- Refresh Data Button -->
-          <button
+          <RippleButton
             @click="refreshData"
             class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors ml-2"
             title="刷新数据"
           >
             <RotateCcw class="w-5 h-5 text-text-main" />
-          </button>
-          
+          </RippleButton>
+
           <!-- Dark Mode Toggle -->
-          <button
+          <RippleButton
             @click="toggleDark"
             class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors theme-toggle"
           >
@@ -36,22 +36,22 @@
               <Sun v-if="isDark" key="sun" class="w-5 h-5 text-primary" />
               <Moon v-else key="moon" class="w-5 h-5 text-text-main" />
             </Transition>
-          </button>
+          </RippleButton>
         </div>
-        
+
         <!-- Mobile Right Buttons -->
         <div class="flex items-center gap-1 md:hidden">
           <!-- Refresh Data Button -->
-          <button
+          <RippleButton
             @click="refreshData"
             class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
             title="刷新数据"
           >
             <RotateCcw class="w-5 h-5 text-text-main" />
-          </button>
-          
+          </RippleButton>
+
           <!-- Dark Mode Toggle -->
-          <button
+          <RippleButton
             @click="toggleDark"
             class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors theme-toggle"
           >
@@ -59,16 +59,16 @@
               <Sun v-if="isDark" key="sun" class="w-5 h-5 text-primary" />
               <Moon v-else key="moon" class="w-5 h-5 text-text-main" />
             </Transition>
-          </button>
-          
+          </RippleButton>
+
           <!-- Mobile Menu Button -->
-          <button 
+          <RippleButton
             @click="isMobileMenuOpen = !isMobileMenuOpen"
             class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
           >
             <Menu v-if="!isMobileMenuOpen" class="w-6 h-6 text-text-main dark:text-text-main-dark" />
             <X v-else class="w-6 h-6 text-text-main dark:text-text-main-dark" />
-          </button>
+          </RippleButton>
         </div>
       </div>
       
@@ -103,6 +103,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { Heart, Menu, X, Home, Calendar, Image, Clock, MessageCircle, Sun, Moon, RotateCcw } from 'lucide-vue-next';
 import NavLink from './NavLink.vue';
 import MobileNavLink from './MobileNavLink.vue';
+import RippleButton from './RippleButton.vue';
 import { useDarkMode } from '@/composables/useDarkMode.js';
 
 const { isDark, toggle: toggleDark } = useDarkMode();

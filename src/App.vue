@@ -22,13 +22,13 @@
 
     <!-- Back to Top Button -->
     <Transition name="fade">
-      <button
+      <RippleButton
         v-if="showBackToTop"
         @click="scrollToTop"
         class="fixed bottom-8 right-8 z-50 w-12 h-12 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
       >
         <ArrowUp class="w-5 h-5" />
-      </button>
+      </RippleButton>
     </Transition>
 
     <!-- Music Player -->
@@ -43,6 +43,7 @@ import FallingHearts from '@/components/FallingHearts.vue';
 import ClickHearts from '@/components/ClickHearts.vue';
 import Fireworks from '@/components/Fireworks.vue';
 import MusicPlayer from '@/components/MusicPlayer.vue';
+import RippleButton from '@/components/RippleButton.vue';
 import { ArrowUp } from 'lucide-vue-next';
 
 const showBackToTop = ref(false);
