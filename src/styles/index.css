@@ -9,6 +9,14 @@
   --color-text-main: #3D3D3D;
   --color-text-secondary: #8B7355;
   --color-border: #E8DDD0;
+  
+  /* 动画变量 */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
 }
 
 .dark {
@@ -66,4 +74,54 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70;
   }
+  
+  /* 动画工具类 */
+  .animate-fade-in {
+    animation: fadeIn var(--duration-normal) var(--ease-out-expo) forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp var(--duration-normal) var(--ease-out-expo) forwards;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn var(--duration-normal) var(--ease-out-back) forwards;
+  }
+  
+  .animate-pulse-subtle {
+    animation: pulseSubtle 2s var(--ease-in-out-sine) infinite;
+  }
+}
+
+/* 关键帧动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
 }
