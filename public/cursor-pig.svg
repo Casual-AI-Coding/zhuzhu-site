@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- 猪头 -->
+  <circle cx="16" cy="16" r="12" fill="#FFB6C1" stroke="#FF69B4" stroke-width="2"/>
+  <!-- 左耳朵 -->
+  <ellipse cx="8" cy="8" rx="4" ry="6" fill="#FFB6C1" stroke="#FF69B4" stroke-width="1.5" transform="rotate(-30 8 8)"/>
+  <!-- 右耳朵 -->
+  <ellipse cx="24" cy="8" rx="4" ry="6" fill="#FFB6C1" stroke="#FF69B4" stroke-width="1.5" transform="rotate(30 24 8)"/>
+  <!-- 鼻子 -->
+  <ellipse cx="16" cy="18" rx="6" ry="4" fill="#FF69B4"/>
+  <!-- 左鼻孔 -->
+  <circle cx="14" cy="18" r="1.5" fill="#8B4513"/>
+  <!-- 右鼻孔 -->
+  <circle cx="18" cy="18" r="1.5" fill="#8B4513"/>
+  <!-- 左眼 -->
+  <circle cx="11" cy="13" r="2" fill="#000"/>
+  <circle cx="11.5" cy="12.5" r="0.7" fill="#FFF"/>
+  <!-- 右眼 -->
+  <circle cx="21" cy="13" r="2" fill="#000"/>
+  <circle cx="21.5" cy="12.5" r="0.7" fill="#FFF"/>
+</svg>

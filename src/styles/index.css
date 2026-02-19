@@ -73,9 +73,9 @@
     color: var(--color-background);
   }
 
-  /* 猪猪光标 - 普通状态 */
+  /* 猪猪光标 - 使用 emoji */
   body {
-    cursor: url('/cursor-pig.png'), auto;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32'%3E%3Ctext x='0' y='24' font-size='24'%3E🐷%3C/text%3E%3C/svg%3E"), auto;
   }
 
   /* 链接和按钮用手型 */
