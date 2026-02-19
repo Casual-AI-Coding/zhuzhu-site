@@ -13,8 +13,10 @@
         
         <!-- Days Counter -->
         <div class="relative inline-block">
-          <div class="text-5xl sm:text-7xl lg:text-9xl font-display text-primary font-bold tracking-tight">
-            {{ totalDays }}
+          <div class="days-counter text-5xl sm:text-7xl lg:text-9xl font-display text-primary font-bold tracking-tight">
+            <span v-for="(digit, index) in totalDaysDigits" :key="index" class="digit">
+              {{ digit }}
+            </span>
           </div>
           <div class="text-base sm:text-xl lg:text-2xl text-text-secondary mt-1 sm:mt-2">
             天
@@ -75,9 +77,10 @@
         
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div
-            v-for="photo in photos.slice(0, featuredCount)"
+            v-for="(photo, index) in photos.slice(0, featuredCount)"
             :key="photo.id"
-            class="card-hover cursor-pointer"
+            class="card-hover cursor-pointer photo-item"
+            :style="{ animationDelay: `${index * 0.1}s` }"
             @click="$router.push('/gallery')"
           >
             <PhotoCard
@@ -111,6 +114,9 @@ import { fetchPhotos } from '@/lib/notion.js';
 import PhotoCard from '@/components/PhotoCard.vue';
 
 const { totalDays, nextMilestone, nextMilestoneDate, nextAnniversary, nextAnniversaryDate, formattedStartDate, formatDate, getCountdown } = useDaysCount();
+
+// 天数拆分为数字数组（用于动画）
+const totalDaysDigits = computed(() => String(totalDays.value).split(''));
 
 const photos = ref([]);
 const loading = ref(true);
@@ -155,3 +161,53 @@ onUnmounted(() => {
   window.removeEventListener('refresh-data', handleRefresh);
 });
 </script>
+
+<style scoped>
+/* 天数计数器动画 */
+.days-counter {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.days-counter .digit {
+  display: inline-block;
+  animation: digitPop 0.6s ease-out both;
+}
+
+.days-counter .digit:nth-child(1) { animation-delay: 0.1s; }
+.days-counter .digit:nth-child(2) { animation-delay: 0.2s; }
+.days-counter .digit:nth-child(3) { animation-delay: 0.3s; }
+.days-counter .digit:nth-child(4) { animation-delay: 0.4s; }
+.days-counter .digit:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes digitPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(20px);
+  }
+  60% {
+    transform: scale(1.1) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 照片入场动画 */
+.photo-item {
+  opacity: 0;
+  animation: photoFadeIn 0.5s ease-out forwards;
+}
+
+@keyframes photoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

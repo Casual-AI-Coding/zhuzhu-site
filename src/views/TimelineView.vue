@@ -31,16 +31,20 @@
           <div
             v-for="(event, index) in events"
             :key="event.id"
-            class="relative flex items-start gap-4 sm:gap-8"
-            :class="index % 2 === 0 ? 'sm:flex-row' : 'sm:flex-row-reverse'"
+            :ref="el => setItemRef(el, index)"
+            class="timeline-item relative flex items-start gap-4 sm:gap-8"
+            :class="[
+              index % 2 === 0 ? 'sm:flex-row' : 'sm:flex-row-reverse',
+              { 'is-visible': visibleItems[index] }
+            ]"
           >
             <!-- Icon -->
-            <div class="absolute left-4 sm:left-1/2 w-8 h-8 -translate-x-1/2 rounded-full bg-primary flex items-center justify-center z-10 text-lg">
+            <div class="timeline-icon absolute left-4 sm:left-1/2 w-8 h-8 -translate-x-1/2 rounded-full bg-primary flex items-center justify-center z-10 text-lg shadow-lg">
               {{ event.icon || '💕' }}
             </div>
             
             <!-- Content Card -->
-            <div class="ml-12 sm:ml-0 sm:w-1/2" :class="index % 2 === 0 ? 'sm:pr-12 sm:text-right' : 'sm:pl-12'">
+            <div class="timeline-card ml-12 sm:ml-0 sm:w-1/2" :class="index % 2 === 0 ? 'sm:pr-12 sm:text-right' : 'sm:pl-12'">
               <div class="glass-nav rounded-2xl p-6 card-hover">
                 <div class="flex items-center gap-2 mb-2" :class="index % 2 === 0 ? 'sm:justify-end' : ''">
                   <span :class="importanceClasses[event.importance]">{{ importanceLabels[event.importance] }}</span>
@@ -58,7 +62,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { fetchTimeline } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
@@ -66,6 +70,16 @@ const { formatDate } = useDaysCount();
 
 const events = ref([]);
 const loading = ref(true);
+const visibleItems = reactive({});
+const itemRefs = ref([]);
+
+let observer = null;
+
+function setItemRef(el, index) {
+  if (el) {
+    itemRefs.value[index] = el;
+  }
+}
 
 const importanceLabels = {
   '高': '❤️ 重要',
@@ -81,17 +95,97 @@ onMounted(async () => {
   events.value = await fetchTimeline();
   loading.value = false;
   window.addEventListener('refresh-data', handleRefresh);
+  
+  // 设置滚动观察器
+  setupObserver();
 });
+
+function setupObserver() {
+  observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const index = itemRefs.value.indexOf(entry.target);
+        if (index !== -1 && entry.isIntersecting) {
+          visibleItems[index] = true;
+        }
+      });
+    },
+    { threshold: 0.2, rootMargin: '0px 0px -50px 0px' }
+  );
+  
+  // 延迟观察，确保 DOM 已渲染
+  setTimeout(() => {
+    itemRefs.value.forEach(el => {
+      if (el) observer.observe(el);
+    });
+  }, 100);
+}
 
 function handleRefresh() {
   loading.value = true;
   fetchTimeline().then(data => {
     events.value = data;
     loading.value = false;
+    // 重置可见状态
+    Object.keys(visibleItems).forEach(key => {
+      visibleItems[key] = false;
+    });
+    // 重新设置观察
+    setTimeout(setupObserver, 100);
   });
 }
 
 onUnmounted(() => {
   window.removeEventListener('refresh-data', handleRefresh);
+  if (observer) {
+    observer.disconnect();
+  }
 });
 </script>
+
+<style scoped>
+/* 时间线入场动画 */
+.timeline-item {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.timeline-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.timeline-item .timeline-icon {
+  opacity: 0;
+  transform: translateX(-50%) scale(0);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease-out;
+  transition-delay: 0.2s;
+}
+
+.timeline-item.is-visible .timeline-icon {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.timeline-item .timeline-card {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  transition-delay: 0.3s;
+}
+
+.timeline-item.is-visible .timeline-card {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 奇数项卡片从左边进入 */
+.timeline-item:nth-child(odd) .timeline-card {
+  transform: translateX(-20px);
+}
+
+.timeline-item:nth-child(odd).is-visible .timeline-card {
+  transform: translateX(0);
+}
+</style>

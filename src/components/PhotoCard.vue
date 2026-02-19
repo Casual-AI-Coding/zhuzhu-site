@@ -1,8 +1,8 @@
 <template>
   <div ref="cardRef" class="relative rounded-2xl overflow-hidden bg-gray-100" :class="aspectClass">
     <!-- 加载占位符 -->
-    <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-200">
-      <div class="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+    <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse">
+      <ImageIcon class="w-8 h-8 text-gray-300" />
     </div>
     
     <!-- 图片：进入可视区域后加载 -->
@@ -10,8 +10,8 @@
       v-show="!loading && !error"
       :src="visible ? src : undefined"
       :alt="alt"
-      class="w-full h-full object-cover transition-all duration-500"
-      :class="{ 'opacity-0': loading }"
+      class="w-full h-full object-cover transition-all duration-700 ease-out"
+      :class="loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
       @load="onLoad"
       @error="onError"
     />
@@ -68,6 +68,7 @@ const props = defineProps({
 const emit = defineEmits(['click']);
 
 const loading = ref(true);
+const loaded = ref(false);
 const error = ref(false);
 const visible = ref(false);
 const cardRef = ref(null);
@@ -76,6 +77,10 @@ let observer = null;
 
 function onLoad() {
   loading.value = false;
+  // 延迟一帧触发动画
+  requestAnimationFrame(() => {
+    loaded.value = true;
+  });
 }
 
 function onError() {

@@ -378,22 +378,41 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* 留言入场动画 */
+/* 留言入场动画 - 增强版 */
 .message-enter-active {
-  transition: all 0.4s ease-out;
+  animation: messageSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.message-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-.message-leave-to {
-  opacity: 0;
-  transform: scale(0.9);
+.message-leave-active {
+  animation: messageSlideOut 0.3s ease-in;
 }
 
 .message-move {
   transition: transform 0.4s ease;
+}
+
+@keyframes messageSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  60% {
+    transform: translateY(5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes messageSlideOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
 }
 </style>

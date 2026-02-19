@@ -86,6 +86,15 @@
         @touchmove="handleTouchMove"
         @touchend="handleTouchEnd"
       >
+        <!-- 上一张按钮 -->
+        <button
+          v-if="currentIndex > 0"
+          @click.stop="prevPhoto"
+          class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
+        >
+          <ChevronLeft class="w-6 h-6 text-white" />
+        </button>
+        
         <div class="max-w-4xl max-h-full" @click.stop>
           <!-- 错误降级 -->
           <div v-if="lightboxError" class="w-full h-[60vh] flex items-center justify-center bg-gray-800 rounded-lg">
@@ -110,7 +119,7 @@
           </div>
           <!-- 缩放提示 -->
           <div class="text-center mt-2 text-white/50 text-xs">
-            滚轮/双指缩放 · ESC 关闭
+            ← → 切换 · 滚轮/双指缩放 · ESC 关闭
           </div>
           <!-- 详情信息 -->
           <div class="text-center mt-4 space-y-2">
@@ -134,14 +143,28 @@
             </p>
           </div>
         </div>
+        
+        <!-- 下一张按钮 -->
+        <button
+          v-if="currentIndex < photos.length - 1"
+          @click.stop="nextPhoto"
+          class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
+        >
+          <ChevronRight class="w-6 h-6 text-white" />
+        </button>
+        
+        <!-- 照片计数 -->
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/50 text-sm">
+          {{ currentIndex + 1 }} / {{ photos.length }}
+        </div>
       </div>
     </Transition>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { Image as ImageIcon, MapPin } from 'lucide-vue-next';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { Image as ImageIcon, MapPin, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import { fetchPhotos } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { useGalleryView } from '@/composables/useGalleryView.js';
@@ -156,6 +179,7 @@ const photos = ref([]);
 const loading = ref(true);
 const selectedPhoto = ref(null);
 const lightboxError = ref(false);
+const currentIndex = ref(0);
 
 // 图片缩放
 const scale = ref(1);
@@ -166,8 +190,29 @@ const startPos = ref({ x: 0, y: 0 });
 function openLightbox(photo) {
   lightboxError.value = false;
   selectedPhoto.value = photo;
+  currentIndex.value = photos.value.findIndex(p => p.id === photo.id);
   scale.value = 1;
   position.value = { x: 0, y: 0 };
+}
+
+function prevPhoto() {
+  if (currentIndex.value > 0) {
+    currentIndex.value--;
+    selectedPhoto.value = photos.value[currentIndex.value];
+    lightboxError.value = false;
+    scale.value = 1;
+    position.value = { x: 0, y: 0 };
+  }
+}
+
+function nextPhoto() {
+  if (currentIndex.value < photos.value.length - 1) {
+    currentIndex.value++;
+    selectedPhoto.value = photos.value[currentIndex.value];
+    lightboxError.value = false;
+    scale.value = 1;
+    position.value = { x: 0, y: 0 };
+  }
 }
 
 function closeLightbox() {
@@ -176,10 +221,20 @@ function closeLightbox() {
   position.value = { x: 0, y: 0 };
 }
 
-// ESC 关闭
+// 键盘操作
 function handleKeydown(e) {
-  if (e.key === 'Escape' && selectedPhoto.value) {
-    closeLightbox();
+  if (!selectedPhoto.value) return;
+  
+  switch (e.key) {
+    case 'Escape':
+      closeLightbox();
+      break;
+    case 'ArrowLeft':
+      prevPhoto();
+      break;
+    case 'ArrowRight':
+      nextPhoto();
+      break;
   }
 }
 
@@ -191,18 +246,28 @@ function handleWheel(e) {
   scale.value = Math.min(Math.max(0.5, scale.value + delta), 4);
 }
 
-// 触摸缩放
+// 触摸缩放和滑动切换
 let initialDistance = 0;
+let touchStartX = 0;
+let touchStartY = 0;
+
 function handleTouchStart(e) {
+  // 双指缩放
   if (e.touches.length === 2) {
     initialDistance = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,
       e.touches[0].clientY - e.touches[1].clientY
     );
   }
+  // 单指滑动
+  if (e.touches.length === 1) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }
 }
 
 function handleTouchMove(e) {
+  // 双指缩放
   if (e.touches.length === 2 && initialDistance) {
     e.preventDefault();
     const currentDistance = Math.hypot(
@@ -215,8 +280,28 @@ function handleTouchMove(e) {
   }
 }
 
-function handleTouchEnd() {
+function handleTouchEnd(e) {
   initialDistance = 0;
+  
+  // 单指滑动切换照片
+  if (touchStartX && e.changedTouches.length === 1) {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // 水平滑动距离大于50px且垂直滑动小于30px时切换照片
+    if (Math.abs(deltaX) > 50 && Math.abs(deltaY) < 30) {
+      if (deltaX > 0) {
+        prevPhoto();
+      } else {
+        nextPhoto();
+      }
+    }
+  }
+  
+  touchStartX = 0;
+  touchStartY = 0;
 }
 
 onMounted(async () => {
