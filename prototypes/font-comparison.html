@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数字字体对比</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Crimson+Pro:wght@400;500;600;700&family=DM+Serif+Display:wght@400&family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,600;6..96,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #F5EDE4 0%, #FAF7F2 100%);
+      min-height: 100vh;
+    }
+    
+    .font-playfair { font-family: 'Playfair Display', serif; }
+    .font-cormorant { font-family: 'Cormorant Garamond', serif; }
+    .font-dm-serif { font-family: 'DM Serif Display', serif; }
+    .font-outfit { font-family: 'Outfit', sans-serif; }
+    .font-crimson { font-family: 'Crimson Pro', serif; }
+    .font-bodoni { font-family: 'Bodoni Moda', serif; }
+    
+    .number-display {
+      color: #D4A574;
+      letter-spacing: -0.02em;
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 165, 116, 0.2);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      box-shadow: 0 8px 32px -12px rgba(139, 115, 85, 0.15);
+    }
+    
+    .countdown-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    
+    .ring {
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      border: 2px solid rgba(212, 165, 116, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .ring::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: #D4A574;
+      transform: rotate(-45deg);
+    }
+  </style>
+</head>
+<body class="p-8">
+  <div class="max-w-5xl mx-auto space-y-8">
+    
+    <h1 class="text-center text-2xl mb-8" style="font-family: 'Inter', sans-serif; color: #8B7355;">
+      数字字体对比预览
+    </h1>
+    
+    <!-- 当前字体: Playfair Display -->
+    <section class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold" style="font-family: 'Inter', sans-serif; color: #8B7355;">
+          当前字体: Playfair Display
+        </h2>
+        <span class="text-sm px-3 py-1 rounded-full" style="background: rgba(212,165,116,0.15); color: #D4A574;">
+          当前使用
+        </span>
+      </div>
+      
+      <!-- 大数字 (在一起天数) -->
+      <div class="text-center mb-6">
+        <div class="font-playfair number-display text-7xl font-bold">518</div>
+        <div class="text-sm mt-1" style="color: #8B7355; opacity: 0.7;">天</div>
+      </div>
+      
+      <!-- 倒计时数字 -->
+      <div class="flex justify-center gap-4">
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-playfair text-xl font-semibold" style="color: #8B7355;">81</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">天</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-playfair text-xl font-semibold" style="color: #8B7355;">00</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">时</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-playfair text-xl font-semibold" style="color: #8B7355;">22</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">分</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring" style="border-color: rgba(212,165,116,0.3);">
+            <span class="font-playfair text-xl font-bold" style="color: #D4A574;">07</span>
+          </div>
+          <span class="text-xs font-semibold" style="color: #D4A574;">秒</span>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Cormorant Garamond -->
+    <section class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold" style="font-family: 'Inter', sans-serif; color: #8B7355;">
+          Cormorant Garamond
+        </h2>
+        <span class="text-sm px-3 py-1 rounded-full" style="background: rgba(76,175,80,0.15); color: #4CAF50;">
+          ⭐ 推荐
+        </span>
+      </div>
+      
+      <div class="text-center mb-6">
+        <div class="font-cormorant number-display text-7xl font-semibold">518</div>
+        <div class="text-sm mt-1" style="color: #8B7355; opacity: 0.7;">天</div>
+      </div>
+      
+      <div class="flex justify-center gap-4">
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-cormorant text-xl font-semibold" style="color: #8B7355;">81</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">天</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-cormorant text-xl font-semibold" style="color: #8B7355;">00</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">时</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-cormorant text-xl font-semibold" style="color: #8B7355;">22</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">分</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring" style="border-color: rgba(212,165,116,0.3);">
+            <span class="font-cormorant text-xl font-bold" style="color: #D4A574;">07</span>
+          </div>
+          <span class="text-xs font-semibold" style="color: #D4A574;">秒</span>
+        </div>
+      </div>
+      
+      <p class="text-center text-xs mt-4" style="color: #8B7355; opacity: 0.5;">
+        优雅法式衬线，数字有精致的曲线，适合浪漫主题
+      </p>
+    </section>
+    
+    <!-- DM Serif Display -->
+    <section class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold" style="font-family: 'Inter', sans-serif; color: #8B7355;">
+          DM Serif Display
+        </h2>
+      </div>
+      
+      <div class="text-center mb-6">
+        <div class="font-dm-serif number-display text-7xl">518</div>
+        <div class="text-sm mt-1" style="color: #8B7355; opacity: 0.7;">天</div>
+      </div>
+      
+      <div class="flex justify-center gap-4">
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-dm-serif text-xl" style="color: #8B7355;">81</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">天</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-dm-serif text-xl" style="color: #8B7355;">00</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">时</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-dm-serif text-xl" style="color: #8B7355;">22</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">分</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring" style="border-color: rgba(212,165,116,0.3);">
+            <span class="font-dm-serif text-xl" style="color: #D4A574;">07</span>
+          </div>
+          <span class="text-xs font-semibold" style="color: #D4A574;">秒</span>
+        </div>
+      </div>
+      
+      <p class="text-center text-xs mt-4" style="color: #8B7355; opacity: 0.5;">
+        现代优雅，笔画对比强烈，视觉冲击力强
+      </p>
+    </section>
+    
+    <!-- Bodoni Moda -->
+    <section class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold" style="font-family: 'Inter', sans-serif; color: #8B7355;">
+          Bodoni Moda
+        </h2>
+        <span class="text-sm px-3 py-1 rounded-full" style="background: rgba(156,39,176,0.15); color: #9C27B0;">
+          高端感
+        </span>
+      </div>
+      
+      <div class="text-center mb-6">
+        <div class="font-bodoni number-display text-7xl font-medium">518</div>
+        <div class="text-sm mt-1" style="color: #8B7355; opacity: 0.7;">天</div>
+      </div>
+      
+      <div class="flex justify-center gap-4">
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-bodoni text-xl font-medium" style="color: #8B7355;">81</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">天</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-bodoni text-xl font-medium" style="color: #8B7355;">00</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">时</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-bodoni text-xl font-medium" style="color: #8B7355;">22</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">分</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring" style="border-color: rgba(212,165,116,0.3);">
+            <span class="font-bodoni text-xl font-semibold" style="color: #D4A574;">07</span>
+          </div>
+          <span class="text-xs font-semibold" style="color: #D4A574;">秒</span>
+        </div>
+      </div>
+      
+      <p class="text-center text-xs mt-4" style="color: #8B7355; opacity: 0.5;">
+        意大利经典衬线，高端时尚杂志风格，数字极具辨识度
+      </p>
+    </section>
+    
+    <!-- Outfit (无衬线) -->
+    <section class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold" style="font-family: 'Inter', sans-serif; color: #8B7355;">
+          Outfit (无衬线)
+        </h2>
+      </div>
+      
+      <div class="text-center mb-6">
+        <div class="font-outfit number-display text-7xl font-semibold">518</div>
+        <div class="text-sm mt-1" style="color: #8B7355; opacity: 0.7;">天</div>
+      </div>
+      
+      <div class="flex justify-center gap-4">
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-outfit text-xl font-medium" style="color: #8B7355;">81</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">天</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-outfit text-xl font-medium" style="color: #8B7355;">00</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">时</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-outfit text-xl font-medium" style="color: #8B7355;">22</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">分</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring" style="border-color: rgba(212,165,116,0.3);">
+            <span class="font-outfit text-xl font-semibold" style="color: #D4A574;">07</span>
+          </div>
+          <span class="text-xs font-semibold" style="color: #D4A574;">秒</span>
+        </div>
+      </div>
+      
+      <p class="text-center text-xs mt-4" style="color: #8B7355; opacity: 0.5;">
+        现代几何无衬线，圆润简洁，适合现代风格
+      </p>
+    </section>
+    
+    <!-- Crimson Pro -->
+    <section class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold" style="font-family: 'Inter', sans-serif; color: #8B7355;">
+          Crimson Pro
+        </h2>
+      </div>
+      
+      <div class="text-center mb-6">
+        <div class="font-crimson number-display text-7xl font-semibold">518</div>
+        <div class="text-sm mt-1" style="color: #8B7355; opacity: 0.7;">天</div>
+      </div>
+      
+      <div class="flex justify-center gap-4">
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-crimson text-xl font-medium" style="color: #8B7355;">81</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">天</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-crimson text-xl font-medium" style="color: #8B7355;">00</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">时</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring">
+            <span class="font-crimson text-xl font-medium" style="color: #8B7355;">22</span>
+          </div>
+          <span class="text-xs" style="color: #8B7355; opacity: 0.6;">分</span>
+        </div>
+        <div class="countdown-unit">
+          <div class="ring" style="border-color: rgba(212,165,116,0.3);">
+            <span class="font-crimson text-xl font-semibold" style="color: #D4A574;">07</span>
+          </div>
+          <span class="text-xs font-semibold" style="color: #D4A574;">秒</span>
+        </div>
+      </div>
+      
+      <p class="text-center text-xs mt-4" style="color: #8B7355; opacity: 0.5;">
+        经典学术风格，可读性极佳，传统但优雅
+      </p>
+    </section>
+    
+  </div>
+</body>
+</html>

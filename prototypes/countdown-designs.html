@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>倒计时设计方案对比</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .font-display { font-family: 'Playfair Display', serif; }
+    
+    /* 当前设计 (Current) */
+    .current-card {
+      width: 3.5rem;
+      height: 4.5rem;
+      background: linear-gradient(135deg, rgba(255,248,240,0.98) 0%, rgba(245,237,228,0.95) 100%);
+      border: 1px solid rgba(212,165,116,0.35);
+      border-radius: 0.625rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px -3px rgba(139,115,85,0.12);
+    }
+    
+    /* 方案A: 分层突出设计 (Tiered) */
+    .tiered-large {
+      width: 5rem;
+      height: 6.5rem;
+      background: linear-gradient(145deg, #FFF8F0 0%, #F5EDE4 100%);
+      border: 2px solid #D4A574;
+      border-radius: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        0 8px 32px -8px rgba(139,115,85,0.25),
+        inset 0 2px 4px rgba(255,255,255,0.8);
+      position: relative;
+    }
+    .tiered-large::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(212,165,116,0.3), transparent);
+    }
+    .tiered-small {
+      width: 3.5rem;
+      height: 4.5rem;
+      background: linear-gradient(145deg, rgba(255,248,240,0.9) 0%, rgba(245,237,228,0.85) 100%);
+      border: 1px solid rgba(212,165,116,0.25);
+      border-radius: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* 方案B: 环形进度 (Circular Progress) */
+    .circular-container {
+      position: relative;
+      width: 5.5rem;
+      height: 5.5rem;
+    }
+    .circular-svg {
+      transform: rotate(-90deg);
+    }
+    .circular-bg {
+      fill: none;
+      stroke: rgba(212,165,116,0.15);
+      stroke-width: 4;
+    }
+    .circular-progress {
+      fill: none;
+      stroke: #D4A574;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-dasharray: 157;
+      stroke-dashoffset: 40;
+    }
+    .circular-number {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #8B7355;
+    }
+    
+    /* 方案C: 极简分离 (Minimal Cards) */
+    .minimal-card {
+      width: 4rem;
+      height: 5rem;
+      background: white;
+      border-radius: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        0 4px 20px -4px rgba(139,115,85,0.15),
+        0 2px 8px -2px rgba(139,115,85,0.1);
+      border: 1px solid rgba(212,165,116,0.15);
+      position: relative;
+    }
+    .minimal-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 10%;
+      right: 10%;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, #D4A574, transparent);
+      border-radius: 2px;
+    }
+    
+    /* 外层容器样式 */
+    .outer-card {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212,165,116,0.2);
+      border-radius: 1.5rem;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 8px 32px -12px rgba(139,115,85,0.15);
+    }
+    
+    .separator {
+      color: #D4A574;
+      font-size: 1.5rem;
+      font-weight: 300;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-8" style="background: linear-gradient(135deg, #F5EDE4 0%, #FAF7F2 100%);">
+  <div class="max-w-6xl mx-auto space-y-12">
+    
+    <h1 class="font-display text-3xl text-center text-[#8B7355] mb-12">倒计时设计方案对比</h1>
+    
+    <!-- 当前设计 -->
+    <section>
+      <h2 class="font-display text-xl text-[#8B7355] mb-4 text-center">当前设计 (Current)</h2>
+      <div class="outer-card flex justify-center">
+        <div class="flex items-end gap-2">
+          <div class="flex flex-col items-center gap-1">
+            <div class="current-card">
+              <span class="font-display text-2xl font-semibold text-[#8B7355]">81</span>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-70">天</span>
+          </div>
+          <span class="separator mb-6">:</span>
+          <div class="flex flex-col items-center gap-1">
+            <div class="current-card">
+              <span class="font-display text-2xl font-semibold text-[#8B7355]">00</span>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-70">时</span>
+          </div>
+          <span class="separator mb-6">:</span>
+          <div class="flex flex-col items-center gap-1">
+            <div class="current-card">
+              <span class="font-display text-2xl font-semibold text-[#8B7355]">22</span>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-70">分</span>
+          </div>
+          <span class="separator mb-6">:</span>
+          <div class="flex flex-col items-center gap-1">
+            <div class="current-card">
+              <span class="font-display text-2xl font-semibold text-[#8B7355]">07</span>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-70">秒</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 方案A: 分层突出 -->
+    <section>
+      <h2 class="font-display text-xl text-[#8B7355] mb-4 text-center">方案A: 分层突出设计 (Tiered Emphasis)</h2>
+      <div class="outer-card flex justify-center">
+        <div class="flex items-end gap-4">
+          <!-- 天 - 最大 -->
+          <div class="flex flex-col items-center gap-2">
+            <div class="tiered-large">
+              <span class="font-display text-4xl font-bold text-[#8B7355]">81</span>
+            </div>
+            <span class="text-sm text-[#D4A574] font-medium tracking-wider">DAYS</span>
+          </div>
+          
+          <span class="separator mb-8 text-2xl">:</span>
+          
+          <!-- 时 - 中等 -->
+          <div class="flex flex-col items-center gap-2">
+            <div class="tiered-small">
+              <span class="font-display text-2xl font-semibold text-[#8B7355]">00</span>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-60">时</span>
+          </div>
+          
+          <span class="separator mb-6 text-xl">:</span>
+          
+          <!-- 分 - 中等 -->
+          <div class="flex flex-col items-center gap-2">
+            <div class="tiered-small">
+              <span class="font-display text-2xl font-semibold text-[#8B7355]">22</span>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-60">分</span>
+          </div>
+          
+          <span class="separator mb-6 text-xl">:</span>
+          
+          <!-- 秒 - 中等但高亮 -->
+          <div class="flex flex-col items-center gap-2">
+            <div class="tiered-small" style="border-color: rgba(212,165,116,0.5); background: linear-gradient(145deg, #FFF8F0 0%, #FDF5ED 100%);">
+              <span class="font-display text-2xl font-bold text-[#D4A574]">07</span>
+            </div>
+            <span class="text-xs text-[#D4A574] font-medium">秒</span>
+          </div>
+        </div>
+      </div>
+      <p class="text-center text-sm text-[#8B7355] opacity-60 mt-3">
+        特点：天和秒突出显示，时/分缩小作为辅助。中间分割线增强层次感。
+      </p>
+    </section>
+    
+    <!-- 方案B: 环形进度 -->
+    <section>
+      <h2 class="font-display text-xl text-[#8B7355] mb-4 text-center">方案B: 环形进度 (Circular Progress)</h2>
+      <div class="outer-card flex justify-center">
+        <div class="flex items-center gap-3">
+          <div class="flex flex-col items-center gap-2">
+            <div class="circular-container">
+              <svg class="circular-svg w-full h-full" viewBox="0 0 60 60">
+                <circle class="circular-bg" cx="30" cy="30" r="25"/>
+                <circle class="circular-progress" cx="30" cy="30" r="25" stroke-dashoffset="100"/>
+              </svg>
+              <div class="circular-number font-display">81</div>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-70">天</span>
+          </div>
+          
+          <span class="separator text-2xl">:</span>
+          
+          <div class="flex flex-col items-center gap-2">
+            <div class="circular-container" style="width: 4.5rem; height: 4.5rem;">
+              <svg class="circular-svg w-full h-full" viewBox="0 0 60 60">
+                <circle class="circular-bg" cx="30" cy="30" r="25"/>
+                <circle class="circular-progress" cx="30" cy="30" r="25" stroke-dashoffset="157"/>
+              </svg>
+              <div class="circular-number font-display text-xl">00</div>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-70">时</span>
+          </div>
+          
+          <span class="separator text-xl">:</span>
+          
+          <div class="flex flex-col items-center gap-2">
+            <div class="circular-container" style="width: 4.5rem; height: 4.5rem;">
+              <svg class="circular-svg w-full h-full" viewBox="0 0 60 60">
+                <circle class="circular-bg" cx="30" cy="30" r="25"/>
+                <circle class="circular-progress" cx="30" cy="30" r="25" stroke-dashoffset="100"/>
+              </svg>
+              <div class="circular-number font-display text-xl">22</div>
+            </div>
+            <span class="text-xs text-[#8B7355] opacity-70">分</span>
+          </div>
+          
+          <span class="separator text-xl">:</span>
+          
+          <div class="flex flex-col items-center gap-2">
+            <div class="circular-container" style="width: 4.5rem; height: 4.5rem;">
+              <svg class="circular-svg w-full h-full" viewBox="0 0 60 60">
+                <circle class="circular-bg" cx="30" cy="30" r="25"/>
+                <circle class="circular-progress" cx="30" cy="30" r="25" stroke-dashoffset="130" style="stroke: #E8A87C;"/>
+              </svg>
+              <div class="circular-number font-display text-xl" style="color: #D4A574;">07</div>
+            </div>
+            <span class="text-xs text-[#D4A574] font-medium">秒</span>
+          </div>
+        </div>
+      </div>
+      <p class="text-center text-sm text-[#8B7355] opacity-60 mt-3">
+        特点：环形进度条直观显示时间流逝，秒针高亮并显示进度。
+      </p>
+    </section>
+    
+    <!-- 方案C: 极简分离 -->
+    <section>
+      <h2 class="font-display text-xl text-[#8B7355] mb-4 text-center">方案C: 极简卡片分离 (Minimal Cards)</h2>
+      <div class="outer-card flex justify-center">
+        <div class="flex items-end gap-5">
+          <div class="flex flex-col items-center gap-3">
+            <div class="minimal-card">
+              <span class="font-display text-3xl font-bold text-[#3D3D3D]">81</span>
+              <span class="text-xs text-[#8B7355] opacity-50 mt-1">天</span>
+            </div>
+          </div>
+          
+          <div class="flex flex-col items-center gap-3">
+            <div class="minimal-card">
+              <span class="font-display text-2xl font-semibold text-[#5A5A5A]">00</span>
+              <span class="text-xs text-[#8B7355] opacity-50 mt-1">时</span>
+            </div>
+          </div>
+          
+          <div class="flex flex-col items-center gap-3">
+            <div class="minimal-card">
+              <span class="font-display text-2xl font-semibold text-[#5A5A5A]">22</span>
+              <span class="text-xs text-[#8B7355] opacity-50 mt-1">分</span>
+            </div>
+          </div>
+          
+          <div class="flex flex-col items-center gap-3">
+            <div class="minimal-card" style="border-bottom: 3px solid #D4A574;">
+              <span class="font-display text-2xl font-bold text-[#D4A574]">07</span>
+              <span class="text-xs text-[#D4A574] font-medium mt-1">秒</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-center text-sm text-[#8B7355] opacity-60 mt-3">
+        特点：纯白卡片，底部渐变条装饰，更大的间距，秒卡片高亮。
+      </p>
+    </section>
+    
+  </div>
+</body>
+</html>
