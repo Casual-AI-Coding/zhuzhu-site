@@ -23,7 +23,28 @@
   --safe-area-inset-right: env(safe-area-inset-right);
   --safe-area-inset-bottom: env(safe-area-inset-bottom);
   --safe-area-inset-left: env(safe-area-inset-left);
+
+  /* 响应式字体大小 */
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
 }
+
+/* 大屏优化 */
+@media (min-width: 1920px) {
+  :root {
+    --font-size-base: 18px;
+    --font-size-lg: 20px;
+    --font-size-xl: 24px;
+  }
+}
+
+@media (min-width: 2560px) {
+  :root {
+    --font-size-base: 20px;
+    --font-size-lg: 24px;
+    --font-size-xl: 28px;
+  }
 
 .dark {
   --color-primary: #E8C9A8;

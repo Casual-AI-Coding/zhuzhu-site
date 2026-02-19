@@ -13,7 +13,7 @@
         
         <!-- Days Counter -->
         <div class="relative inline-block">
-          <div class="days-counter text-5xl sm:text-7xl lg:text-9xl font-display text-primary font-bold tracking-tight">
+          <div class="days-counter text-5xl sm:text-7xl lg:text-9xl 3xl:text-[10rem] 4xl:text-[12rem] font-display text-primary font-bold tracking-tight">
             <span v-for="(digit, index) in totalDaysDigits" :key="index" class="digit">
               {{ digit }}
             </span>
