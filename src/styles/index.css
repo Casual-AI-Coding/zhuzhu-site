@@ -72,6 +72,26 @@
     background-color: var(--color-primary);
     color: var(--color-background);
   }
+
+  /* 猪猪光标 - 普通状态 */
+  body {
+    cursor: url('/cursor-pig.png'), auto;
+  }
+
+  /* 链接和按钮用手型 */
+  a, button, [role="button"], input[type="submit"], input[type="button"] {
+    cursor: pointer;
+  }
+
+  /* 可拖拽元素 */
+  [draggable="true"] {
+    cursor: move;
+  }
+
+  /* 禁用状态 */
+  :disabled, [disabled] {
+    cursor: not-allowed;
+  }
 }
 
 @layer components {
