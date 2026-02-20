@@ -98,18 +98,18 @@ function createStar() {
 
 onMounted(() => {
   // 初始一些爱心
-  for (let i = 0; i < 8; i++) {
-    setTimeout(createHeart, i * 300);
+  for (let i = 0; i < 5; i++) {
+    setTimeout(createHeart, i * 400);
   }
   
   // 初始一些星星
-  for (let i = 0; i < 4; i++) {
-    setTimeout(createStar, i * 500);
+  for (let i = 0; i < 3; i++) {
+    setTimeout(createStar, i * 600);
   }
   
-  // 持续添加
-  heartInterval = setInterval(createHeart, 2000);
-  starInterval = setInterval(createStar, 3500);
+  // 持续添加 - reduced frequency
+  heartInterval = setInterval(createHeart, 3000);
+  starInterval = setInterval(createStar, 5000);
 });
 
 onUnmounted(() => {
@@ -135,7 +135,6 @@ onUnmounted(() => {
   top: -40px;
   opacity: 0.7;
   animation: fall-rotate linear infinite;
-  filter: drop-shadow(0 0 6px rgba(255, 105, 180, 0.4));
 }
 
 .falling-star {
@@ -143,7 +142,6 @@ onUnmounted(() => {
   top: -20px;
   opacity: 0.6;
   animation: star-fall linear infinite;
-  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
 }
 
 @keyframes fall-rotate {

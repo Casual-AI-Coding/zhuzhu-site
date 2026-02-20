@@ -3,8 +3,8 @@
     <!-- Film grain overlay -->
     <div class="film-grain"></div>
     
-    <!-- Background Decorations -->
-    <FloatingDecorations />
+    <!-- Background Decorations - Disabled for performance -->
+    <!-- <FloatingDecorations /> -->
     
     <!-- 特效组件 -->
     <FallingHearts />
@@ -35,8 +35,6 @@
         aria-label="返回顶部"
       >
         <div class="relative">
-          <!-- Pulse ring -->
-          <div class="absolute inset-0 rounded-full bg-primary/30 animate-ping"></div>
           <!-- Button -->
           <div class="relative w-12 h-12 glass-nav rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 group-active:scale-95">
             <ArrowUp class="w-5 h-5 text-primary group-hover:animate-bounce" />

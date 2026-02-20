@@ -18,6 +18,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 const canvas = ref(null);
 let ctx = null;
 let animationId = null;
+let isAnimating = false; // Track if animation loop is running
 const fireworks = [];
 const particles = [];
 
@@ -170,6 +171,12 @@ function launchFirework() {
   const x = 150 + Math.random() * (canvas.value.width - 300);
   const targetY = 100 + Math.random() * (canvas.value.height * 0.35);
   fireworks.push(new Firework(x, targetY));
+  
+  // Start animation loop if not already running
+  if (!isAnimating) {
+    isAnimating = true;
+    animate();
+  }
 }
 
 function createExplosion(x, y, color) {
@@ -195,10 +202,10 @@ function createExplosion(x, y, color) {
 function animate() {
   if (!ctx || !canvas.value) return;
   
-  // 清除画布，保持透明
+  // Clear canvas
   ctx.clearRect(0, 0, canvas.value.width, canvas.value.height);
   
-  // 更新烟花
+  // Update fireworks
   for (let i = fireworks.length - 1; i >= 0; i--) {
     const firework = fireworks[i];
     firework.draw();
@@ -208,7 +215,7 @@ function animate() {
     }
   }
   
-  // 更新粒子
+  // Update particles
   for (let i = particles.length - 1; i >= 0; i--) {
     const particle = particles[i];
     particle.draw();
@@ -217,7 +224,13 @@ function animate() {
     }
   }
   
-  animationId = requestAnimationFrame(animate);
+  // Only continue animation loop if there's something to animate
+  if (fireworks.length > 0 || particles.length > 0) {
+    animationId = requestAnimationFrame(animate);
+  } else {
+    isAnimating = false;
+    animationId = null;
+  }
 }
 
 function handleResize() {
@@ -232,7 +245,6 @@ onMounted(() => {
     ctx = canvas.value.getContext('2d');
     canvas.value.width = window.innerWidth;
     canvas.value.height = window.innerHeight;
-    // 不设置黑色背景，保持透明
     window.addEventListener('resize', handleResize);
     
     // 暴露触发方法到全局，供其他组件调用
@@ -248,7 +260,7 @@ onMounted(() => {
       }
     };
     
-    animate();
+    // Don't start animation loop until needed
   }
 });
 

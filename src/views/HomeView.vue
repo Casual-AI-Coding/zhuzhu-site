@@ -299,28 +299,28 @@ onUnmounted(() => {
   }
 }
 
-/* Glow Wave Effect */
+/* Glow Wave Effect - simplified */
 .glow-wave-container {
-  opacity: 0.6;
+  opacity: 0.4;
 }
 
 .glow-wave {
   width: 200%;
   height: 60px;
   background: radial-gradient(ellipse at center, 
-    rgba(212, 165, 116, 0.3) 0%, 
+    rgba(212, 165, 116, 0.2) 0%, 
     transparent 70%
   );
-  animation: wavePulse 3s ease-in-out infinite;
+  animation: wavePulse 4s ease-in-out infinite;
 }
 
 @keyframes wavePulse {
   0%, 100% {
     opacity: 0.3;
-    transform: scaleX(0.8);
+    transform: scaleX(0.9);
   }
   50% {
-    opacity: 0.6;
+    opacity: 0.5;
     transform: scaleX(1);
   }
 }

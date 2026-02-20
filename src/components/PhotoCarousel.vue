@@ -140,14 +140,14 @@ function resetProgress() {
 }
 
 function startTimers() {
-  // Progress timer (updates every 50ms)
+  // Progress timer (updates every 100ms instead of 50ms)
   progressTimer = setInterval(() => {
-    progress.value += 50;
+    progress.value += 100;
     if (progress.value >= props.interval) {
       progress.value = 0;
       next();
     }
-  }, 50);
+  }, 100);
 }
 
 function stopTimers() {
