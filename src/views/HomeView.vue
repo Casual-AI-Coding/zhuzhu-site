@@ -13,7 +13,24 @@
         
         <!-- Days Counter -->
         <div class="relative inline-block">
-          <div class="days-counter text-5xl sm:text-7xl lg:text-9xl 3xl:text-[10rem] 4xl:text-[12rem] font-display text-primary font-bold tracking-tight">
+          <!-- Milestone celebration overlay -->
+          <Transition name="milestone-fade">
+            <div v-if="isMilestone" class="milestone-celebration absolute -inset-8 sm:-inset-12 pointer-events-none">
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="milestone-ring w-40 h-40 sm:w-56 sm:h-56 rounded-full border-4 border-primary/30 animate-pulse"></div>
+              </div>
+              <div class="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span class="text-2xl sm:text-3xl animate-bounce inline-block">🎉</span>
+              </div>
+              <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                <span class="font-display text-primary text-lg sm:text-xl font-bold">
+                  {{ milestoneLabel }}
+                </span>
+              </div>
+            </div>
+          </Transition>
+          
+          <div class="days-counter text-5xl sm:text-7xl lg:text-9xl 3xl:text-[10rem] 4xl:text-[12rem] font-display font-bold tracking-tight" :class="isMilestone ? 'text-primary animate-pulse' : 'text-primary'">
             <span v-for="(digit, index) in totalDaysDigits" :key="index" class="digit">
               {{ digit }}
             </span>
@@ -93,21 +110,12 @@
           <p class="text-text-secondary">暂无照片</p>
         </div>
         
-        <div v-else class="grid gap-4" :class="gridColsClass">
-          <div
-            v-for="(photo, index) in displayedPhotos"
-            :key="photo.id"
-            class="card-hover cursor-pointer photo-item"
-            :style="{ animationDelay: `${index * 0.1}s` }"
-            @click="$router.push('/gallery')"
-          >
-            <PhotoCard
-              :src="photo.thumbnailUrl || photo.url"
-              :alt="photo.title"
-              :title="photo.title"
-              :date="formatDate(photo.date)"
-            />
-          </div>
+        <div v-else class="photo-carousel-container">
+          <PhotoCarousel 
+            :photos="displayedPhotos" 
+            :format-date="formatDate"
+            @open-gallery="$router.push('/gallery')"
+          />
         </div>
         
         <div class="text-center mt-8">
@@ -129,13 +137,47 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Image } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchPhotos } from '@/lib/notion.js';
-import PhotoCard from '@/components/PhotoCard.vue';
+import PhotoCarousel from '@/components/PhotoCarousel.vue';
 import FlipClock from '@/components/FlipClock.vue';
 
 const { totalDays, nextMilestone, nextMilestoneDate, nextAnniversary, nextAnniversaryDate, formattedStartDate, formatDate, getCountdown } = useDaysCount();
 
 // 天数拆分为数字数组（用于动画）
 const totalDaysDigits = computed(() => String(totalDays.value).split(''));
+
+// 里程碑检测 (100, 200, 300, 365, 500, 666, 777, 888, 999, 1000, etc.)
+const milestoneConfig = computed(() => {
+  const days = totalDays.value;
+  const milestones = [100, 200, 300, 365, 500, 666, 777, 888, 999, 1000, 1111, 1234, 1314, 1500, 2000, 2500, 3000, 5000, 10000];
+  
+  for (const milestone of milestones) {
+    if (days === milestone) {
+      return { isMilestone: true, value: milestone };
+    }
+  }
+  
+  // Also check if it's a 100-day multiple
+  if (days > 0 && days % 100 === 0) {
+    return { isMilestone: true, value: days };
+  }
+  
+  return { isMilestone: false, value: null };
+});
+
+const isMilestone = computed(() => milestoneConfig.value.isMilestone);
+
+const milestoneLabel = computed(() => {
+  const value = milestoneConfig.value.value;
+  if (!value) return '';
+  
+  if (value === 365) return '一周年';
+  if (value === 730) return '两周年';
+  if (value === 1095) return '三周年';
+  if (value === 1314) return '一生一世';
+  if (value === 520) return '我爱你';
+  if (value < 1000) return `${value}天`;
+  return `${(value / 1000).toFixed(1)}千天`;
+});
 
 const photos = ref([]);
 const loading = ref(true);
@@ -159,7 +201,7 @@ const gridColsClass = computed(() => {
   return 'grid-cols-1';
 });
 
-// 只显示一行的照片数量
+// 只显示一行的照片数量 (for skeleton)
 const featuredCount = computed(() => {
   const width = windowWidth.value;
   if (width >= 1024) return 3;
@@ -167,9 +209,12 @@ const featuredCount = computed(() => {
   return 1;
 });
 
-// 只展示一行的照片
+// 轮播显示的照片数量
+const carouselCount = 5;
+
+// 轮播展示的照片
 const displayedPhotos = computed(() => {
-  return photos.value.slice(0, featuredCount.value);
+  return photos.value.slice(0, carouselCount);
 });
 
 function updateCountdown() {
@@ -186,6 +231,13 @@ onMounted(async () => {
   // 监听窗口大小变化
   window.addEventListener('resize', updateWindowWidth);
   window.addEventListener('refresh-data', handleRefresh);
+  
+  // 如果是里程碑，触发庆祝烟花
+  if (isMilestone.value && window.__launchCelebration) {
+    setTimeout(() => {
+      window.__launchCelebration();
+    }, 500);
+  }
 });
 
 function handleRefresh() {
@@ -235,20 +287,41 @@ onUnmounted(() => {
   }
 }
 
-/* 照片入场动画 */
-.photo-item {
-  opacity: 0;
-  animation: photoFadeIn 0.5s ease-out forwards;
+/* Milestone Celebration */
+.milestone-celebration {
+  z-index: 10;
 }
 
-@keyframes photoFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+.milestone-ring {
+  animation: ringPulse 2s ease-in-out infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  50% {
+    transform: scale(1.1);
+    opacity: 0.6;
   }
+}
+
+.milestone-fade-enter-active,
+.milestone-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.milestone-fade-enter-from,
+.milestone-fade-leave-to {
+  opacity: 0;
+}
+
+/* Photo Carousel Container */
+.photo-carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 </style>

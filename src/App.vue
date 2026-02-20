@@ -21,14 +21,22 @@
     </main>
 
     <!-- Back to Top Button -->
-    <Transition name="fade">
-      <RippleButton
+    <Transition name="slide-up">
+      <button
         v-if="showBackToTop"
         @click="scrollToTop"
-        class="fixed bottom-8 right-8 z-50 w-12 h-12 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
+        class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50 group"
+        aria-label="返回顶部"
       >
-        <ArrowUp class="w-5 h-5" />
-      </RippleButton>
+        <div class="relative">
+          <!-- Pulse ring -->
+          <div class="absolute inset-0 rounded-full bg-primary/30 animate-ping"></div>
+          <!-- Button -->
+          <div class="relative w-12 h-12 glass-nav rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1 group-active:scale-95">
+            <ArrowUp class="w-5 h-5 text-primary group-hover:animate-bounce" />
+          </div>
+        </div>
+      </button>
     </Transition>
 
     <!-- Music Player -->
@@ -43,7 +51,6 @@ import FallingHearts from '@/components/FallingHearts.vue';
 import ClickHearts from '@/components/ClickHearts.vue';
 import Fireworks from '@/components/Fireworks.vue';
 import MusicPlayer from '@/components/MusicPlayer.vue';
-import RippleButton from '@/components/RippleButton.vue';
 import { ArrowUp } from 'lucide-vue-next';
 
 const showBackToTop = ref(false);
@@ -79,5 +86,17 @@ onUnmounted(() => {
 .page-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+/* Slide up animation for back to top button */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-up-enter-from,
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 </style>

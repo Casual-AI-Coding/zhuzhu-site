@@ -234,6 +234,20 @@ onMounted(() => {
     canvas.value.height = window.innerHeight;
     // 不设置黑色背景，保持透明
     window.addEventListener('resize', handleResize);
+    
+    // 暴露触发方法到全局，供其他组件调用
+    window.__launchFirework = () => {
+      for (let i = 0; i < 5; i++) {
+        setTimeout(() => launchFirework(), i * 200);
+      }
+    };
+    window.__launchCelebration = () => {
+      // 发射多个烟花庆祝
+      for (let i = 0; i < 15; i++) {
+        setTimeout(() => launchFirework(), i * 150);
+      }
+    };
+    
     animate();
   }
 });
@@ -243,6 +257,9 @@ onUnmounted(() => {
   if (animationId) {
     cancelAnimationFrame(animationId);
   }
+  // 清理全局方法
+  delete window.__launchFirework;
+  delete window.__launchCelebration;
 });
 </script>
 
