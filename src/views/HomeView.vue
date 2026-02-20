@@ -30,6 +30,11 @@
             </div>
           </Transition>
           
+          <!-- Glow wave effect -->
+          <div class="glow-wave-container absolute -inset-x-8 top-1/2 -translate-y-1/2 pointer-events-none">
+            <div class="glow-wave"></div>
+          </div>
+          
           <div class="days-counter text-5xl sm:text-7xl lg:text-9xl 3xl:text-[10rem] 4xl:text-[12rem] font-display font-bold tracking-tight" :class="isMilestone ? 'text-primary animate-pulse' : 'text-primary'">
             <span v-for="(digit, index) in totalDaysDigits" :key="index" class="digit">
               {{ digit }}
@@ -37,6 +42,13 @@
           </div>
           <div class="text-base sm:text-xl lg:text-2xl text-text-secondary mt-1 sm:mt-2">
             天
+          </div>
+          
+          <!-- Decorative line -->
+          <div class="deco-line-container mt-4">
+            <div class="deco-line"></div>
+            <div class="deco-heart">💕</div>
+            <div class="deco-line deco-line-right"></div>
           </div>
         </div>
         
@@ -284,6 +296,86 @@ onUnmounted(() => {
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
+  }
+}
+
+/* Glow Wave Effect */
+.glow-wave-container {
+  opacity: 0.6;
+}
+
+.glow-wave {
+  width: 200%;
+  height: 60px;
+  background: radial-gradient(ellipse at center, 
+    rgba(212, 165, 116, 0.3) 0%, 
+    transparent 70%
+  );
+  animation: wavePulse 3s ease-in-out infinite;
+}
+
+@keyframes wavePulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleX(0.8);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleX(1);
+  }
+}
+
+/* Decorative Line */
+.deco-line-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.deco-line {
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-primary), transparent);
+  animation: lineExpand 0.8s ease-out 0.6s both;
+}
+
+.deco-line-right {
+  animation: lineExpandRight 0.8s ease-out 0.6s both;
+}
+
+@keyframes lineExpand {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 40px;
+    opacity: 1;
+  }
+}
+
+@keyframes lineExpandRight {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 40px;
+    opacity: 1;
+  }
+}
+
+.deco-heart {
+  animation: heartBeat 1.5s ease-in-out 1s infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
   }
 }
 

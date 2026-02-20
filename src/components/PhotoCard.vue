@@ -1,5 +1,12 @@
 <template>
-  <div ref="cardRef" class="relative rounded-2xl overflow-hidden bg-gray-100" :class="aspectClass">
+  <div 
+    ref="cardRef" 
+    class="photo-card-3d relative rounded-2xl overflow-hidden bg-gray-100 group" 
+    :class="aspectClass"
+    :style="{ transform: transformStyle }"
+    @mousemove="handleMouseMove"
+    @mouseleave="handleMouseLeave"
+  >
     <!-- 加载占位符 -->
     <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse">
       <ImageIcon class="w-8 h-8 text-gray-300" />
@@ -72,8 +79,34 @@ const loaded = ref(false);
 const error = ref(false);
 const visible = ref(false);
 const cardRef = ref(null);
+const transform = ref({ rotateX: 0, rotateY: 0 });
 
 let observer = null;
+
+// 3D tilt transform style
+const transformStyle = computed(() => {
+  return `perspective(1000px) rotateX(${transform.value.rotateX}deg) rotateY(${transform.value.rotateY}deg)`;
+});
+
+function handleMouseMove(e) {
+  if (!cardRef.value) return;
+  
+  const rect = cardRef.value.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  
+  const rotateX = (y - centerY) / 15;
+  const rotateY = (centerX - x) / 15;
+  
+  transform.value = { rotateX, rotateY };
+}
+
+function handleMouseLeave() {
+  transform.value = { rotateX: 0, rotateY: 0 };
+}
 
 function onLoad() {
   loading.value = false;
@@ -116,3 +149,15 @@ onUnmounted(() => {
   }
 });
 </script>
+
+<style scoped>
+.photo-card-3d {
+  transition: transform 0.15s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.photo-card-3d:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+</style>

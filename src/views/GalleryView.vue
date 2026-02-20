@@ -75,83 +75,134 @@
     >
       <div
         v-if="selectedPhoto"
-        class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 landscape:p-2"
+        class="fixed inset-0 z-50 bg-black/95 flex flex-col"
         @click="closeLightbox"
         @wheel="handleWheel"
         @touchstart="handleTouchStart"
         @touchmove="handleTouchMove"
         @touchend="handleTouchEnd"
       >
-        <!-- 上一张按钮 -->
-        <button
-          v-if="currentIndex > 0"
-          @click.stop="prevPhoto"
-          class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
-        >
-          <ChevronLeft class="w-6 h-6 text-white" />
-        </button>
-        
-        <div class="max-w-4xl max-h-full landscape:max-w-none landscape:w-full landscape:h-full" @click.stop>
-          <!-- 错误降级 -->
-          <div v-if="lightboxError" class="w-full h-[60vh] flex items-center justify-center bg-gray-800 rounded-lg">
-            <div class="text-center">
-              <ImageIcon class="w-16 h-16 text-gray-500 mx-auto mb-4" />
-              <p class="text-gray-400">图片加载失败</p>
-            </div>
+        <!-- 顶部工具栏 -->
+        <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/50 to-transparent" @click.stop>
+          <div class="flex items-center gap-2">
+            <span class="text-white/80 text-sm font-medium">
+              📷 {{ currentIndex + 1 }} / {{ photos.length }}
+            </span>
           </div>
-          <!-- 正常图片 - 支持缩放 -->
-          <div 
-            v-show="!lightboxError"
-            class="overflow-hidden flex items-center justify-center"
-            :style="{ transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)` }"
-            style="transition: transform 0.1s ease-out"
-          >
-            <img
-              :src="selectedPhoto.url"
-              :alt="selectedPhoto.title"
-              class="max-w-full max-h-[70vh] object-contain rounded-lg"
-              @error="lightboxError = true"
-            />
-          </div>
-          <!-- 缩放提示 -->
-          <div class="text-center mt-2 text-white/50 text-xs">
-            ← → 切换 · 滚轮/双指缩放 · ESC 关闭
-          </div>
-          <!-- 详情信息 -->
-          <div class="text-center mt-4 space-y-2">
-            <p class="text-white font-handwriting text-xl">{{ selectedPhoto.title }}</p>
-            <p class="text-white/60 text-sm">{{ formatDate(selectedPhoto.date) }}</p>
-            <div v-if="selectedPhoto.place" class="flex items-center justify-center gap-1 text-white/80 text-sm">
-              <MapPin class="w-4 h-4" />
-              <span>{{ selectedPhoto.place }}</span>
-            </div>
-            <div v-if="selectedPhoto.tags && selectedPhoto.tags.length" class="flex justify-center gap-2 mt-2">
-              <span 
-                v-for="tag in selectedPhoto.tags" 
-                :key="tag"
-                class="px-3 py-1 bg-white/10 rounded-full text-white/80 text-xs"
-              >
-                {{ tag }}
-              </span>
-            </div>
-            <p v-if="selectedPhoto.description" class="text-white/60 text-sm mt-3 max-w-md mx-auto">
-              {{ selectedPhoto.description }}
-            </p>
+          <div class="flex items-center gap-2">
+            <button
+              @click="toggleFavorite"
+              class="p-2 rounded-full hover:bg-white/10 transition-colors"
+              :title="isFavorite ? '取消收藏' : '收藏'"
+            >
+              <Heart 
+                class="w-5 h-5 transition-colors" 
+                :class="isFavorite ? 'text-red-500 fill-red-500' : 'text-white/80'" 
+              />
+            </button>
+            <button
+              @click="closeLightbox"
+              class="p-2 rounded-full hover:bg-white/10 transition-colors"
+              title="关闭 (ESC)"
+            >
+              <X class="w-5 h-5 text-white/80" />
+            </button>
           </div>
         </div>
         
-        <!-- 下一张按钮 -->
-        <button
-          v-if="currentIndex < photos.length - 1"
-          @click.stop="nextPhoto"
-          class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10"
-        >
-          <ChevronRight class="w-6 h-6 text-white" />
-        </button>
+        <!-- 主内容区域 -->
+        <div class="flex-1 flex items-center justify-center relative overflow-hidden">
+          <!-- 上一张按钮 -->
+          <button
+            v-if="currentIndex > 0"
+            @click.stop="prevPhoto"
+            class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10 backdrop-blur-sm"
+          >
+            <ChevronLeft class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          </button>
+          
+          <div class="max-w-4xl max-h-full w-full h-full flex items-center justify-center p-2" @click.stop>
+            <!-- 错误降级 -->
+            <div v-if="lightboxError" class="w-full h-[60vh] flex items-center justify-center bg-gray-800 rounded-lg">
+              <div class="text-center">
+                <ImageIcon class="w-16 h-16 text-gray-500 mx-auto mb-4" />
+                <p class="text-gray-400">图片加载失败</p>
+              </div>
+            </div>
+            <!-- 正常图片 - 支持缩放 -->
+            <Transition
+              enter-active-class="transition-all duration-300 ease-out"
+              enter-from-class="opacity-0 scale-95"
+              enter-to-class="opacity-100 scale-100"
+              leave-active-class="transition-all duration-200 ease-in"
+              leave-from-class="opacity-100 scale-100"
+              leave-to-class="opacity-0 scale-95"
+            >
+              <div 
+                v-show="!lightboxError"
+                class="overflow-hidden flex items-center justify-center lightbox-image-container"
+                :style="{ transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)` }"
+              >
+                <img
+                  :src="selectedPhoto.url"
+                  :alt="selectedPhoto.title"
+                  class="max-w-full max-h-[65vh] sm:max-h-[70vh] object-contain rounded-lg shadow-2xl"
+                  @error="lightboxError = true"
+                />
+              </div>
+            </Transition>
+          </div>
+          
+          <!-- 下一张按钮 -->
+          <button
+            v-if="currentIndex < photos.length - 1"
+            @click.stop="nextPhoto"
+            class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 p-2 sm:p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors z-10 backdrop-blur-sm"
+          >
+            <ChevronRight class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          </button>
+        </div>
         
-        <!-- 照片计数 -->
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/50 text-sm">
-          {{ currentIndex + 1 }} / {{ photos.length }}
+        <!-- 底部信息栏 -->
+        <div class="px-4 py-4 bg-gradient-to-t from-black/50 to-transparent" @click.stop>
+          <!-- 进度条 -->
+          <div class="w-full max-w-md mx-auto h-1 bg-white/20 rounded-full overflow-hidden mb-4">
+            <div 
+              class="h-full bg-primary rounded-full transition-all duration-300"
+              :style="{ width: ((currentIndex + 1) / photos.length * 100) + '%' }"
+            ></div>
+          </div>
+          
+          <!-- 图片信息 -->
+          <div class="text-center space-y-2 max-w-lg mx-auto">
+            <h3 class="text-white font-handwriting text-xl sm:text-2xl">{{ selectedPhoto.title }}</h3>
+            <p class="text-white/60 text-sm">{{ formatDate(selectedPhoto.date) }}</p>
+            
+            <div class="flex items-center justify-center gap-4 flex-wrap">
+              <div v-if="selectedPhoto.place" class="flex items-center gap-1 text-white/80 text-sm">
+                <MapPin class="w-4 h-4" />
+                <span>{{ selectedPhoto.place }}</span>
+              </div>
+              <div v-if="selectedPhoto.tags && selectedPhoto.tags.length" class="flex gap-1 flex-wrap justify-center">
+                <span 
+                  v-for="tag in selectedPhoto.tags.slice(0, 3)" 
+                  :key="tag"
+                  class="px-2 py-0.5 bg-white/10 rounded-full text-white/70 text-xs"
+                >
+                  #{{ tag }}
+                </span>
+              </div>
+            </div>
+            
+            <p v-if="selectedPhoto.description" class="text-white/50 text-xs sm:text-sm mt-2 line-clamp-2">
+              {{ selectedPhoto.description }}
+            </p>
+          </div>
+          
+          <!-- 缩放提示 -->
+          <div class="text-center mt-3 text-white/40 text-xs">
+            ← → 切换 · 滚轮/双指缩放 · ESC 关闭
+          </div>
         </div>
       </div>
     </Transition>
@@ -160,7 +211,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { Image as ImageIcon, MapPin, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { Image as ImageIcon, MapPin, ChevronLeft, ChevronRight, Heart, X } from 'lucide-vue-next';
 import { fetchPhotos } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { useGalleryView } from '@/composables/useGalleryView.js';
@@ -177,6 +228,7 @@ const loading = ref(true);
 const selectedPhoto = ref(null);
 const lightboxError = ref(false);
 const currentIndex = ref(0);
+const favorites = ref(new Set());
 
 // 响应式窗口宽度
 const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -212,6 +264,20 @@ const masonryColumns = computed(() => {
   
   return result;
 });
+
+// 收藏功能
+const isFavorite = computed(() => {
+  return selectedPhoto.value ? favorites.value.has(selectedPhoto.value.id) : false;
+});
+
+function toggleFavorite() {
+  if (!selectedPhoto.value) return;
+  if (favorites.value.has(selectedPhoto.value.id)) {
+    favorites.value.delete(selectedPhoto.value.id);
+  } else {
+    favorites.value.add(selectedPhoto.value.id);
+  }
+}
 
 // 图片缩放
 const scale = ref(1);
@@ -369,5 +435,18 @@ onUnmounted(() => {
 .view-fade-enter-from,
 .view-fade-leave-to {
   opacity: 0;
+}
+
+/* Lightbox 图片容器 */
+.lightbox-image-container {
+  transition: transform 0.15s ease-out;
+}
+
+/* 限制文本行数 */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

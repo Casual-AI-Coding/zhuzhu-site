@@ -138,9 +138,10 @@
         class="grid grid-cols-1 md:grid-cols-2 gap-4"
       >
         <div
-          v-for="message in messages"
+          v-for="(message, index) in messages"
           :key="message.id"
-          class="glass-nav rounded-2xl p-6 card-hover cursor-pointer select-none"
+          class="glass-nav rounded-2xl p-6 card-hover cursor-pointer select-none message-card"
+          :class="`message-direction-${index % 3}`"
           @touchstart="handleTouchStart($event, message.content)"
           @touchend="handleTouchEnd"
           @contextmenu="handleContextMenu($event, message.content)"
@@ -380,7 +381,8 @@ onUnmounted(() => {
 
 /* 留言入场动画 - 增强版 */
 .message-enter-active {
-  animation: messageSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: messageFlyIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
 }
 
 .message-leave-active {
@@ -391,17 +393,58 @@ onUnmounted(() => {
   transition: transform 0.4s ease;
 }
 
-@keyframes messageSlideIn {
+/* 随机方向动画变体 */
+.message-direction-0.message-enter-active {
+  animation-name: messageFlyInFromTop;
+}
+
+.message-direction-1.message-enter-active {
+  animation-name: messageFlyInFromLeft;
+}
+
+.message-direction-2.message-enter-active {
+  animation-name: messageFlyInFromRight;
+}
+
+@keyframes messageFlyInFromTop {
   0% {
     opacity: 0;
-    transform: translateY(-30px) scale(0.9);
+    transform: translateY(-40px) scale(0.8);
   }
   60% {
-    transform: translateY(5px) scale(1.02);
+    transform: translateY(10px) scale(1.05);
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes messageFlyInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-40px) scale(0.8);
+  }
+  60% {
+    transform: translateX(10px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes messageFlyInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(40px) scale(0.8);
+  }
+  60% {
+    transform: translateX(-10px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
   }
 }
 
@@ -413,6 +456,36 @@ onUnmounted(() => {
   to {
     opacity: 0;
     transform: scale(0.8);
+  }
+}
+
+/* 涟漪效果 */
+.message-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.message-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.message-enter-active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(212, 165, 116, 0.4);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 30px rgba(212, 165, 116, 0);
   }
 }
 </style>

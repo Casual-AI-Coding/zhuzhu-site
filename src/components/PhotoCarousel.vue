@@ -246,12 +246,55 @@ watch(() => props.photos, () => {
 .slide-content {
   width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
 .slide-content img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform-origin: center center;
+}
+
+/* Ken Burns Effect */
+.carousel-slide.is-active img {
+  animation: kenBurns 5s ease-out forwards;
+}
+
+/* Different Ken Burns directions for variety */
+.carousel-slide.is-active:nth-child(odd) img {
+  animation-name: kenBurnsRight;
+}
+
+.carousel-slide.is-active:nth-child(3n) img {
+  animation-name: kenBurnsZoom;
+}
+
+@keyframes kenBurns {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+
+@keyframes kenBurnsRight {
+  0% {
+    transform: scale(1) translateX(0);
+  }
+  100% {
+    transform: scale(1.08) translateX(-2%);
+  }
+}
+
+@keyframes kenBurnsZoom {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
 }
 
 /* Carousel fade animation */

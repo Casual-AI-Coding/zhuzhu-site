@@ -1,7 +1,10 @@
 <template>
-  <div class="min-h-screen relative">
+  <div class="min-h-screen relative flex flex-col">
     <!-- Film grain overlay -->
     <div class="film-grain"></div>
+    
+    <!-- Background Decorations -->
+    <FloatingDecorations />
     
     <!-- 特效组件 -->
     <FallingHearts />
@@ -12,13 +15,16 @@
     <Navigation />
     
     <!-- Main content -->
-    <main>
+    <main class="flex-1">
       <RouterView v-slot="{ Component }">
         <Transition name="page" mode="out-in">
           <component :is="Component" />
         </Transition>
       </RouterView>
     </main>
+    
+    <!-- Footer -->
+    <SiteFooter />
 
     <!-- Back to Top Button -->
     <Transition name="slide-up">
@@ -47,10 +53,12 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import Navigation from '@/components/Navigation.vue';
+import FloatingDecorations from '@/components/FloatingDecorations.vue';
 import FallingHearts from '@/components/FallingHearts.vue';
 import ClickHearts from '@/components/ClickHearts.vue';
 import Fireworks from '@/components/Fireworks.vue';
 import MusicPlayer from '@/components/MusicPlayer.vue';
+import SiteFooter from '@/components/SiteFooter.vue';
 import { ArrowUp } from 'lucide-vue-next';
 
 const showBackToTop = ref(false);
@@ -73,19 +81,35 @@ onUnmounted(() => {
 </script>
 
 <style>
-.page-enter-active,
+/* 页面切换动画 - 向前导航 */
+.page-enter-active {
+  animation: pageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .page-leave-active {
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  animation: pageSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
+@keyframes pageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
+@keyframes pageSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
 }
 
 /* Slide up animation for back to top button */

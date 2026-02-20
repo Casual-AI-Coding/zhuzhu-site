@@ -35,9 +35,30 @@
       </div>
       
       <!-- Timeline -->
-      <div v-else class="relative">
-        <!-- Timeline Line -->
-        <div class="absolute left-4 sm:left-1/2 top-0 bottom-0 w-0.5 bg-border sm:-translate-x-1/2"></div>
+      <div v-else class="relative" ref="timelineContainer">
+        <!-- Timeline Line - SVG with draw animation -->
+        <svg class="absolute left-4 sm:left-1/2 top-0 h-full w-1 -translate-x-1/2 overflow-visible" aria-hidden="true">
+          <!-- Background line -->
+          <line
+            x1="0.5"
+            y1="0"
+            x2="0.5"
+            y2="100%"
+            class="stroke-border"
+            stroke-width="2"
+          />
+          <!-- Animated line -->
+          <line
+            x1="0.5"
+            y1="0"
+            x2="0.5"
+            y2="100%"
+            class="stroke-primary timeline-line-animated"
+            stroke-width="2"
+            stroke-linecap="round"
+            :style="{ strokeDashoffset: lineProgress }"
+          />
+        </svg>
         
         <!-- Timeline Items -->
         <div class="space-y-8 landscape:space-y-4">
@@ -85,6 +106,8 @@ const events = ref([]);
 const loading = ref(true);
 const visibleItems = reactive({});
 const itemRefs = ref([]);
+const timelineContainer = ref(null);
+const lineProgress = ref(1000); // Start fully hidden
 
 let observer = null;
 
@@ -108,6 +131,7 @@ onMounted(async () => {
   events.value = await fetchTimeline();
   loading.value = false;
   window.addEventListener('refresh-data', handleRefresh);
+  window.addEventListener('scroll', updateLineProgress, { passive: true });
   
   // 设置滚动观察器
   setupObserver();
@@ -131,7 +155,35 @@ function setupObserver() {
     itemRefs.value.forEach(el => {
       if (el) observer.observe(el);
     });
+    // 初始化线条长度
+    updateLineProgress();
   }, 100);
+}
+
+// 更新时间线绘制进度
+function updateLineProgress() {
+  if (!timelineContainer.value) return;
+  
+  const container = timelineContainer.value;
+  const rect = container.getBoundingClientRect();
+  const windowHeight = window.innerHeight;
+  
+  // 计算容器在视口中的可见比例
+  const containerTop = rect.top;
+  const containerHeight = rect.height;
+  
+  // 线条总长度（像素）
+  const totalLength = containerHeight;
+  
+  // 计算已滚过的距离
+  let scrolled = windowHeight - containerTop;
+  scrolled = Math.max(0, Math.min(scrolled, containerHeight + windowHeight));
+  
+  // 计算绘制进度 (0 to totalLength)
+  const progress = Math.max(0, Math.min(totalLength, scrolled - windowHeight * 0.2));
+  
+  // stroke-dashoffset = totalLength - progress
+  lineProgress.value = Math.max(0, totalLength - progress);
 }
 
 function handleRefresh() {
@@ -150,6 +202,7 @@ function handleRefresh() {
 
 onUnmounted(() => {
   window.removeEventListener('refresh-data', handleRefresh);
+  window.removeEventListener('scroll', updateLineProgress);
   if (observer) {
     observer.disconnect();
   }
@@ -223,5 +276,16 @@ onUnmounted(() => {
   .timeline-item.is-visible .timeline-card {
     transform: translateX(0);
   }
+}
+
+/* 时间线绘制动画 */
+.timeline-line-animated {
+  stroke-dasharray: 1000;
+  transition: stroke-dashoffset 0.1s ease-out;
+}
+
+/* SVG 容器样式 */
+svg {
+  pointer-events: none;
 }
 </style>
