@@ -110,15 +110,15 @@
         <div v-for="i in 4" :key="i" class="animate-pulse">
           <div class="glass-nav rounded-2xl p-6">
             <div class="flex items-start gap-3 mb-3">
-              <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+              <div class="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/5"></div>
               <div class="space-y-2">
-                <div class="h-4 bg-gray-200 rounded w-20"></div>
-                <div class="h-3 bg-gray-200 rounded w-24"></div>
+                <div class="h-4 bg-primary/10 dark:bg-primary/5 rounded w-20"></div>
+                <div class="h-3 bg-primary/10 dark:bg-primary/5 rounded w-24"></div>
               </div>
             </div>
             <div class="space-y-2">
-              <div class="h-4 bg-gray-200 rounded w-full"></div>
-              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-4 bg-primary/10 dark:bg-primary/5 rounded w-full"></div>
+              <div class="h-4 bg-primary/10 dark:bg-primary/5 rounded w-3/4"></div>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 <template>
   <div class="skeleton-card animate-pulse">
-    <div class="skeleton-image bg-gray-200 dark:bg-gray-700 rounded-2xl" :class="aspectClass"></div>
+    <div class="skeleton-image bg-primary/10 dark:bg-primary/5 rounded-2xl" :class="aspectClass"></div>
     <div class="skeleton-content p-4 space-y-2">
-      <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-      <div class="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+      <div class="h-4 bg-primary/10 dark:bg-primary/5 rounded w-3/4"></div>
+      <div class="h-3 bg-primary/10 dark:bg-primary/5 rounded w-1/2"></div>
     </div>
   </div>
 </template>

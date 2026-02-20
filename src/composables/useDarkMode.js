@@ -23,7 +23,15 @@ export function useDarkMode() {
   };
 
   const toggle = () => {
+    // 添加过渡类
+    document.documentElement.classList.add('theme-transition');
+    
     isDark.value = !isDark.value;
+    
+    // 过渡完成后移除过渡类
+    setTimeout(() => {
+      document.documentElement.classList.remove('theme-transition');
+    }, 300);
   };
 
   watch(isDark, (newValue) => {
@@ -36,7 +44,12 @@ export function useDarkMode() {
     // 监听系统主题变化
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       if (localStorage.getItem('darkMode') === null) {
+        // 系统主题变化时也添加过渡
+        document.documentElement.classList.add('theme-transition');
         isDark.value = e.matches;
+        setTimeout(() => {
+          document.documentElement.classList.remove('theme-transition');
+        }, 300);
       }
     });
   });

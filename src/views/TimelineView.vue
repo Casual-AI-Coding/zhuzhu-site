@@ -12,8 +12,21 @@
       </div>
       
       <!-- Loading -->
-      <div v-if="loading" class="text-center text-text-secondary">
-        加载中...
+      <div v-if="loading" class="space-y-8">
+        <div v-for="i in 4" :key="i" class="relative flex items-start gap-4 sm:gap-8 animate-pulse" :class="i % 2 === 0 ? 'sm:flex-row' : 'sm:flex-row-reverse'">
+          <div class="absolute left-4 sm:left-1/2 w-8 h-8 -translate-x-1/2 rounded-full bg-primary/10 dark:bg-primary/5"></div>
+          <div class="ml-12 sm:ml-0 sm:w-1/2" :class="i % 2 === 0 ? 'sm:pr-12 sm:text-right' : 'sm:pl-12'">
+            <div class="glass-nav rounded-2xl p-6">
+              <div class="flex items-center gap-2 mb-2" :class="i % 2 === 0 ? 'sm:justify-end' : ''">
+                <div class="h-5 bg-primary/10 dark:bg-primary/5 rounded-full w-16"></div>
+              </div>
+              <div class="h-5 bg-primary/10 dark:bg-primary/5 rounded w-24 mb-2" :class="i % 2 === 0 ? 'sm:ml-auto' : ''"></div>
+              <div class="h-6 bg-primary/10 dark:bg-primary/5 rounded w-32 mb-2" :class="i % 2 === 0 ? 'sm:ml-auto' : ''"></div>
+              <div class="h-4 bg-primary/10 dark:bg-primary/5 rounded w-full"></div>
+              <div class="h-4 bg-primary/10 dark:bg-primary/5 rounded w-2/3 mt-2"></div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- Empty State -->
@@ -168,6 +181,7 @@ onUnmounted(() => {
   transform: translateX(-50%) scale(1);
 }
 
+/* 移动端：交替从左/右滑入 */
 .timeline-item .timeline-card {
   opacity: 0;
   transform: translateX(20px);
@@ -180,12 +194,34 @@ onUnmounted(() => {
   transform: translateX(0);
 }
 
-/* 奇数项卡片从左边进入 */
-.timeline-item:nth-child(odd) .timeline-card {
-  transform: translateX(-20px);
+/* 移动端：奇数项从左滑入，偶数项从右滑入 */
+@media (max-width: 639px) {
+  .timeline-item:nth-child(odd) .timeline-card {
+    transform: translateX(-20px);
+  }
+  
+  .timeline-item:nth-child(even) .timeline-card {
+    transform: translateX(20px);
+  }
+  
+  .timeline-item:nth-child(odd).is-visible .timeline-card,
+  .timeline-item:nth-child(even).is-visible .timeline-card {
+    transform: translateX(0);
+  }
 }
 
-.timeline-item:nth-child(odd).is-visible .timeline-card {
-  transform: translateX(0);
+/* 桌面端：左右交替 */
+@media (min-width: 640px) {
+  .timeline-item .timeline-card {
+    transform: translateX(20px);
+  }
+  
+  .timeline-item:nth-child(odd) .timeline-card {
+    transform: translateX(-20px);
+  }
+  
+  .timeline-item.is-visible .timeline-card {
+    transform: translateX(0);
+  }
 }
 </style>

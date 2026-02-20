@@ -25,8 +25,16 @@
         
         <!-- Next Milestone & Countdown with Flip Clock -->
         <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-4 sm:gap-6">
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-4 sm:py-6 min-w-[280px] sm:min-w-[340px]">
-            <p class="text-text-secondary dark:text-text-secondary-dark text-sm mb-3 text-center">
+          <!-- 百天里程碑卡片 -->
+          <div class="countdown-card milestone-card glass-nav rounded-2xl px-4 sm:px-6 py-4 sm:py-6 min-w-[280px] sm:min-w-[340px] relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-pink-400 to-primary"></div>
+            <div class="flex items-center justify-center gap-2 mb-3">
+              <span class="text-lg">🎯</span>
+              <p class="text-text-secondary text-sm text-center">
+                百天里程碑
+              </p>
+            </div>
+            <p class="text-text-secondary text-sm mb-3 text-center">
               距离 <span class="font-display text-primary font-bold">{{ nextMilestone.days }}</span> 天纪念日
             </p>
             <FlipClock
@@ -39,7 +47,15 @@
             <p v-else class="text-2xl font-display text-primary text-center py-4">{{ nextMilestone.daysUntil }} 天</p>
           </div>
 
-          <div class="glass-nav rounded-2xl px-4 sm:px-6 py-4 sm:py-6 min-w-[280px] sm:min-w-[340px]">
+          <!-- 周年纪念卡片 -->
+          <div class="countdown-card anniversary-card glass-nav rounded-2xl px-4 sm:px-6 py-4 sm:py-6 min-w-[280px] sm:min-w-[340px] relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-400 via-primary to-pink-400"></div>
+            <div class="flex items-center justify-center gap-2 mb-3">
+              <span class="text-lg">💝</span>
+              <p class="text-text-secondary text-sm text-center">
+                周年纪念
+              </p>
+            </div>
             <p class="text-text-secondary text-sm mb-3 text-center">
               距离 <span class="font-display text-primary font-bold">{{ nextAnniversary.year }}</span> 周年
             </p>
@@ -63,10 +79,10 @@
         <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div v-for="i in featuredCount" :key="i" class="animate-pulse">
             <div class="bg-card rounded-2xl overflow-hidden">
-              <div class="aspect-[4/3] bg-gray-200"></div>
+              <div class="aspect-[4/3] bg-primary/10 dark:bg-primary/5"></div>
               <div class="p-4 space-y-2">
-                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div class="h-4 bg-primary/10 dark:bg-primary/5 rounded w-3/4"></div>
+                <div class="h-3 bg-primary/10 dark:bg-primary/5 rounded w-1/2"></div>
               </div>
             </div>
           </div>
