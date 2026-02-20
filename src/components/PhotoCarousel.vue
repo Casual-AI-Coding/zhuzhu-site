@@ -61,14 +61,6 @@
         :aria-label="`跳转到第 ${index + 1} 张`"
       ></button>
     </div>
-    
-    <!-- Progress Bar -->
-    <div v-if="photos.length > 1 && isPlaying" class="carousel-progress absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-      <div 
-        class="progress-bar h-full bg-primary transition-all"
-        :style="{ width: progressWidth + '%' }"
-      ></div>
-    </div>
   </div>
 </template>
 
@@ -87,14 +79,7 @@ const emit = defineEmits(['open-gallery']);
 
 const currentIndex = ref(0);
 const isPlaying = ref(props.autoPlay);
-const progress = ref(0);
 let timer = null;
-let progressTimer = null;
-
-// Progress width for the progress bar
-const progressWidth = computed(() => {
-  return (progress.value / props.interval) * 100;
-});
 
 // Navigation methods
 function next() {
@@ -132,7 +117,6 @@ function resume() {
 }
 
 function resetProgress() {
-  progress.value = 0;
   if (isPlaying.value) {
     stopTimers();
     startTimers();
@@ -140,24 +124,15 @@ function resetProgress() {
 }
 
 function startTimers() {
-  // Progress timer (updates every 100ms instead of 50ms)
-  progressTimer = setInterval(() => {
-    progress.value += 100;
-    if (progress.value >= props.interval) {
-      progress.value = 0;
-      next();
-    }
-  }, 100);
+  timer = setInterval(() => {
+    next();
+  }, props.interval);
 }
 
 function stopTimers() {
   if (timer) {
     clearInterval(timer);
     timer = null;
-  }
-  if (progressTimer) {
-    clearInterval(progressTimer);
-    progressTimer = null;
   }
 }
 
@@ -325,15 +300,5 @@ watch(() => props.photos, () => {
 /* Indicators */
 .indicator {
   transition: all 0.3s ease;
-}
-
-/* Progress bar */
-.carousel-progress {
-  border-radius: 0 0 1rem 1rem;
-  overflow: hidden;
-}
-
-.progress-bar {
-  transition: width 0.05s linear;
 }
 </style>
