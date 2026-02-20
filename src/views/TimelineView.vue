@@ -110,6 +110,7 @@ const timelineContainer = ref(null);
 const lineProgress = ref(1000); // Start fully hidden
 
 let observer = null;
+let scrollRafId = null; // For throttling scroll handler
 
 function setItemRef(el, index) {
   if (el) {
@@ -131,7 +132,7 @@ onMounted(async () => {
   events.value = await fetchTimeline();
   loading.value = false;
   window.addEventListener('refresh-data', handleRefresh);
-  window.addEventListener('scroll', updateLineProgress, { passive: true });
+  window.addEventListener('scroll', throttledUpdateLineProgress, { passive: true });
   
   // 设置滚动观察器
   setupObserver();
@@ -158,6 +159,16 @@ function setupObserver() {
     // 初始化线条长度
     updateLineProgress();
   }, 100);
+}
+
+// Throttled scroll handler using requestAnimationFrame
+function throttledUpdateLineProgress() {
+  if (scrollRafId) return; // Already scheduled
+  
+  scrollRafId = requestAnimationFrame(() => {
+    updateLineProgress();
+    scrollRafId = null;
+  });
 }
 
 // 更新时间线绘制进度
@@ -202,7 +213,10 @@ function handleRefresh() {
 
 onUnmounted(() => {
   window.removeEventListener('refresh-data', handleRefresh);
-  window.removeEventListener('scroll', updateLineProgress);
+  window.removeEventListener('scroll', throttledUpdateLineProgress);
+  if (scrollRafId) {
+    cancelAnimationFrame(scrollRafId);
+  }
   if (observer) {
     observer.disconnect();
   }

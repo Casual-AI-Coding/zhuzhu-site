@@ -31,8 +31,12 @@ const stars = ref([]);
 const heartEmojis = ['❤️', '💕', '💗', '💖', '💝', '💘', '💓', '💞', '🩷', '🩵'];
 
 onMounted(() => {
+  // Reduce element count for better performance
+  const heartCount = 6; // Reduced from 12
+  const starCount = 8;  // Reduced from 20
+  
   // Generate random positioned hearts
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < heartCount; i++) {
     hearts.value.push({
       id: `heart-${i}`,
       emoji: heartEmojis[Math.floor(Math.random() * heartEmojis.length)],
@@ -40,23 +44,23 @@ onMounted(() => {
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
         fontSize: `${14 + Math.random() * 18}px`,
-        animationDuration: `${4 + Math.random() * 4}s`,
-        animationDelay: `${Math.random() * 3}s`,
-        opacity: 0.3 + Math.random() * 0.3,
+        animationDuration: `${5 + Math.random() * 5}s`, // Slower animations
+        animationDelay: `${Math.random() * 4}s`,
+        opacity: 0.25 + Math.random() * 0.2, // Lower opacity
       }
     });
   }
   
   // Generate random positioned stars
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < starCount; i++) {
     stars.value.push({
       id: `star-${i}`,
       style: {
         left: `${Math.random() * 100}%`,
         top: `${Math.random() * 100}%`,
         fontSize: `${8 + Math.random() * 10}px`,
-        animationDuration: `${2 + Math.random() * 2}s`,
-        animationDelay: `${Math.random() * 3}s`,
+        animationDuration: `${3 + Math.random() * 3}s`, // Slower animations
+        animationDelay: `${Math.random() * 4}s`,
       }
     });
   }
@@ -107,12 +111,10 @@ onMounted(() => {
   0%, 100% {
     opacity: 0.2;
     transform: scale(0.8);
-    filter: blur(0px);
   }
   50% {
     opacity: 0.7;
     transform: scale(1.2);
-    filter: blur(1px);
   }
 }
 

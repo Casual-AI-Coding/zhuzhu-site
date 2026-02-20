@@ -82,6 +82,8 @@ const cardRef = ref(null);
 const transform = ref({ rotateX: 0, rotateY: 0 });
 
 let observer = null;
+let rafId = null; // For throttling mousemove
+let pendingUpdate = null;
 
 // 3D tilt transform style
 const transformStyle = computed(() => {
@@ -91,20 +93,37 @@ const transformStyle = computed(() => {
 function handleMouseMove(e) {
   if (!cardRef.value) return;
   
-  const rect = cardRef.value.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  // Store pending update data
+  pendingUpdate = { e };
   
-  const centerX = rect.width / 2;
-  const centerY = rect.height / 2;
-  
-  const rotateX = (y - centerY) / 15;
-  const rotateY = (centerX - x) / 15;
-  
-  transform.value = { rotateX, rotateY };
+  // Throttle with requestAnimationFrame
+  if (!rafId) {
+    rafId = requestAnimationFrame(() => {
+      if (pendingUpdate && cardRef.value) {
+        const rect = cardRef.value.getBoundingClientRect();
+        const x = pendingUpdate.e.clientX - rect.left;
+        const y = pendingUpdate.e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = (y - centerY) / 15;
+        const rotateY = (centerX - x) / 15;
+        
+        transform.value = { rotateX, rotateY };
+      }
+      rafId = null;
+    });
+  }
 }
 
 function handleMouseLeave() {
+  // Cancel any pending animation frame
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  pendingUpdate = null;
   transform.value = { rotateX: 0, rotateY: 0 };
 }
 
@@ -146,6 +165,9 @@ onMounted(() => {
 onUnmounted(() => {
   if (observer) {
     observer.disconnect();
+  }
+  if (rafId) {
+    cancelAnimationFrame(rafId);
   }
 });
 </script>
