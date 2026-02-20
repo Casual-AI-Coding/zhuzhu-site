@@ -50,6 +50,16 @@
             <div class="deco-heart">💕</div>
             <div class="deco-line deco-line-right"></div>
           </div>
+          
+          <!-- Share Button -->
+          <div class="mt-6">
+            <button 
+              @click="showSharePoster = true"
+              class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors inline-flex items-center gap-2"
+            >
+              📤 分享我们的故事
+            </button>
+          </div>
         </div>
         
         <!-- Next Milestone & Countdown with Flip Clock -->
@@ -141,6 +151,25 @@
         </div>
       </div>
     </div>
+    
+    <!-- Share Poster Modal -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div 
+          v-if="showSharePoster" 
+          class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+          @click.self="showSharePoster = false"
+        >
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm w-full">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-display text-text-main">分享海报</h3>
+              <button @click="showSharePoster = false" class="text-text-secondary hover:text-text-main">✕</button>
+            </div>
+            <SharePoster />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -151,6 +180,7 @@ import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchPhotos } from '@/lib/notion.js';
 import PhotoCarousel from '@/components/PhotoCarousel.vue';
 import FlipClock from '@/components/FlipClock.vue';
+import SharePoster from '@/components/SharePoster.vue';
 
 const { totalDays, nextMilestone, nextMilestoneDate, nextAnniversary, nextAnniversaryDate, formattedStartDate, formatDate, getCountdown } = useDaysCount();
 
@@ -195,6 +225,7 @@ const photos = ref([]);
 const loading = ref(true);
 const countdown = ref(null);
 const milestoneCountdown = ref(null);
+const showSharePoster = ref(false);
 
 let countdownTimer = null;
 

@@ -30,9 +30,12 @@
       </div>
       
       <!-- Empty State -->
-      <div v-else-if="events.length === 0" class="text-center text-text-secondary">
-        暂无时光轴数据
-      </div>
+      <EmptyState
+        v-else-if="events.length === 0"
+        type="timeline"
+        title="还没有记录哦~"
+        subtitle="一起回忆美好的时光吧"
+      />
       
       <!-- Timeline -->
       <div v-else class="relative" ref="timelineContainer">
@@ -99,6 +102,7 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { fetchTimeline } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
+import EmptyState from '@/components/EmptyState.vue';
 
 const { formatDate } = useDaysCount();
 

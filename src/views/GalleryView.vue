@@ -21,9 +21,14 @@
       <SkeletonGrid v-if="loading" :count="6" aspect-class="aspect-[4/3]" />
       
       <!-- Empty State -->
-      <div v-else-if="photos.length === 0" class="text-center text-text-secondary">
-        暂无照片
-      </div>
+      <EmptyState
+        v-else-if="photos.length === 0"
+        type="gallery"
+        title="还没有照片哦~"
+        subtitle="快上传你们的美好瞬间吧"
+        actionText="📷 上传照片"
+        @action="$router.push('/gallery')"
+      />
       
       <!-- View Container with Transition -->
       <Transition name="view-fade" mode="out-in">
@@ -219,6 +224,7 @@ import PhotoCard from '@/components/PhotoCard.vue';
 import SkeletonGrid from '@/components/SkeletonGrid.vue';
 import GalleryToolbar from '@/components/GalleryToolbar.vue';
 import TimelineGallery from '@/components/TimelineGallery.vue';
+import EmptyState from '@/components/EmptyState.vue';
 
 const { formatDate } = useDaysCount();
 const { viewMode, groupBy } = useGalleryView();

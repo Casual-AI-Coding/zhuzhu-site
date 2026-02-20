@@ -77,9 +77,13 @@
       </div>
       
       <!-- Empty State -->
-      <div v-else-if="anniversaries.length === 0" class="text-center text-text-secondary">
-        暂无纪念日数据
-      </div>
+      <EmptyState
+        v-else-if="anniversaries.length === 0"
+        type="anniversary"
+        title="还没有纪念日哦~"
+        subtitle="记录属于你们的特别日子吧"
+        actionText="💝 添加纪念日"
+      />
       
       <!-- Upcoming Anniversaries -->
       <template v-else>
@@ -170,6 +174,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Heart } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { fetchAnniversaries } from '@/lib/notion.js';
+import EmptyState from '@/components/EmptyState.vue';
 
 const { totalDays, nextMilestone, formatDate, getDaysUntil } = useDaysCount();
 

@@ -15,7 +15,7 @@
     <Navigation />
     
     <!-- Main content -->
-    <main class="flex-1">
+    <main class="flex-1 pb-16 md:pb-0">
       <RouterView v-slot="{ Component }">
         <Transition name="page" mode="out-in">
           <component :is="Component" />
@@ -24,7 +24,10 @@
     </main>
     
     <!-- Footer -->
-    <SiteFooter />
+    <SiteFooter class="hidden md:block" />
+
+    <!-- Mobile Bottom Navigation -->
+    <BottomNav />
 
     <!-- Back to Top Button -->
     <Transition name="slide-up">
@@ -45,6 +48,9 @@
 
     <!-- Music Player -->
     <MusicPlayer />
+    
+    <!-- Toast Notifications -->
+    <ToastContainer />
   </div>
 </template>
 
@@ -57,6 +63,8 @@ import ClickHearts from '@/components/ClickHearts.vue';
 import Fireworks from '@/components/Fireworks.vue';
 import MusicPlayer from '@/components/MusicPlayer.vue';
 import SiteFooter from '@/components/SiteFooter.vue';
+import ToastContainer from '@/components/ToastContainer.vue';
+import BottomNav from '@/components/BottomNav.vue';
 import { ArrowUp } from 'lucide-vue-next';
 
 const showBackToTop = ref(false);

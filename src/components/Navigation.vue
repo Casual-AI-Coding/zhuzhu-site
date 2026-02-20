@@ -60,15 +60,6 @@
               <Moon v-else key="moon" class="w-5 h-5 text-text-main" />
             </Transition>
           </RippleButton>
-
-          <!-- Mobile Menu Button -->
-          <RippleButton
-            @click="isMobileMenuOpen = !isMobileMenuOpen"
-            class="p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors"
-          >
-            <Menu v-if="!isMobileMenuOpen" class="w-6 h-6 text-text-main dark:text-text-main-dark" />
-            <X v-else class="w-6 h-6 text-text-main dark:text-text-main-dark" />
-          </RippleButton>
         </div>
       </div>
       
@@ -81,18 +72,6 @@
         leave-from-class="opacity-100 translate-y-0"
         leave-to-class="opacity-0 -translate-y-2"
       >
-        <div v-if="isMobileMenuOpen" class="md:hidden mt-3 pt-3 border-t border-border/50 dark:border-border-dark/50">
-          <div class="flex flex-col gap-1">
-            <MobileNavLink
-              v-for="item in navItems"
-              :key="item.name"
-              :to="item.path"
-              :label="item.label"
-              :icon="item.icon"
-              @click="isMobileMenuOpen = false"
-            />
-          </div>
-        </div>
       </Transition>
     </div>
   </nav>
