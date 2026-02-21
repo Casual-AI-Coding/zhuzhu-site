@@ -160,7 +160,7 @@
           class="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
           @click.self="showSharePoster = false"
         >
-          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 max-w-sm w-full max-h-[90vh] overflow-y-auto">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 max-w-sm w-full">
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-lg font-display text-text-main">分享海报</h3>
               <button type="button" @click="showSharePoster = false" class="text-text-secondary hover:text-text-main p-2 -m-2 cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">✕</button>

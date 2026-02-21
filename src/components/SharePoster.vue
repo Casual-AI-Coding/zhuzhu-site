@@ -158,11 +158,11 @@ async function downloadPoster() {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  // Set canvas size - 竖版海报 (更紧凑)
+  // Set canvas size - 竖版海报
   const width = 600;
-  const baseHeight = 700;
+  const baseHeight = 800;
   const withPhoto = !!props.photoUrl;
-  const height = withPhoto ? baseHeight + 200 : baseHeight;
+  const height = withPhoto ? baseHeight + 180 : baseHeight;
   canvas.width = width;
   canvas.height = height;
   
@@ -239,21 +239,21 @@ async function downloadPoster() {
   // 布局参数
   let photoLoaded = false;
   let photoHeight = 0;
-  let baseY = 60; // 顶部边距
+  let baseY = 70; // 顶部边距
   
   // 里程碑标题
   if (isMilestone) {
     ctx.fillStyle = finalAccentColor;
-    ctx.font = 'bold 28px serif, Georgia';
+    ctx.font = 'bold 32px serif, Georgia';
     ctx.fillText(`${milestone.emoji} ${milestone.label} ${milestone.emoji}`, width / 2, baseY);
-    baseY += 35;
+    baseY += 40;
   }
   
   // Title
   ctx.fillStyle = finalAccentColor;
-  ctx.font = 'bold 32px serif, Georgia';
-  ctx.fillText('✨ zhuzhu ✨', width / 2, baseY + 30);
-  baseY += 60;
+  ctx.font = 'bold 36px serif, Georgia';
+  ctx.fillText('✨ zhuzhu ✨', width / 2, baseY + 35);
+  baseY += 70;
   
   // 照片
   if (props.photoUrl) {
@@ -263,15 +263,15 @@ async function downloadPoster() {
         img.crossOrigin = 'anonymous';
         img.onload = () => {
           // 绘制照片（居中，圆角）
-          const photoX = 75;
+          const photoX = 80;
           const photoY = baseY;
-          const photoW = 450;
-          const photoH = 200;
+          const photoW = 440;
+          const photoH = 220;
           photoHeight = photoH;
           
           ctx.save();
           ctx.beginPath();
-          roundedRect(ctx, photoX, photoY, photoW, photoH, 12);
+          roundedRect(ctx, photoX, photoY, photoW, photoH, 16);
           ctx.clip();
           
           // 保持比例绘制图片
@@ -292,8 +292,8 @@ async function downloadPoster() {
           
           // 照片边框
           ctx.strokeStyle = finalAccentColor;
-          ctx.lineWidth = 2;
-          roundedRect(ctx, photoX, photoY, photoW, photoH, 12);
+          ctx.lineWidth = 3;
+          roundedRect(ctx, photoX, photoY, photoW, photoH, 16);
           ctx.stroke();
           
           photoLoaded = true;
@@ -308,51 +308,51 @@ async function downloadPoster() {
   }
   
   // 调整后续元素位置
-  const contentStartY = photoLoaded ? baseY + photoHeight + 30 : baseY + 20;
+  const contentStartY = photoLoaded ? baseY + photoHeight + 40 : baseY + 30;
   
   // Subtitle
   ctx.fillStyle = '#666666';
-  ctx.font = '22px serif, Georgia';
+  ctx.font = '24px serif, Georgia';
   ctx.fillText('我们在一起', width / 2, contentStartY);
   
   // Days number
   ctx.fillStyle = finalAccentColor;
-  ctx.font = 'bold 90px serif, Georgia';
-  ctx.fillText(String(totalDays.value), width / 2, contentStartY + 90);
+  ctx.font = 'bold 100px serif, Georgia';
+  ctx.fillText(String(totalDays.value), width / 2, contentStartY + 110);
   
   // Days label
   ctx.fillStyle = '#999999';
-  ctx.font = '32px serif, Georgia';
-  ctx.fillText('天', width / 2, contentStartY + 130);
+  ctx.font = '36px serif, Georgia';
+  ctx.fillText('天', width / 2, contentStartY + 160);
   
   // 里程碑特殊标签
   if (isMilestone && milestone.theme === 'love') {
     ctx.fillStyle = finalAccentColor;
-    ctx.font = '18px serif, Georgia';
-    ctx.fillText('我爱你', width / 2, contentStartY + 160);
+    ctx.font = '20px serif, Georgia';
+    ctx.fillText('我爱你', width / 2, contentStartY + 195);
   }
   
   // Start date
   ctx.fillStyle = '#999999';
-  ctx.font = '16px sans-serif';
-  ctx.fillText(`从 ${startDate.value} 开始`, width / 2, contentStartY + 195);
+  ctx.font = '18px sans-serif';
+  ctx.fillText(`从 ${startDate.value} 开始`, width / 2, contentStartY + 240);
   
   // Divider
   ctx.strokeStyle = finalAccentColor;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(150, contentStartY + 225);
-  ctx.lineTo(450, contentStartY + 225);
+  ctx.moveTo(150, contentStartY + 280);
+  ctx.lineTo(450, contentStartY + 280);
   ctx.stroke();
   
   // Signature
   ctx.fillStyle = finalAccentColor;
-  ctx.font = '22px serif, Georgia';
-  ctx.fillText('💕 大萝卜 ❤️ 小葡萄', width / 2, contentStartY + 270);
+  ctx.font = '24px serif, Georgia';
+  ctx.fillText('💕 大萝卜 ❤️ 小葡萄', width / 2, contentStartY + 330);
   
   // Footer
   ctx.fillStyle = '#CCCCCC';
-  ctx.font = '12px sans-serif';
+  ctx.font = '14px sans-serif';
   ctx.fillText('zhuzhu.site', width / 2, height - 30);
   
   // Convert to image and download
@@ -380,8 +380,8 @@ function roundedRect(ctx, x, y, width, height, radius) {
 
 <style scoped>
 .poster-canvas {
-  width: 240px;
-  height: 360px;
+  width: 280px;
+  height: 420px;
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
@@ -389,14 +389,6 @@ function roundedRect(ctx, x, y, width, height, radius) {
     0 10px 40px rgba(0, 0, 0, 0.15),
     0 0 0 1px rgba(0, 0, 0, 0.05),
     inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-  flex-shrink: 0;
-}
-
-@media (min-width: 400px) {
-  .poster-canvas {
-    width: 280px;
-    height: 420px;
-  }
 }
 
 .poster-bg {
@@ -404,40 +396,40 @@ function roundedRect(ctx, x, y, width, height, radius) {
   height: 100%;
   background: linear-gradient(135deg, var(--poster-gradient-start) 0%, var(--poster-gradient-end) 100%);
   position: relative;
-  padding: 16px;
+  padding: 24px;
 }
 
 .poster-content {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding-top: 12px;
+  padding-top: 20px;
 }
 
 .poster-title {
   font-family: serif;
-  font-size: 20px;
+  font-size: 24px;
   color: var(--poster-accent);
-  margin-bottom: 8px;
+  margin-bottom: 24px;
 }
 
 .poster-title.with-milestone {
-  margin-top: 4px;
+  margin-top: 0;
 }
 
 .milestone-badge {
-  font-size: 14px;
+  font-size: 18px;
   color: var(--poster-accent);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   animation: pulse 2s ease-in-out infinite;
 }
 
 .poster-photo-preview {
   width: 100%;
-  height: 120px;
-  border-radius: 10px;
+  height: 140px;
+  border-radius: 12px;
   overflow: hidden;
-  margin: 0 auto 12px;
+  margin: 0 auto 16px;
   border: 2px solid var(--poster-accent);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -449,17 +441,17 @@ function roundedRect(ctx, x, y, width, height, radius) {
 }
 
 .poster-main {
-  margin: 20px 0;
+  margin: 40px 0;
 }
 
 .poster-subtitle {
-  font-size: 18px;
+  font-size: 20px;
   color: #666;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .poster-days {
-  font-size: 80px;
+  font-size: 100px;
   font-weight: bold;
   color: var(--poster-accent);
   line-height: 1;
@@ -467,18 +459,18 @@ function roundedRect(ctx, x, y, width, height, radius) {
 }
 
 .poster-days-label {
-  font-size: 28px;
+  font-size: 32px;
   color: #999;
 }
 
 .poster-date {
-  font-size: 14px;
+  font-size: 16px;
   color: #999;
 }
 
 .poster-signature {
-  margin-top: 30px;
-  font-size: 18px;
+  margin-top: 50px;
+  font-size: 20px;
   color: var(--poster-accent);
 }
 
