@@ -156,6 +156,7 @@ onMounted(async () => {
           width = height * ratio;
         }
         
+        // 容器和图片尺寸一致包裹
         photoStyle.value = {
           width: `${width}px`,
           height: `${height}px`,
@@ -467,16 +468,21 @@ function roundedRect(ctx, x, y, width, height, radius) {
 .poster-photo-preview {
   width: 100%;
   max-width: 160px;
-  height: 70px;
+  min-height: 50px;
   border-radius: 6px;
   overflow: hidden;
   margin: 0 auto 8px;
   border: 1px solid var(--poster-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .poster-photo-preview img {
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 70px;
   object-fit: contain;
 }
 
