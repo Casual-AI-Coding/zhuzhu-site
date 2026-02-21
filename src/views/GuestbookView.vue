@@ -160,8 +160,49 @@
             </div>
           </div>
           <p class="text-text-main whitespace-pre-wrap">{{ message.content }}</p>
-          <div class="mt-3 flex items-center gap-2">
-            <span class="text-2xl">{{ moodEmoji[message.mood] || '😊' }}</span>
+          <div class="mt-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">{{ moodEmoji[message.mood] || '😊' }}</span>
+            </div>
+            
+            <!-- 点赞和表情回复 -->
+            <div class="flex items-center gap-1">
+              <!-- 点赞 -->
+              <button 
+                @click.stop="toggleLike(message.id)"
+                class="flex items-center gap-1 px-2 py-1 rounded-lg text-sm transition-all"
+                :class="isLiked(message.id) ? 'text-pink-500' : 'text-text-secondary hover:text-pink-400'"
+              >
+                <span>{{ isLiked(message.id) ? '❤️' : '🤍' }}</span>
+                <span class="text-xs">{{ getLikeCount(message.id) }}</span>
+              </button>
+              
+              <!-- 表情回复 -->
+              <div class="relative">
+                <button 
+                  @click.stop="toggleReactionPicker(message.id)"
+                  class="px-2 py-1 rounded-lg text-sm transition-all"
+                  :class="hasReaction(message.id) ? 'text-yellow-500' : 'text-text-secondary hover:text-yellow-400'"
+                >
+                  {{ hasReaction(message.id) ? getUserReaction(message.id) : '😊' }}
+                </button>
+                
+                <!-- 表情选择器 -->
+                <div 
+                  v-if="showReactionPicker === message.id"
+                  class="absolute bottom-full right-0 mb-2 flex gap-1 p-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-border"
+                >
+                  <button 
+                    v-for="emoji in reactionEmojis" 
+                    :key="emoji"
+                    @click.stop="addReaction(message.id, emoji)"
+                    class="w-8 h-8 rounded-lg hover:bg-primary/10 flex items-center justify-center text-lg transition-all"
+                  >
+                    {{ emoji }}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </TransitionGroup>
@@ -184,6 +225,103 @@ const loading = ref(true);
 const sending = ref(false);
 const refreshing = ref(false);
 const textareaRef = ref(null);
+
+// 点赞和表情回复
+const likes = ref({});
+const reactions = ref({});
+const showReactionPicker = ref(null);
+
+const reactionEmojis = ['👍', '❤️', '😂', '😢', '😮', '🎉', '🔥', '💕'];
+
+// 从 localStorage 加载数据
+function loadInteractions() {
+  try {
+    const savedLikes = localStorage.getItem('guestbook_likes');
+    const savedReactions = localStorage.getItem('guestbook_reactions');
+    if (savedLikes) likes.value = JSON.parse(savedLikes);
+    if (savedReactions) reactions.value = JSON.parse(savedReactions);
+  } catch (e) {
+    console.log('Failed to load interactions');
+  }
+}
+
+// 保存到 localStorage
+function saveInteractions() {
+  try {
+    localStorage.setItem('guestbook_likes', JSON.stringify(likes.value));
+    localStorage.setItem('guestbook_reactions', JSON.stringify(reactions.value));
+  } catch (e) {
+    console.log('Failed to save interactions');
+  }
+}
+
+// 点赞
+function toggleLike(messageId) {
+  const deviceId = getDeviceId();
+  if (!likes.value[messageId]) {
+    likes.value[messageId] = { count: 0, users: [] };
+  }
+  
+  const userIndex = likes.value[messageId].users.indexOf(deviceId);
+  if (userIndex > -1) {
+    likes.value[messageId].users.splice(userIndex, 1);
+    likes.value[messageId].count = Math.max(0, likes.value[messageId].count - 1);
+  } else {
+    likes.value[messageId].users.push(deviceId);
+    likes.value[messageId].count = (likes.value[messageId].count || 0) + 1;
+  }
+  saveInteractions();
+}
+
+function isLiked(messageId) {
+  const deviceId = getDeviceId();
+  return likes.value[messageId]?.users?.includes(deviceId);
+}
+
+function getLikeCount(messageId) {
+  return likes.value[messageId]?.count || 0;
+}
+
+// 表情回复
+function toggleReactionPicker(messageId) {
+  showReactionPicker.value = showReactionPicker.value === messageId ? null : messageId;
+}
+
+function addReaction(messageId, emoji) {
+  const deviceId = getDeviceId();
+  if (!reactions.value[messageId]) {
+    reactions.value[messageId] = {};
+  }
+  
+  // 切换表情
+  if (reactions.value[messageId][deviceId] === emoji) {
+    delete reactions.value[messageId][deviceId];
+  } else {
+    reactions.value[messageId][deviceId] = emoji;
+  }
+  saveInteractions();
+  showReactionPicker.value = null;
+}
+
+function getUserReaction(messageId) {
+  const deviceId = getDeviceId();
+  return reactions.value[messageId]?.[deviceId] || null;
+}
+
+function hasReaction(messageId) {
+  const deviceId = getDeviceId();
+  return !!reactions.value[messageId]?.[deviceId];
+}
+
+// 简单的设备ID
+function getDeviceId() {
+  let deviceId = localStorage.getItem('guestbook_device_id');
+  if (!deviceId) {
+    deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('guestbook_device_id', deviceId);
+  }
+  return deviceId;
+}
 
 const MAX_LENGTH = 500;
 
@@ -244,6 +382,7 @@ const moodEmoji = {
 };
 
 onMounted(async () => {
+  loadInteractions();
   messages.value = await fetchMessages();
   loading.value = false;
   window.addEventListener('refresh-data', handleRefresh);
@@ -363,8 +502,24 @@ function triggerHaptic() {
   }
 }
 
+// 点击外部关闭表情选择器
+function handleClickOutside(e) {
+  if (showReactionPicker.value && !e.target.closest('.relative')) {
+    showReactionPicker.value = null;
+  }
+}
+
+onMounted(async () => {
+  loadInteractions();
+  messages.value = await fetchMessages();
+  loading.value = false;
+  window.addEventListener('refresh-data', handleRefresh);
+  document.addEventListener('click', handleClickOutside);
+});
+
 onUnmounted(() => {
   window.removeEventListener('refresh-data', handleRefresh);
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 

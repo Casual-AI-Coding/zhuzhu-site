@@ -1,5 +1,48 @@
 <template>
-  <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+  <!-- 背景特效选择器 -->
+  <div class="fixed top-28 right-4 z-40">
+    <button 
+      @click="showBgSelector = !showBgSelector"
+      class="w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-all"
+      :title="'切换背景'"
+    >
+      🎨
+    </button>
+    
+    <!-- 背景选项 -->
+    <Transition name="fade">
+      <div 
+        v-if="showBgSelector"
+        class="absolute top-12 right-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-xl shadow-lg p-2 flex gap-1"
+      >
+        <button 
+          v-for="bg in bgEffects" 
+          :key="bg.id"
+          @click="setBgEffect(bg.id)"
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all"
+          :class="bgEffect === bg.id ? 'bg-primary text-white' : 'hover:bg-primary/10'"
+          :title="bg.name"
+        >
+          {{ bg.icon }}
+        </button>
+      </div>
+    </Transition>
+  </div>
+  
+  <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8" :class="bgClasses">
+    <!-- 背景装饰 -->
+    <div v-if="bgEffect === 'hearts'" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      <div v-for="i in 8" :key="i" class="floating-heart" :style="{ '--delay': i * 0.5 + 's', '--x': (i * 15) + '%' }">💕</div>
+    </div>
+    <div v-if="bgEffect === 'stars'" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      <div v-for="i in 12" :key="i" class="floating-star" :style="{ '--delay': i * 0.3 + 's', '--x': (i * 8) + '%' }">✨</div>
+    </div>
+    <div v-if="bgEffect === 'bubbles'" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      <div v-for="i in 10" :key="i" class="floating-bubble" :style="{ '--delay': i * 0.8 + 's', '--x': (i * 10) + '%', '--size': (20 + i * 3) + 'px' }">🫧</div>
+    </div>
+    <div v-if="bgEffect === 'sparkles'" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      <div v-for="i in 15" :key="i" class="floating-sparkle" :style="{ '--delay': i * 0.4 + 's', '--x': (i * 7) + '%' }">💫</div>
+    </div>
     <div class="max-w-4xl mx-auto">
       <!-- Hero Section -->
       <div class="text-center mb-16">
@@ -229,6 +272,40 @@ const countdown = ref(null);
 const milestoneCountdown = ref(null);
 const showSharePoster = ref(false);
 
+// 背景特效
+const showBgSelector = ref(false);
+const bgEffects = [
+  { id: 'none', name: '无特效', icon: '⬜' },
+  { id: 'hearts', name: '爱心', icon: '💕' },
+  { id: 'stars', name: '星星', icon: '✨' },
+  { id: 'bubbles', name: '气泡', icon: '🫧' },
+  { id: 'sparkles', name: '闪光', icon: '💫' },
+];
+
+// 从 localStorage 加载背景特效
+const bgEffect = ref('none');
+onMounted(() => {
+  const saved = localStorage.getItem('home_bg_effect');
+  if (saved) bgEffect.value = saved;
+});
+
+function setBgEffect(id) {
+  bgEffect.value = id;
+  localStorage.setItem('home_bg_effect', id);
+  showBgSelector.value = false;
+}
+
+const bgClasses = computed(() => {
+  const classes = {
+    none: '',
+    hearts: 'bg-hearts',
+    stars: 'bg-stars',
+    bubbles: 'bg-bubbles',
+    sparkles: 'bg-sparkles',
+  };
+  return classes[bgEffect.value];
+});
+
 // 选择分享海报使用的照片（随机一张轮播照片）
 const selectedPosterPhoto = computed(() => {
   if (photos.value.length > 0) {
@@ -457,5 +534,52 @@ onUnmounted(() => {
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+}
+
+/* 背景特效 */
+.floating-heart,
+.floating-star,
+.floating-bubble,
+.floating-sparkle {
+  position: absolute;
+  top: 100%;
+  font-size: 20px;
+  opacity: 0.3;
+  animation: floatUp 8s ease-in-out infinite;
+  animation-delay: var(--delay);
+  left: var(--x);
+}
+
+.floating-heart { color: #FF6B6B; }
+.floating-star { color: #FFD700; }
+.floating-bubble { font-size: var(--size); color: #87CEEB; }
+.floating-sparkle { color: #FFB6C1; }
+
+@keyframes floatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(0) rotate(0deg);
+  }
+  10% {
+    opacity: 0.4;
+  }
+  90% {
+    opacity: 0.2;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100vh) rotate(360deg);
+  }
+}
+
+/* 淡入淡出 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

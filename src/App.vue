@@ -87,34 +87,34 @@ onUnmounted(() => {
 </script>
 
 <style>
-/* 页面切换动画 - 向前导航 */
+/* 页面切换动画 - 淡入淡出 + 轻微滑动 */
 .page-enter-active {
-  animation: pageSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: pageFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .page-leave-active {
-  animation: pageSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: pageFadeOut 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes pageSlideIn {
+@keyframes pageFadeIn {
   from {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
-@keyframes pageSlideOut {
+@keyframes pageFadeOut {
   from {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
   to {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateY(-10px);
   }
 }
 
