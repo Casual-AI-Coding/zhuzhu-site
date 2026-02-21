@@ -145,8 +145,8 @@ onMounted(async () => {
       const img = new Image();
       img.onload = () => {
         const ratio = img.width / img.height;
-        const maxW = 200;
-        const maxH = 140;
+        const maxW = 160;
+        const maxH = 70;
         
         let width = maxW;
         let height = width / ratio;
@@ -415,22 +415,19 @@ function roundedRect(ctx, x, y, width, height, radius) {
 
 <style scoped>
 .poster-canvas {
-  width: 240px;
-  height: 360px;
+  width: 200px;
+  height: 320px;
   margin: 0 auto;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(0, 0, 0, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   transform-origin: top center;
 }
 
 @media (min-width: 400px) {
   .poster-canvas {
-    width: 260px;
-    height: 390px;
+    width: 220px;
+    height: 350px;
   }
 }
 
@@ -439,21 +436,21 @@ function roundedRect(ctx, x, y, width, height, radius) {
   height: 100%;
   background: linear-gradient(135deg, var(--poster-gradient-start) 0%, var(--poster-gradient-end) 100%);
   position: relative;
-  padding: 24px;
+  padding: 16px;
 }
 
 .poster-content {
   position: relative;
   z-index: 1;
   text-align: center;
-  padding-top: 12px;
+  padding-top: 8px;
 }
 
 .poster-title {
   font-family: serif;
-  font-size: 20px;
+  font-size: 16px;
   color: var(--poster-accent);
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .poster-title.with-milestone {
@@ -461,21 +458,20 @@ function roundedRect(ctx, x, y, width, height, radius) {
 }
 
 .milestone-badge {
-  font-size: 14px;
+  font-size: 11px;
   color: var(--poster-accent);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   animation: pulse 2s ease-in-out infinite;
 }
 
 .poster-photo-preview {
   width: 100%;
-  max-width: 200px;
-  height: 100px;
-  border-radius: 8px;
+  max-width: 160px;
+  height: 70px;
+  border-radius: 6px;
   overflow: hidden;
-  margin: 0 auto 10px;
-  border: 2px solid var(--poster-accent);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 0 auto 8px;
+  border: 1px solid var(--poster-accent);
 }
 
 .poster-photo-preview img {
@@ -485,17 +481,17 @@ function roundedRect(ctx, x, y, width, height, radius) {
 }
 
 .poster-main {
-  margin: 24px 0;
+  margin: 12px 0;
 }
 
 .poster-subtitle {
-  font-size: 16px;
+  font-size: 12px;
   color: #666;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .poster-days {
-  font-size: 80px;
+  font-size: 60px;
   font-weight: bold;
   color: var(--poster-accent);
   line-height: 1;
@@ -503,18 +499,18 @@ function roundedRect(ctx, x, y, width, height, radius) {
 }
 
 .poster-days-label {
-  font-size: 24px;
+  font-size: 18px;
   color: #999;
 }
 
 .poster-date {
-  font-size: 12px;
+  font-size: 10px;
   color: #999;
 }
 
 .poster-signature {
-  margin-top: 30px;
-  font-size: 16px;
+  margin-top: 16px;
+  font-size: 12px;
   color: var(--poster-accent);
 }
 
