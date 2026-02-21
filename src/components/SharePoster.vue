@@ -25,7 +25,7 @@
           
           <p class="poster-date">从 {{ startDate }} 开始</p>
           
-          <p class="poster-signature">💕 大萝卜 ❤️ 猪猪</p>
+          <p class="poster-signature">💕 大萝卜 ❤️ 小葡萄</p>
         </div>
       </div>
     </div>
@@ -132,7 +132,7 @@ async function downloadPoster() {
   // Signature
   ctx.fillStyle = '#D4A574';
   ctx.font = '24px serif, Georgia';
-  ctx.fillText('💕 大萝卜 ❤️ 猪猪', width / 2, 680);
+  ctx.fillText('💕 大萝卜 ❤️ 小葡萄', width / 2, 680);
   
   // Footer
   ctx.fillStyle = '#CCCCCC';

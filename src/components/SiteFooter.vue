@@ -6,7 +6,7 @@
         zhuzhu © {{ startYear }}-{{ currentYear }}
       </p>
       <p class="footer-made">
-        Made with <span class="heart">❤️</span> by 大萝卜 & 猪猪
+        Made with <span class="heart">❤️</span> by 大萝卜 & 小葡萄
       </p>
       <p class="footer-icp" v-if="icp">
         <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
