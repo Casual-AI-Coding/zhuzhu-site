@@ -1,9 +1,9 @@
 <template>
   <!-- 背景特效选择器 -->
-  <div class="fixed top-28 right-4 z-40">
+  <div class="fixed top-20 right-4 z-50">
     <button 
       @click="showBgSelector = !showBgSelector"
-      class="w-10 h-10 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-gray-800 transition-all"
+      class="w-10 h-10 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow-lg flex items-center justify-center hover:scale-110 transition-all"
       :title="'切换背景'"
     >
       🎨

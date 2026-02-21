@@ -160,29 +160,29 @@
             </div>
           </div>
           <p class="text-text-main whitespace-pre-wrap">{{ message.content }}</p>
-          <div class="mt-3 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="text-2xl">{{ moodEmoji[message.mood] || '😊' }}</span>
+          <div class="mt-3 flex items-center justify-between border-t border-border/30 pt-3">
+            <div class="flex items-center gap-3">
+              <span class="text-xl">{{ moodEmoji[message.mood] || '😊' }}</span>
             </div>
             
             <!-- 点赞和表情回复 -->
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-2">
               <!-- 点赞 -->
               <button 
                 @click.stop="toggleLike(message.id)"
-                class="flex items-center gap-1 px-2 py-1 rounded-lg text-sm transition-all"
-                :class="isLiked(message.id) ? 'text-pink-500' : 'text-text-secondary hover:text-pink-400'"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all hover:bg-pink-50 dark:hover:bg-pink-900/20"
+                :class="isLiked(message.id) ? 'text-pink-500 bg-pink-50 dark:bg-pink-900/20' : 'text-text-secondary'"
               >
-                <span>{{ isLiked(message.id) ? '❤️' : '🤍' }}</span>
-                <span class="text-xs">{{ getLikeCount(message.id) }}</span>
+                <span class="text-base">{{ isLiked(message.id) ? '❤️' : '👍' }}</span>
+                <span class="text-xs font-medium">{{ getLikeCount(message.id) || '' }}</span>
               </button>
               
               <!-- 表情回复 -->
               <div class="relative">
                 <button 
                   @click.stop="toggleReactionPicker(message.id)"
-                  class="px-2 py-1 rounded-lg text-sm transition-all"
-                  :class="hasReaction(message.id) ? 'text-yellow-500' : 'text-text-secondary hover:text-yellow-400'"
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-base transition-all hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
+                  :class="hasReaction(message.id) ? 'bg-yellow-50 dark:bg-yellow-900/20' : 'text-text-secondary'"
                 >
                   {{ hasReaction(message.id) ? getUserReaction(message.id) : '😊' }}
                 </button>
@@ -190,13 +190,14 @@
                 <!-- 表情选择器 -->
                 <div 
                   v-if="showReactionPicker === message.id"
-                  class="absolute bottom-full right-0 mb-2 flex gap-1 p-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-border"
+                  class="absolute bottom-full right-0 mb-2 flex gap-1 p-2 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-border/50 z-10"
                 >
                   <button 
                     v-for="emoji in reactionEmojis" 
                     :key="emoji"
                     @click.stop="addReaction(message.id, emoji)"
-                    class="w-8 h-8 rounded-lg hover:bg-primary/10 flex items-center justify-center text-lg transition-all"
+                    class="w-9 h-9 rounded-full hover:bg-primary/10 flex items-center justify-center text-lg transition-all hover:scale-125"
+                    :title="emoji"
                   >
                     {{ emoji }}
                   </button>
