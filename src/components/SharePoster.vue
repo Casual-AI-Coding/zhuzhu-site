@@ -41,7 +41,7 @@
           <h1 class="poster-title" :class="{ 'with-milestone': milestoneInfo }">✨ zhuzhu ✨</h1>
           
           <!-- 照片预览 -->
-          <div v-if="photoUrl" class="poster-photo-preview">
+          <div v-if="photoUrl" class="poster-photo-preview" :style="photoStyle">
             <img :src="photoUrl" alt="情侣照片" />
           </div>
           
@@ -134,6 +134,40 @@ const { totalDays, formattedStartDate } = useDaysCount();
 const posterRef = ref(null);
 
 const startDate = computed(() => formattedStartDate.value);
+
+// 照片预览样式 - 保持原图比例
+const photoStyle = ref({});
+const photoLoaded = ref(false);
+
+onMounted(async () => {
+  if (props.photoUrl) {
+    try {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = img.width / img.height;
+        const maxW = 200;
+        const maxH = 140;
+        
+        let width = maxW;
+        let height = width / ratio;
+        
+        if (height > maxH) {
+          height = maxH;
+          width = height * ratio;
+        }
+        
+        photoStyle.value = {
+          width: `${width}px`,
+          height: `${height}px`,
+        };
+        photoLoaded.value = true;
+      };
+      img.src = props.photoUrl;
+    } catch (e) {
+      // use default
+    }
+  }
+});
 
 // 获取里程碑信息
 function getMilestoneInfo(days) {
@@ -435,6 +469,7 @@ function roundedRect(ctx, x, y, width, height, radius) {
 
 .poster-photo-preview {
   width: 100%;
+  max-width: 200px;
   height: 100px;
   border-radius: 8px;
   overflow: hidden;
@@ -446,7 +481,7 @@ function roundedRect(ctx, x, y, width, height, radius) {
 .poster-photo-preview img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .poster-main {
