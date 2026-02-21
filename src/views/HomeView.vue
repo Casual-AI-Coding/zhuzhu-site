@@ -163,7 +163,7 @@
           <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-sm w-full">
             <div class="flex justify-between items-center mb-4">
               <h3 class="text-lg font-display text-text-main">分享海报</h3>
-              <button @click="showSharePoster = false" class="text-text-secondary hover:text-text-main">✕</button>
+              <button type="button" @click="showSharePoster = false" class="text-text-secondary hover:text-text-main p-2 -m-2 cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">✕</button>
             </div>
             <SharePoster :photo-url="selectedPosterPhoto" />
           </div>
