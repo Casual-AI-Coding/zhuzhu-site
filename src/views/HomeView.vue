@@ -165,7 +165,7 @@
               <h3 class="text-lg font-display text-text-main">分享海报</h3>
               <button @click="showSharePoster = false" class="text-text-secondary hover:text-text-main">✕</button>
             </div>
-            <SharePoster />
+            <SharePoster :photo-url="selectedPosterPhoto" />
           </div>
         </div>
       </Transition>
@@ -226,6 +226,15 @@ const loading = ref(true);
 const countdown = ref(null);
 const milestoneCountdown = ref(null);
 const showSharePoster = ref(false);
+
+// 选择分享海报使用的照片（随机一张轮播照片）
+const selectedPosterPhoto = computed(() => {
+  if (photos.value.length > 0) {
+    const index = Math.floor(Math.random() * photos.value.length);
+    return photos.value[index].thumbnailUrl || photos.value[index].url;
+  }
+  return '';
+});
 
 let countdownTimer = null;
 
