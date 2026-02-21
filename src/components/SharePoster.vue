@@ -23,11 +23,12 @@
       <div class="poster-bg">
         <!-- 装饰元素 -->
         <div class="poster-decorations">
-          <span class="deco-heart deco-1">💕</span>
-          <span class="deco-heart deco-2">💗</span>
-          <span class="deco-heart deco-3">💖</span>
-          <span class="deco-star deco-4">✨</span>
-          <span class="deco-star deco-5">⭐</span>
+          <span class="deco deco-1" v-text="currentDecorations[0]"></span>
+          <span class="deco deco-2" v-text="currentDecorations[1]"></span>
+          <span class="deco deco-3" v-text="currentDecorations[2]"></span>
+          <span class="deco deco-4" v-text="currentDecorations[3]"></span>
+          <span class="deco deco-5">✨</span>
+          <span class="deco deco-6">⭐</span>
         </div>
         
         <!-- 内容 -->
@@ -37,7 +38,7 @@
             {{ milestoneInfo.emoji }} {{ milestoneInfo.label }} {{ milestoneInfo.emoji }}
           </div>
           
-          <h1 class="poster-title">✨ zhuzhu ✨</h1>
+          <h1 class="poster-title" :class="{ 'with-milestone': milestoneInfo }">✨ zhuzhu ✨</h1>
           
           <!-- 照片预览 -->
           <div v-if="photoUrl" class="poster-photo-preview">
@@ -90,6 +91,21 @@ const selectedTemplate = ref('romantic');
 // 获取当前模板
 const currentTemplate = computed(() => templates.find(t => t.id === selectedTemplate.value) || templates[0]);
 
+// 获取当前装饰（模板或里程碑）
+const currentDecorations = computed(() => {
+  const t = currentTemplate.value;
+  const m = milestoneInfo.value;
+  if (m) {
+    switch(m.theme) {
+      case 'love': return ['💖', '💗', '💕', '❤️'];
+      case 'forever': return ['💕', '💑', '💏', '❤️'];
+      case 'anniversary': return ['🎂', '🕯️', '🎉', '🎁'];
+      case 'lucky': return ['✨', '⭐', '💫', '🌟'];
+    }
+  }
+  return t.decorations;
+});
+
 // CSS变量用于动态样式
 const cssVars = computed(() => {
   const t = currentTemplate.value;
@@ -107,6 +123,10 @@ const cssVars = computed(() => {
     '--poster-accent': accent,
     '--poster-gradient-start': m?.theme === 'lucky' ? '#FFFEF0' : t.gradient[0],
     '--poster-gradient-end': m?.theme === 'lucky' ? '#FFF8E7' : t.gradient[1],
+    '--poster-deco-1': currentDecorations.value[0],
+    '--poster-deco-2': currentDecorations.value[1],
+    '--poster-deco-3': currentDecorations.value[2],
+    '--poster-deco-4': currentDecorations.value[3],
   };
 });
 
@@ -356,7 +376,10 @@ function roundedRect(ctx, x, y, width, height, radius) {
   margin: 0 auto;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .poster-bg {
@@ -378,7 +401,11 @@ function roundedRect(ctx, x, y, width, height, radius) {
   font-family: serif;
   font-size: 24px;
   color: var(--poster-accent);
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+}
+
+.poster-title.with-milestone {
+  margin-top: 8px;
 }
 
 .milestone-badge {
@@ -445,20 +472,26 @@ function roundedRect(ctx, x, y, width, height, radius) {
   pointer-events: none;
 }
 
-.deco-heart,
-.deco-star {
+.deco {
   position: absolute;
+  font-size: 24px;
   animation: float 3s ease-in-out infinite;
 }
 
-.deco-1 { top: 20px; left: 20px; animation-delay: 0s; }
-.deco-2 { top: 40px; right: 30px; animation-delay: 0.5s; }
-.deco-3 { top: 180px; left: 15px; animation-delay: 1s; }
-.deco-4 { top: 60px; right: 15px; animation-delay: 1.5s; }
-.deco-5 { top: 200px; right: 20px; animation-delay: 2s; }
+.deco-1 { top: 10px; left: 15px; animation-delay: 0s; }
+.deco-2 { top: 30px; right: 20px; animation-delay: 0.5s; }
+.deco-3 { top: 120px; left: 10px; animation-delay: 1s; }
+.deco-4 { top: 100px; right: 15px; animation-delay: 1.5s; }
+.deco-5 { top: 160px; right: 20px; animation-delay: 2s; }
+.deco-6 { top: 200px; left: 15px; animation-delay: 2.5s; }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 </style>
