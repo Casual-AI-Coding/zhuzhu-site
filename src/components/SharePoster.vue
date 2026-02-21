@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useDaysCount } from '@/composables/useDaysCount';
 
 const props = defineProps({
