@@ -140,7 +140,7 @@
         <div
           v-for="(message, index) in messages"
           :key="message.id"
-          class="glass-nav rounded-2xl p-6 card-hover cursor-pointer select-none message-card"
+          class="glass-nav rounded-2xl p-6 card-hover cursor-pointer select-none message-card flex flex-col"
           :class="`message-direction-${index % 3}`"
           @touchstart="handleTouchStart($event, message.content)"
           @touchend="handleTouchEnd"
@@ -159,7 +159,7 @@
               <p class="text-text-secondary text-sm">{{ formatRelativeTime(message.time) }}</p>
             </div>
           </div>
-          <p class="text-text-main whitespace-pre-wrap">{{ message.content }}</p>
+          <p class="text-text-main whitespace-pre-wrap flex-1">{{ message.content }}</p>
           <div class="mt-3 flex items-center justify-between border-t border-border/30 pt-3">
             <div class="flex items-center gap-3">
               <span class="text-xl">{{ moodEmoji[message.mood] || '😊' }}</span>
