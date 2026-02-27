@@ -1,6 +1,6 @@
 <template>
   <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-40 md:hidden">
-    <div class="glass-nav rounded-t-2xl px-2 py-2 flex items-center justify-around">
+    <div class="glass-nav rounded-t-2xl px-2 py-1.5 flex items-center justify-around">
       <RouterLink
         v-for="item in navItems"
         :key="item.name"

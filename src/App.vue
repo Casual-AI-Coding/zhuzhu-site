@@ -34,7 +34,7 @@
       <button
         v-if="showBackToTop"
         @click="scrollToTop"
-        class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50 group"
+        class="fixed bottom-20 md:bottom-6 right-6 sm:bottom-8 sm:right-8 z-50 group"
         aria-label="返回顶部"
       >
         <div class="relative">
