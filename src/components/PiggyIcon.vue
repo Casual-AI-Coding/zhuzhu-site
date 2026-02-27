@@ -20,21 +20,22 @@
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <!-- 猪猪脸部轮廓 - 简洁的圆形 -->
+      <!-- 猪猪脸部轮廓 -->
       <circle cx="12" cy="12" r="9" />
       
-      <!-- 猪猪耳朵 - 简单的三角形 -->
-      <path d="M5 6 L4 3 L7 5" />
-      <path d="M19 6 L20 3 L17 5" />
+      <!-- 猪猪耳朵 - 更大的三角形 -->
+      <path d="M4 7 L2 2 L8 5" />
+      <path d="M20 7 L22 2 L16 5" />
       
-      <!-- 猪猪鼻子 - 横着的椭圆 -->
-      <ellipse cx="12" cy="13" rx="3" ry="2" />
-      <circle cx="10.5" cy="13" r="0.8" />
-      <circle cx="13.5" cy="13" r="0.8" />
+      <!-- 猪猪鼻子 - 椭圆形 -->
+      <ellipse cx="12" cy="13" rx="4" ry="2.5" />
+      <!-- 鼻孔 - 横向排列 -->
+      <circle cx="10.5" cy="13" r="0.7" fill="currentColor" stroke="none" />
+      <circle cx="13.5" cy="13" r="0.7" fill="currentColor" stroke="none" />
       
-      <!-- 猪猪眼睛 - 小圆点 -->
-      <circle cx="8" cy="10" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="16" cy="10" r="1.2" fill="currentColor" stroke="none" />
+      <!-- 猪猪眼睛 -->
+      <circle cx="8" cy="10" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="10" r="1.3" fill="currentColor" stroke="none" />
     </svg>
     
     <!-- 点击时的爱心特效 -->
