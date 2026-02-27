@@ -8,7 +8,7 @@
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 32 32"
+      viewBox="0 0 24 24"
       class="piggy-icon w-6 h-6 transition-all duration-300"
       :class="[
         { 'w-5 h-5': isScrolled },
@@ -20,26 +20,21 @@
       stroke-linecap="round"
       stroke-linejoin="round"
     >
-      <!-- 猪猪头部轮廓 -->
-      <ellipse
-        cx="16"
-        cy="18"
-        rx="11"
-        ry="9"
-        class="piggy-body"
-      />
-      <!-- 猪猪耳朵 -->
-      <path d="M7 10 L5 5 L10 8" class="piggy-ear left-ear" />
-      <path d="M25 10 L27 5 L22 8" class="piggy-ear right-ear" />
-      <!-- 猪猪鼻子 -->
-      <ellipse cx="16" cy="19" rx="4" ry="3" class="piggy-nose" />
-      <circle cx="14" cy="19" r="1" fill="currentColor" />
-      <circle cx="18" cy="19" r="1" fill="currentColor" />
-      <!-- 猪猪眼睛 -->
-      <circle cx="11" cy="14" r="1.5" fill="currentColor" class="piggy-eye" />
-      <circle cx="21" cy="14" r="1.5" fill="currentColor" class="piggy-eye" />
-      <!-- 猪猪嘴巴 -->
-      <path d="M14 23 Q16 25 18 23" class="piggy-mouth" />
+      <!-- 猪猪脸部轮廓 - 简洁的圆形 -->
+      <circle cx="12" cy="12" r="9" />
+      
+      <!-- 猪猪耳朵 - 简单的三角形 -->
+      <path d="M5 6 L4 3 L7 5" />
+      <path d="M19 6 L20 3 L17 5" />
+      
+      <!-- 猪猪鼻子 - 横着的椭圆 -->
+      <ellipse cx="12" cy="13" rx="3" ry="2" />
+      <circle cx="10.5" cy="13" r="0.8" />
+      <circle cx="13.5" cy="13" r="0.8" />
+      
+      <!-- 猪猪眼睛 - 小圆点 -->
+      <circle cx="8" cy="10" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="16" cy="10" r="1.2" fill="currentColor" stroke="none" />
     </svg>
     
     <!-- 点击时的爱心特效 -->
@@ -84,7 +79,6 @@ function handleTouch(event) {
 }
 
 function triggerAnimation(x, y) {
-  // 防止重复触发
   if (isAnimating.value) return;
   
   isAnimating.value = true;
@@ -92,7 +86,6 @@ function triggerAnimation(x, y) {
   heartX.value = x;
   heartY.value = y;
   
-  // 动画结束后重置
   setTimeout(() => {
     isAnimating.value = false;
   }, 600);
@@ -124,22 +117,18 @@ function triggerAnimation(x, y) {
   transform: scale(1.1);
 }
 
-/* 猪猪弹跳动画 */
 @keyframes piggyBounce {
   0% {
     transform: scale(1) rotate(0deg);
   }
-  20% {
-    transform: scale(1.2) rotate(-5deg);
+  25% {
+    transform: scale(1.15) rotate(-5deg);
   }
-  40% {
+  50% {
     transform: scale(1.1) rotate(5deg);
   }
-  60% {
-    transform: scale(1.15) rotate(-3deg);
-  }
-  80% {
-    transform: scale(1.05) rotate(2deg);
+  75% {
+    transform: scale(1.12) rotate(-3deg);
   }
   100% {
     transform: scale(1) rotate(0deg);
@@ -150,49 +139,6 @@ function triggerAnimation(x, y) {
   animation: piggyBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* 耳朵动画 */
-.piggy-ear {
-  transition: transform 0.3s ease;
-}
-
-.piggy-icon-btn:hover .left-ear {
-  transform: rotate(-10deg);
-}
-
-.piggy-icon-btn:hover .right-ear {
-  transform: rotate(10deg);
-}
-
-.animate-piggy-bounce .left-ear {
-  animation: earWiggle 0.6s ease;
-}
-
-.animate-piggy-bounce .right-ear {
-  animation: earWiggle 0.6s ease;
-}
-
-@keyframes earWiggle {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-15deg);
-  }
-  75% {
-    transform: rotate(15deg);
-  }
-}
-
-/* 眼睛动画 */
-.piggy-eye {
-  transition: transform 0.2s ease;
-}
-
-.piggy-icon-btn:hover .piggy-eye {
-  transform: scale(1.2);
-}
-
-/* 点击时的爱心特效 */
 .click-heart {
   position: fixed;
   left: var(--x);
