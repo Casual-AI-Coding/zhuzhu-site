@@ -4,7 +4,7 @@
       <div class="flex items-center justify-between">
         <!-- Logo -->
         <RouterLink to="/" class="flex items-center gap-2 group">
-          <Heart class="w-6 h-6 text-primary group-hover:scale-110 transition-transform" :class="{ 'w-5 h-5': isScrolled }" />
+          <PiggyIcon :is-scrolled="isScrolled" />
           <span class="font-display text-xl text-text-main hidden sm:block transition-all duration-300" :class="{ 'text-lg': isScrolled }">zhuzhu</span>
         </RouterLink>
         
@@ -79,10 +79,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Heart, Menu, X, Home, Calendar, Image, Clock, MessageCircle, Sun, Moon, RotateCcw } from 'lucide-vue-next';
+import { Home, Calendar, Image, Clock, MessageCircle, Sun, Moon, RotateCcw } from 'lucide-vue-next';
 import NavLink from './NavLink.vue';
 import MobileNavLink from './MobileNavLink.vue';
 import RippleButton from './RippleButton.vue';
+import PiggyIcon from './PiggyIcon.vue';
 import { useDarkMode } from '@/composables/useDarkMode.js';
 
 const { isDark, toggle: toggleDark } = useDarkMode();
