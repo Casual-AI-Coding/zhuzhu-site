@@ -59,6 +59,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
   
   /* 深色模式平滑过渡 - 排除首次加载 */
@@ -77,9 +78,11 @@
     @apply bg-background text-text-main font-body antialiased;
     /* 确保内容不被刘海和底部条遮挡 */
     padding-top: var(--safe-area-inset-top);
-    padding-right: var(--safe-area-inset-right);
     padding-bottom: var(--safe-area-inset-bottom);
     padding-left: var(--safe-area-inset-left);
+    /* 使用 max 确保移动端有合理 padding，但不会导致右侧出现空白区域 */
+    padding-right: max(16px, var(--safe-area-inset-right));
+    overflow-x: hidden;
   }
 
   /* 自定义滚动条 */
