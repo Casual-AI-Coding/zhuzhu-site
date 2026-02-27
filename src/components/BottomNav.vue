@@ -8,7 +8,7 @@
         class="bottom-nav-item relative flex flex-col items-center py-1.5 px-3 rounded-xl transition-colors"
         :class="{ 'is-active': isActive(item.path) }"
       >
-        <span class="bottom-nav-icon text-xl mb-0.5 transition-transform">{{ item.icon }}</span>
+        <component :is="item.icon" class="bottom-nav-icon w-5 h-5 mb-0.5 transition-transform" />
         <span class="bottom-nav-label text-[10px]">{{ item.label }}</span>
       </RouterLink>
     </div>
@@ -17,15 +17,16 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
+import { Home, Calendar, Image, Clock, MessageCircle } from 'lucide-vue-next';
 
 const route = useRoute();
 
 const navItems = [
-  { name: 'home', path: '/', label: '首页', icon: '🏠' },
-  { name: 'anniversary', path: '/anniversary', label: '纪念日', icon: '📅' },
-  { name: 'gallery', path: '/gallery', label: '相册', icon: '🖼️' },
-  { name: 'timeline', path: '/timeline', label: '时光轴', icon: '⏰' },
-  { name: 'guestbook', path: '/guestbook', label: '留言', icon: '💬' },
+  { name: 'home', path: '/', label: '首页', icon: Home },
+  { name: 'anniversary', path: '/anniversary', label: '纪念日', icon: Calendar },
+  { name: 'gallery', path: '/gallery', label: '相册', icon: Image },
+  { name: 'timeline', path: '/timeline', label: '时光轴', icon: Clock },
+  { name: 'guestbook', path: '/guestbook', label: '留言', icon: MessageCircle },
 ];
 
 function isActive(path) {
@@ -52,5 +53,9 @@ function isActive(path) {
 
 .bottom-nav-item:active {
   transform: scale(0.95);
+}
+
+.bottom-nav-item:hover {
+  color: var(--color-primary);
 }
 </style>
