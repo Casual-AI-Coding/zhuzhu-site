@@ -1,11 +1,16 @@
 <template>
   <div 
     ref="cardRef" 
-    class="photo-card-3d relative rounded-2xl overflow-hidden bg-gray-100 group" 
-    :class="aspectClass"
-    :style="{ transform: transformStyle }"
+    class="photo-card-3d relative rounded-2xl overflow-hidden bg-gray-100 group cursor-pointer select-none"
+    :class="[aspectClass, { 'is-pressed': isPressed }]"
+    :style="{ transform: combinedTransform }"
     @mousemove="handleMouseMove"
     @mouseleave="handleMouseLeave"
+    @mousedown="handlePressStart"
+
+    @touchstart="handleTouchStart"
+    @touchend="handleTouchEnd"
+    @contextmenu.prevent="handleLongPress"
   >
     <!-- 加载占位符 -->
     <div v-if="loading" class="absolute inset-0 flex items-center justify-center bg-gray-200 animate-pulse">
@@ -54,12 +59,25 @@
         </span>
       </div>
     </div>
+
+    <!-- 长按提示 -->
+    <Transition name="fade">
+      <div 
+        v-if="showLongPressHint"
+        class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl"
+      >
+        <div class="text-center text-white">
+          <EyeIcon class="w-12 h-12 mx-auto mb-2" />
+          <p class="text-sm">长按查看大图</p>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { Image as ImageIcon, MapPin } from 'lucide-vue-next';
+import { Image as ImageIcon, MapPin, Eye as EyeIcon } from 'lucide-vue-next';
 
 const props = defineProps({
   src: { type: String, required: true },
@@ -72,7 +90,7 @@ const props = defineProps({
   aspectClass: { type: String, default: 'aspect-square' },
 });
 
-const emit = defineEmits(['click']);
+const emit = defineEmits(['click', 'longpress']);
 
 const loading = ref(true);
 const loaded = ref(false);
@@ -80,23 +98,27 @@ const error = ref(false);
 const visible = ref(false);
 const cardRef = ref(null);
 const transform = ref({ rotateX: 0, rotateY: 0 });
+const isPressed = ref(false);
+const showLongPressHint = ref(false);
 
 let observer = null;
-let rafId = null; // For throttling mousemove
+let rafId = null;
 let pendingUpdate = null;
+let longPressTimer = null;
+const LONG_PRESS_DURATION = 500;
 
-// 3D tilt transform style
-const transformStyle = computed(() => {
-  return `perspective(1000px) rotateX(${transform.value.rotateX}deg) rotateY(${transform.value.rotateY}deg)`;
+// Combined transform: 3D tilt + press scale
+const combinedTransform = computed(() => {
+  const tilt = `perspective(1000px) rotateX(${transform.value.rotateX}deg) rotateY(${transform.value.rotateY}deg)`;
+  const scale = isPressed.value ? 'scale(0.96)' : 'scale(1)';
+  return `${tilt} ${scale}`;
 });
 
 function handleMouseMove(e) {
   if (!cardRef.value) return;
   
-  // Store pending update data
   pendingUpdate = { e };
   
-  // Throttle with requestAnimationFrame
   if (!rafId) {
     rafId = requestAnimationFrame(() => {
       if (pendingUpdate && cardRef.value) {
@@ -118,18 +140,61 @@ function handleMouseMove(e) {
 }
 
 function handleMouseLeave() {
-  // Cancel any pending animation frame
   if (rafId) {
     cancelAnimationFrame(rafId);
     rafId = null;
   }
   pendingUpdate = null;
   transform.value = { rotateX: 0, rotateY: 0 };
+  handlePressEnd();
+}
+
+function handlePressStart() {
+  isPressed.value = true;
+}
+
+function handlePressEnd() {
+  isPressed.value = false;
+}
+
+function handleTouchStart(e) {
+  // Start long press timer
+  longPressTimer = setTimeout(() => {
+    handleLongPress();
+  }, LONG_PRESS_DURATION);
+  
+  isPressed.value = true;
+}
+
+function handleTouchEnd() {
+  // Clear long press timer
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+  isPressed.value = false;
+}
+
+function handleLongPress() {
+  // Haptic feedback
+  if (navigator.vibrate) {
+    navigator.vibrate(50);
+  }
+  
+  // Show hint
+  showLongPressHint.value = true;
+  
+  // Emit event
+  emit('longpress', { title: props.title, src: props.src });
+  
+  // Hide hint after 1.5s
+  setTimeout(() => {
+    showLongPressHint.value = false;
+  }, 1500);
 }
 
 function onLoad() {
   loading.value = false;
-  // 延迟一帧触发动画
   requestAnimationFrame(() => {
     loaded.value = true;
   });
@@ -141,7 +206,6 @@ function onError() {
 }
 
 onMounted(() => {
-  // 使用 IntersectionObserver 实现预加载
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -169,17 +233,35 @@ onUnmounted(() => {
   if (rafId) {
     cancelAnimationFrame(rafId);
   }
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+  }
 });
 </script>
 
 <style scoped>
 .photo-card-3d {
-  transition: transform 0.15s ease-out;
+  transition: transform 0.15s ease-out, box-shadow 0.3s ease;
   transform-style: preserve-3d;
   will-change: transform;
+  touch-action: manipulation;
 }
 
 .photo-card-3d:hover {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.is-pressed {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
