@@ -26,6 +26,11 @@ const routes = [
     name: 'guestbook',
     component: () => import('@/views/GuestbookView.vue'),
   },
+  {
+    path: '/wishes',
+    name: 'wishes',
+    component: () => import('@/views/WishesView.vue'),
+  },
 ];
 
 const router = createRouter({

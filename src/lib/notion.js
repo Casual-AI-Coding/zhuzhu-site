@@ -47,6 +47,7 @@ const DATABASES = {
   photos: import.meta.env.VITE_NOTION_DATABASE_PHOTOS,
   timeline: import.meta.env.VITE_NOTION_DATABASE_TIMELINE,
   messages: import.meta.env.VITE_NOTION_DATABASE_MESSAGES,
+  wishes: import.meta.env.VITE_NOTION_DATABASE_WISHES,
 };
 
 // 获取纪念日列表
@@ -198,5 +199,158 @@ export async function addMessage(content, sender, mood = '开心') {
     };
   } catch {
     throw new Error('Failed to add message');
+  }
+}
+
+// ==================== 愿望清单 API ====================
+
+// 获取愿望列表
+export async function fetchWishes() {
+  try {
+    const response = await notionRequest(`/databases/${DATABASES.wishes}/query`, {
+      method: 'POST',
+      body: JSON.stringify({
+        sorts: [{ property: '目标日期', direction: 'ascending' }],
+      }),
+    });
+
+    return response.results.map(page => ({
+      id: page.id,
+      title: page.properties['标题']?.title[0]?.plain_text || '',
+      description: page.properties['描述']?.rich_text[0]?.plain_text || '',
+      category: page.properties['分类']?.select?.name || '其他',
+      targetDate: page.properties['目标日期']?.date?.start || '',
+      priority: page.properties['优先级']?.select?.name || '中',
+      status: page.properties['状态']?.select?.name || '进行中',
+      completedDate: page.properties['完成日期']?.date?.start || '',
+    }));
+  } catch {
+    return [];
+  }
+}
+
+// 添加愿望
+export async function addWish(wish) {
+  try {
+    const response = await notionRequest('/pages', {
+      method: 'POST',
+      body: JSON.stringify({
+        parent: { database_id: DATABASES.wishes },
+        properties: {
+          '标题': {
+            title: [{ text: { content: wish.title } }],
+          },
+          '描述': {
+            rich_text: [{ text: { content: wish.description || '' } }],
+          },
+          '分类': {
+            select: { name: wish.category || '其他' },
+          },
+          '目标日期': {
+            date: wish.targetDate ? { start: wish.targetDate } : null,
+          },
+          '优先级': {
+            select: { name: wish.priority || '中' },
+          },
+          '状态': {
+            select: { name: '进行中' },
+          },
+        },
+      }),
+    });
+
+    return {
+      id: response.id,
+      title: wish.title,
+      description: wish.description || '',
+      category: wish.category || '其他',
+      targetDate: wish.targetDate || '',
+      priority: wish.priority || '中',
+      status: '进行中',
+      completedDate: '',
+    };
+  } catch {
+    return null;
+  }
+}
+
+// 更新愿望
+export async function updateWish(wishId, updates) {
+  try {
+    const properties = {};
+
+    if (updates.title !== undefined) {
+      properties['标题'] = {
+        title: [{ text: { content: updates.title } }],
+      };
+    }
+    if (updates.description !== undefined) {
+      properties['描述'] = {
+        rich_text: [{ text: { content: updates.description } }],
+      };
+    }
+    if (updates.category !== undefined) {
+      properties['分类'] = {
+        select: { name: updates.category },
+      };
+    }
+    if (updates.targetDate !== undefined) {
+      properties['目标日期'] = {
+        date: updates.targetDate ? { start: updates.targetDate } : null,
+      };
+    }
+    if (updates.priority !== undefined) {
+      properties['优先级'] = {
+        select: { name: updates.priority },
+      };
+    }
+
+    await notionRequest(`/pages/${wishId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ properties }),
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// 完成愿望
+export async function completeWish(wishId, completedDate) {
+  try {
+    await notionRequest(`/pages/${wishId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        properties: {
+          '状态': {
+            select: { name: '已完成' },
+          },
+          '完成日期': {
+            date: { start: completedDate },
+          },
+        },
+      }),
+    });
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// 删除愿望（归档）
+export async function deleteWish(wishId) {
+  try {
+    await notionRequest(`/pages/${wishId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        archived: true,
+      }),
+    });
+
+    return true;
+  } catch {
+    return false;
   }
 }

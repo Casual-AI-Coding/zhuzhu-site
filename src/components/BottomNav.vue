@@ -17,7 +17,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { Home, Calendar, Image, Clock, MessageCircle } from 'lucide-vue-next';
+import { Home, Calendar, Image, Clock, MessageCircle, Sparkles } from 'lucide-vue-next';
 
 const route = useRoute();
 
@@ -27,6 +27,7 @@ const navItems = [
   { name: 'gallery', path: '/gallery', label: '相册', icon: Image },
   { name: 'timeline', path: '/timeline', label: '时光轴', icon: Clock },
   { name: 'guestbook', path: '/guestbook', label: '留言', icon: MessageCircle },
+  { name: 'wishes', path: '/wishes', label: '愿望', icon: Sparkles },
 ];
 
 function isActive(path) {
