@@ -111,7 +111,8 @@ const loading = ref(true);
 const visibleItems = reactive({});
 const itemRefs = ref([]);
 const timelineContainer = ref(null);
-const lineProgress = ref(1000); // Start fully hidden
+// 时间线绘制进度 - 初始值设为较大值确保初始隐藏
+const lineProgress = ref(10000); // Large enough for typical timelines
 
 let observer = null;
 let scrollRafId = null; // For throttling scroll handler
