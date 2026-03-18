@@ -306,6 +306,7 @@ function prevPhoto() {
     lightboxError.value = false;
     scale.value = 1;
     position.value = { x: 0, y: 0 };
+    resetTouchState();
   }
 }
 
@@ -316,7 +317,14 @@ function nextPhoto() {
     lightboxError.value = false;
     scale.value = 1;
     position.value = { x: 0, y: 0 };
+    resetTouchState();
   }
+}
+
+function resetTouchState() {
+  initialDistance = 0;
+  touchStartX = 0;
+  touchStartY = 0;
 }
 
 function closeLightbox() {
