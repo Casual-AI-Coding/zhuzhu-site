@@ -241,8 +241,8 @@ function loadInteractions() {
     const savedReactions = localStorage.getItem('guestbook_reactions');
     if (savedLikes) likes.value = JSON.parse(savedLikes);
     if (savedReactions) reactions.value = JSON.parse(savedReactions);
-  } catch (e) {
-    console.log('Failed to load interactions');
+  } catch {
+    // Ignore localStorage errors
   }
 }
 
@@ -251,8 +251,8 @@ function saveInteractions() {
   try {
     localStorage.setItem('guestbook_likes', JSON.stringify(likes.value));
     localStorage.setItem('guestbook_reactions', JSON.stringify(reactions.value));
-  } catch (e) {
-    console.log('Failed to save interactions');
+  } catch {
+    // Ignore localStorage errors
   }
 }
 
@@ -382,13 +382,6 @@ const moodEmoji = {
   '甜蜜': '🍯',
 };
 
-onMounted(async () => {
-  loadInteractions();
-  messages.value = await fetchMessages();
-  loading.value = false;
-  window.addEventListener('refresh-data', handleRefresh);
-});
-
 function handleRefresh() {
   loading.value = true;
   fetchMessages().then(data => {
@@ -407,7 +400,6 @@ async function addMessage() {
     messages.value.unshift(result);
     showToast('留言成功！', 'success');
   } catch (error) {
-    console.error('发送失败:', error);
     // 即使失败也显示在本地
     messages.value.unshift({
       id: Date.now(),
@@ -437,7 +429,6 @@ function handleKeydown(e) {
 
 // 移动端键盘避让
 function handleFocus() {
-  // 延迟执行，确保键盘已弹出
   setTimeout(() => {
     if (textareaRef.value) {
       textareaRef.value.scrollIntoView({
