@@ -1,5 +1,5 @@
 <template>
-  <div class="photo-carousel relative" @mouseenter="pause" @mouseleave="resume">
+  <div class="photo-carousel relative" ref="carouselRef" @mouseenter="pause" @mouseleave="resume">
     <!-- Carousel Container -->
     <div class="carousel-wrapper overflow-hidden rounded-2xl">
       <TransitionGroup name="carousel-fade" tag="div" class="carousel-track">
@@ -79,6 +79,7 @@ const emit = defineEmits(['open-gallery']);
 
 const currentIndex = ref(0);
 const isPlaying = ref(props.autoPlay);
+const carouselRef = ref(null);
 let timer = null;
 
 // Navigation methods
@@ -166,20 +167,18 @@ onMounted(() => {
   }
   
   // Add touch listeners
-  const carousel = document.querySelector('.photo-carousel');
-  if (carousel) {
-    carousel.addEventListener('touchstart', handleTouchStart, { passive: true });
-    carousel.addEventListener('touchend', handleTouchEnd, { passive: true });
+  if (carouselRef.value) {
+    carouselRef.value.addEventListener('touchstart', handleTouchStart, { passive: true });
+    carouselRef.value.addEventListener('touchend', handleTouchEnd, { passive: true });
   }
 });
 
 onUnmounted(() => {
   stopTimers();
   
-  const carousel = document.querySelector('.photo-carousel');
-  if (carousel) {
-    carousel.removeEventListener('touchstart', handleTouchStart);
-    carousel.removeEventListener('touchend', handleTouchEnd);
+  if (carouselRef.value) {
+    carouselRef.value.removeEventListener('touchstart', handleTouchStart);
+    carouselRef.value.removeEventListener('touchend', handleTouchEnd);
   }
 });
 

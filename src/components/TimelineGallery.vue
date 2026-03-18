@@ -31,7 +31,7 @@
             :alt="photo.title"
             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             loading="lazy"
-            @error="imgErrors[photo.id] = true"
+            @error="markImgError(photo.id)"
           />
           
           <!-- 加载失败占位 -->
@@ -68,6 +68,11 @@ defineEmits(['select']);
 
 // 图片加载错误状态
 const imgErrors = reactive({});
+
+// 标记图片加载失败
+function markImgError(photoId) {
+  imgErrors[photoId] = true;
+}
 
 // 格式化日期
 function formatDate(dateStr) {
