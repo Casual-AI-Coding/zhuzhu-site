@@ -3,8 +3,32 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 // 恋爱起始日期: 2024年9月19日
 const START_DATE = new Date('2024-09-19');
 
+// 模块级单例 - 所有组件共享同一份状态
+const today = ref(new Date());
+let sharedIntervalId = null;
+let intervalRefCount = 0;
+
+// 启动共享的计时器（只在第一个组件挂载时启动）
+function ensureSharedInterval() {
+  intervalRefCount++;
+  if (sharedIntervalId === null) {
+    sharedIntervalId = setInterval(() => {
+      today.value = new Date();
+    }, 60000); // 每分钟检查一次
+  }
+}
+
+// 停止共享的计时器（只在最后一个组件卸载时停止）
+function releaseSharedInterval() {
+  intervalRefCount--;
+  if (intervalRefCount <= 0 && sharedIntervalId !== null) {
+    clearInterval(sharedIntervalId);
+    sharedIntervalId = null;
+    intervalRefCount = 0;
+  }
+}
+
 export function useDaysCount() {
-  const today = ref(new Date());
   
   // 计算在一起的总天数
   const totalDays = computed(() => {
@@ -154,16 +178,13 @@ export function useDaysCount() {
     return targetDate;
   });
   
-  // 更新今天的日期（每天更新一次）
-  let intervalId;
+  // 使用共享的计时器
   onMounted(() => {
-    intervalId = setInterval(() => {
-      today.value = new Date();
-    }, 60000); // 每分钟检查一次
+    ensureSharedInterval();
   });
   
   onUnmounted(() => {
-    if (intervalId) clearInterval(intervalId);
+    releaseSharedInterval();
   });
 
   return {
