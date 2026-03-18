@@ -34,14 +34,14 @@ function enableMusic() {
   const linkEl = document.createElement('link');
   linkEl.rel = 'stylesheet';
   linkEl.href = '/netease-mini-player-v2.css';
+  linkEl.crossOrigin = 'anonymous';
   document.head.appendChild(linkEl);
 
-  // 加载 JS
+  // 加载 JS - 自托管脚本，无 CDN 风险
   const scriptEl = document.createElement('script');
   scriptEl.src = '/netease-mini-player-v2.js';
+  scriptEl.crossOrigin = 'anonymous';
   scriptEl.onload = () => {
-    console.log('NeteaseMiniPlayer loaded successfully');
-    
     // 等待播放器初始化后手动播放
     const checkPlayer = setInterval(() => {
       const playerEl = document.querySelector('.music-player');
@@ -51,10 +51,8 @@ function enableMusic() {
         playerEl.neteasePlayer.volume = 0.2;
         
         // 手动调用播放（用户点击后应该可以播放）
-        playerEl.neteasePlayer.play().then(() => {
-          console.log('音乐播放成功');
-        }).catch(err => {
-          console.log('播放失败:', err);
+        playerEl.neteasePlayer.play().catch(() => {
+          // 静默处理播放失败
         });
         
         clearInterval(checkPlayer);

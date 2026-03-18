@@ -336,10 +336,10 @@ async function downloadPoster() {
         roundedRect(ctx, photoX, photoY, photoW, photoH, 12);
         ctx.stroke();
         
-        photoLoaded = true;
-      }
-    } catch (e) {
-      console.log('Photo load failed, continue without photo');
+      photoLoaded = true;
+    }
+    } catch {
+      // 静默处理，图片加载失败不影响海报生成
     }
   }
   

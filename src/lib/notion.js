@@ -34,7 +34,6 @@ async function notionRequest(endpoint, options = {}, retryCount = 0) {
   } catch (error) {
     // 如果还有重试次数，等待一下再试
     if (retryCount < MAX_RETRIES) {
-      console.warn(`Notion API 请求失败，100ms后重试... (${retryCount + 1}/${MAX_RETRIES})`);
       await new Promise(resolve => setTimeout(resolve, 100));
       return notionRequest(endpoint, options, retryCount + 1);
     }
@@ -67,8 +66,7 @@ export async function fetchAnniversaries() {
       type: page.properties['类型']?.select?.name || '',
       description: page.properties['描述']?.rich_text[0]?.plain_text || '',
     }));
-  } catch (error) {
-    console.error('Error fetching anniversaries:', error);
+  } catch {
     return [];
   }
 }
@@ -94,15 +92,14 @@ export async function fetchPhotos() {
         id: page.id,
         title: page.properties['标题']?.rich_text[0]?.plain_text || '',
         url: imageUrl,
-        thumbnailUrl: thumbnailUrl, // 缩略图
+        thumbnailUrl: thumbnailUrl,
         date: page.properties['日期']?.date?.start || '',
         place: page.properties['地点']?.place?.name || '',
         tags: page.properties['标签']?.multi_select?.map(tag => tag.name) || [],
         description: page.properties['描述']?.rich_text[0]?.plain_text || '',
       };
     });
-  } catch (error) {
-    console.error('Error fetching photos:', error);
+  } catch {
     return [];
   }
 }
@@ -124,8 +121,7 @@ export async function fetchTimeline() {
       description: page.properties['描述']?.rich_text[0]?.plain_text || '',
       importance: page.properties['重要度']?.select?.name || '中',
     }));
-  } catch (error) {
-    console.error('Error fetching timeline:', error);
+  } catch {
     return [];
   }
 }
@@ -147,8 +143,7 @@ export async function fetchMessages() {
       time: page.created_time,
       mood: page.properties['心情']?.select?.name || '',
     }));
-  } catch (error) {
-    console.error('Error fetching messages:', error);
+  } catch {
     return [];
   }
 }
@@ -201,8 +196,7 @@ export async function addMessage(content, sender, mood = '开心') {
       time: response.created_time,
       mood,
     };
-  } catch (error) {
-    console.error('Error adding message:', error);
-    throw error;
+  } catch {
+    throw new Error('Failed to add message');
   }
 }
