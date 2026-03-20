@@ -202,6 +202,18 @@ export async function addMessage(content, sender, mood = '开心') {
   }
 }
 
+// 状态映射：Notion英文 -> 中文
+const STATUS_MAP = {
+  'Not started': '进行中',
+  'In progress': '进行中',
+  'Done': '已完成',
+};
+
+const STATUS_MAP_REVERSE = {
+  '进行中': 'In progress',
+  '已完成': 'Done',
+};
+
 // ==================== 愿望清单 API ====================
 
 // 获取愿望列表
@@ -223,7 +235,7 @@ export async function fetchWishes() {
       category: page.properties['分类']?.select?.name || '其他',
       targetDate: page.properties['目标日期']?.date?.start || '',
       priority: page.properties['优先级']?.select?.name || '中',
-      status: page.properties['状态']?.status?.name || '进行中',
+      status: STATUS_MAP[page.properties['状态']?.status?.name] || '进行中',
       completedDate: page.properties['完成日期']?.date?.start || '',
     }));
   } catch {
@@ -324,7 +336,7 @@ export async function completeWish(wishId, completedDate) {
       body: JSON.stringify({
         properties: {
           '状态': {
-            status: { name: '已完成' },
+            status: { name: 'Done' },
           },
           '完成日期': {
             date: { start: completedDate },
