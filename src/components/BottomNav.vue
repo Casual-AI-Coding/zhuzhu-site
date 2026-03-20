@@ -26,8 +26,8 @@ const navItems = [
   { name: 'anniversary', path: '/anniversary', label: '纪念日', icon: Calendar },
   { name: 'gallery', path: '/gallery', label: '相册', icon: Image },
   { name: 'timeline', path: '/timeline', label: '时光轴', icon: Clock },
-  { name: 'guestbook', path: '/guestbook', label: '留言', icon: MessageCircle },
   { name: 'wishes', path: '/wishes', label: '愿望', icon: Sparkles },
+  { name: 'guestbook', path: '/guestbook', label: '留言', icon: MessageCircle },
 ];
 
 function isActive(path) {

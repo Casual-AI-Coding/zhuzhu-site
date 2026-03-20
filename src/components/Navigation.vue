@@ -79,7 +79,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Home, Calendar, Image, Clock, MessageCircle, Sun, Moon, RotateCcw } from 'lucide-vue-next';
+import { Home, Calendar, Image, Clock, MessageCircle, Sun, Moon, RotateCcw, Sparkles } from 'lucide-vue-next';
 import NavLink from './NavLink.vue';
 import MobileNavLink from './MobileNavLink.vue';
 import RippleButton from './RippleButton.vue';
@@ -104,6 +104,7 @@ const navItems = [
   { name: 'anniversary', path: '/anniversary', label: '纪念日', icon: Calendar },
   { name: 'gallery', path: '/gallery', label: '相册', icon: Image },
   { name: 'timeline', path: '/timeline', label: '时光轴', icon: Clock },
+  { name: 'wishes', path: '/wishes', label: '愿望', icon: Sparkles },
   { name: 'guestbook', path: '/guestbook', label: '留言', icon: MessageCircle },
 ];
 
