@@ -24,6 +24,12 @@
 - 📆 按时间线展示照片
 - 🖼️ 照片卡片展示
 
+### 愿望清单
+- 📝 愿望管理（与 Notion 同步）
+- 📅 日历视图展示
+- 🔍 状态/分类筛选
+- ✅ 完成日期记录
+
 ### 留言板
 - 💬 留言功能
 - ⌨️ 快捷键支持 (Ctrl + Enter 发送)
@@ -84,7 +90,7 @@ npm run preview
 
 ```env
 NOTION_API_KEY=your_notion_api_key
-NOTION_DATABASE_IDS={"anniversaries":"xxx","photos":"xxx","timeline":"xxx","messages":"xxx"}
+NOTION_DATABASE_IDS={"anniversaries":"xxx","photos":"xxx","timeline":"xxx","messages":"xxx","wishes":"xxx"}
 ```
 
 ## 📄 许可
