@@ -1,117 +1,119 @@
 <template>
   <div class="wish-filters">
-    <!-- Desktop Filters - 紧凑下拉框 -->
-    <div class="hidden sm:flex items-center gap-3">
-      <!-- Category Dropdown -->
-      <div class="filter-dropdown relative">
-        <select
-          :value="selectedCategory"
-          @change="setCategory($event.target.value)"
-          class="filter-select px-4 py-2 pr-10 rounded-xl bg-card border border-border text-sm text-text-main focus:outline-none focus:border-primary cursor-pointer appearance-none min-w-[100px]"
-        >
-          <option v-for="cat in categories" :key="cat" :value="cat">
-            {{ categoryEmoji(cat) }} {{ cat }}
-          </option>
-        </select>
-        <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
-      </div>
+    <!-- Filter Toggle Button -->
+    <button
+      @click="togglePanel"
+      class="filter-toggle flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border text-sm text-text-main hover:bg-primary/5 transition-all"
+      :class="{ 'bg-primary/10 border-primary': isActive }"
+    >
+      <Filter class="w-4 h-4" :class="isActive ? 'text-primary' : 'text-text-secondary'" />
+      <span>{{ buttonText }}</span>
+      <ChevronDown 
+        class="w-4 h-4 transition-transform duration-200" 
+        :class="{ 'rotate-180': showPanel }"
+      />
+      <!-- Active indicator dot -->
+      <span v-if="isActive" class="w-2 h-2 rounded-full bg-primary" />
+    </button>
 
-      <!-- Priority Dropdown -->
-      <div class="filter-dropdown relative">
-        <select
-          :value="selectedPriority"
-          @change="setPriority($event.target.value)"
-          class="filter-select px-4 py-2 pr-10 rounded-xl bg-card border border-border text-sm text-text-main focus:outline-none focus:border-primary cursor-pointer appearance-none min-w-[100px]"
-        >
-          <option v-for="pri in priorities" :key="pri" :value="pri">
-            {{ priorityEmoji(pri) }} {{ pri }}
-          </option>
-        </select>
-        <ChevronDown class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
-      </div>
-
-      <!-- Reset -->
-      <button
-        v-if="selectedCategory !== '全部' || selectedPriority !== '全部'"
-        @click="resetFilters"
-        class="text-sm text-text-secondary hover:text-primary transition-colors px-2"
-      >
-        重置
-      </button>
-    </div>
-
-    <!-- Mobile Filters (保持原样) -->
-    <div class="sm:hidden">
-      <button
-        @click="expanded = !expanded"
-        class="flex items-center justify-between w-full py-2 px-3 bg-card rounded-xl text-text-main"
-      >
-        <span class="text-sm flex items-center gap-2">
-          <span v-if="selectedCategory !== '全部'">{{ categoryEmoji(selectedCategory) }} {{ selectedCategory }}</span>
-          <span v-if="selectedPriority !== '全部'">{{ priorityEmoji(selectedPriority) }} {{ selectedPriority }}</span>
-          <span v-if="selectedCategory === '全部' && selectedPriority === '全部'">筛选</span>
-        </span>
-        <ChevronDown
-          class="w-4 h-4 transition-transform"
-          :class="{ 'rotate-180': expanded }"
+    <!-- Floating Filter Panel -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <!-- Backdrop -->
+        <div
+          v-if="showPanel"
+          class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+          @click="closePanel"
         />
-      </button>
+      </Transition>
+      
+      <Transition name="panel">
+        <div
+          v-if="showPanel"
+          class="fixed z-50 bg-card rounded-2xl shadow-2xl border border-border p-4 w-[280px]"
+          :style="panelPosition"
+          @click.stop
+        >
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-border">
+            <h3 class="font-medium text-text-main">筛选愿望</h3>
+            <button
+              @click="closePanel"
+              class="w-8 h-8 rounded-full flex items-center justify-center text-text-secondary hover:bg-primary/10 transition-colors"
+            >
+              <X class="w-4 h-4" />
+            </button>
+          </div>
 
-      <Transition name="expand">
-        <div v-if="expanded" class="mt-3 space-y-3 p-3 bg-card rounded-xl">
           <!-- Category -->
-          <div>
-            <p class="text-text-secondary text-xs mb-2">分类</p>
-            <div class="flex flex-wrap gap-1.5">
+          <div class="mb-4">
+            <p class="text-text-secondary text-xs mb-2 flex items-center gap-1">
+              <Folder class="w-3 h-3" />
+              分类
+            </p>
+            <div class="grid grid-cols-3 gap-2">
               <button
                 v-for="cat in categories"
                 :key="cat"
-                @click="setCategory(cat)"
-                class="filter-btn px-3 py-1.5 rounded-full text-sm transition-all"
-                :class="selectedCategory === cat 
-                  ? 'bg-primary text-white' 
-                  : 'bg-background text-text-secondary'"
+                @click="selectCategory(cat)"
+                class="px-2 py-2 rounded-lg text-sm transition-all flex flex-col items-center gap-1"
+                :class="tempCategory === cat 
+                  ? 'bg-primary text-white shadow-md' 
+                  : 'bg-background text-text-secondary hover:bg-primary/10'"
               >
-                {{ categoryEmoji(cat) }} {{ cat }}
+                <span class="text-lg">{{ categoryEmoji(cat) }}</span>
+                <span class="text-xs">{{ cat }}</span>
               </button>
             </div>
           </div>
 
           <!-- Priority -->
-          <div>
-            <p class="text-text-secondary text-xs mb-2">优先级</p>
-            <div class="flex flex-wrap gap-1.5">
+          <div class="mb-4">
+            <p class="text-text-secondary text-xs mb-2 flex items-center gap-1">
+              <Flag class="w-3 h-3" />
+              优先级
+            </p>
+            <div class="flex gap-2">
               <button
                 v-for="pri in priorities"
                 :key="pri"
-                @click="setPriority(pri)"
-                class="filter-btn px-3 py-1.5 rounded-full text-sm transition-all"
-                :class="selectedPriority === pri 
-                  ? 'bg-primary text-white' 
-                  : 'bg-background text-text-secondary'"
+                @click="selectPriority(pri)"
+                class="flex-1 px-3 py-2 rounded-lg text-sm transition-all"
+                :class="tempPriority === pri 
+                  ? 'bg-primary text-white shadow-md' 
+                  : 'bg-background text-text-secondary hover:bg-primary/10'"
               >
-                {{ priorityEmoji(pri) }} {{ pri }}
+                {{ pri }}
               </button>
             </div>
           </div>
 
-          <!-- Reset -->
-          <button
-            v-if="selectedCategory !== '全部' || selectedPriority !== '全部'"
-            @click="resetFilters"
-            class="w-full py-2 text-text-secondary text-sm hover:text-primary transition-colors border-t border-border pt-3"
-          >
-            重置筛选
-          </button>
+          <!-- Footer -->
+          <div class="flex gap-2 pt-3 border-t border-border">
+            <button
+              @click="resetFilters"
+              class="flex-1 py-2 rounded-lg text-sm text-text-secondary hover:bg-background transition-colors"
+              :disabled="!isActive"
+              :class="{ 'opacity-50 cursor-not-allowed': !isActive }"
+            >
+              重置
+            </button>
+            <button
+              @click="applyFilters"
+              class="flex-1 py-2 rounded-lg text-sm bg-primary text-white hover:opacity-90 transition-opacity"
+            >
+              应用
+            </button>
+          </div>
         </div>
       </Transition>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { ChevronDown } from 'lucide-vue-next';
+import { ref, computed, nextTick } from 'vue';
+import { Filter, ChevronDown, X, Folder, Flag } from 'lucide-vue-next';
 
 const props = defineProps({
   categories: {
@@ -134,7 +136,24 @@ const props = defineProps({
 
 const emit = defineEmits(['setCategory', 'setPriority', 'resetFilters']);
 
-const expanded = ref(false);
+const showPanel = ref(false);
+const panelPosition = ref({ top: '0px', left: '0px' });
+
+// 临时选择状态
+const tempCategory = ref(props.selectedCategory);
+const tempPriority = ref(props.selectedPriority);
+
+const isActive = computed(() => {
+  return props.selectedCategory !== '全部' || props.selectedPriority !== '全部';
+});
+
+const buttonText = computed(() => {
+  if (!isActive.value) return '筛选';
+  const parts = [];
+  if (props.selectedCategory !== '全部') parts.push(props.selectedCategory);
+  if (props.selectedPriority !== '全部') parts.push(props.selectedPriority);
+  return parts.join(' · ');
+});
 
 function categoryEmoji(cat) {
   const emojis = {
@@ -148,58 +167,111 @@ function categoryEmoji(cat) {
   return emojis[cat] || '✨';
 }
 
-function priorityEmoji(pri) {
-  const emojis = {
-    '全部': '⭐',
-    '高': '🔴',
-    '中': '🟡',
-    '低': '🟢',
-  };
-  return emojis[pri] || '⭐';
+function togglePanel(event) {
+  if (showPanel.value) {
+    closePanel();
+  } else {
+    // 初始化临时状态
+    tempCategory.value = props.selectedCategory;
+    tempPriority.value = props.selectedPriority;
+    showPanel.value = true;
+    
+    // 计算面板位置
+    nextTick(() => {
+      const button = event.currentTarget;
+      const rect = button.getBoundingClientRect();
+      const panelWidth = 280;
+      
+      // 默认显示在按钮下方，左对齐
+      let left = rect.left;
+      let top = rect.bottom + 8;
+      
+      // 如果右边超出屏幕，向左对齐
+      if (left + panelWidth > window.innerWidth - 16) {
+        left = window.innerWidth - panelWidth - 16;
+      }
+      
+      // 如果左边超出屏幕（小屏幕），向右对齐
+      if (left < 16) {
+        left = 16;
+      }
+      
+      // 如果下方超出屏幕，显示在按钮上方
+      const panelHeight = 380;
+      if (top + panelHeight > window.innerHeight - 16) {
+        top = rect.top - panelHeight - 8;
+      }
+      
+      // 确保不会超出顶部
+      if (top < 16) {
+        top = 16;
+      }
+      
+      panelPosition.value = {
+        top: `${top}px`,
+        left: `${left}px`,
+      };
+    });
+  }
 }
 
-function setCategory(cat) {
-  emit('setCategory', cat);
+function closePanel() {
+  showPanel.value = false;
 }
 
-function setPriority(pri) {
-  emit('setPriority', pri);
+function selectCategory(cat) {
+  tempCategory.value = cat;
+}
+
+function selectPriority(pri) {
+  tempPriority.value = pri;
+}
+
+function applyFilters() {
+  emit('setCategory', tempCategory.value);
+  emit('setPriority', tempPriority.value);
+  closePanel();
 }
 
 function resetFilters() {
+  tempCategory.value = '全部';
+  tempPriority.value = '全部';
   emit('resetFilters');
-  expanded.value = false;
+  closePanel();
 }
 </script>
 
 <style scoped>
-.filter-select {
-  background-image: none;
+.filter-toggle {
+  position: relative;
 }
 
-.filter-select:focus {
-  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+/* Fade transition for backdrop */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.expand-enter-from,
-.expand-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
-  max-height: 0;
 }
 
-.expand-enter-to,
-.expand-leave-from {
+/* Panel transition */
+.panel-enter-active,
+.panel-leave-active {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panel-enter-from,
+.panel-leave-to {
+  opacity: 0;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.panel-enter-to,
+.panel-leave-from {
   opacity: 1;
-  max-height: 300px;
-}
-
-.filter-btn {
-  min-height: 36px;
+  transform: scale(1) translateY(0);
 }
 </style>
