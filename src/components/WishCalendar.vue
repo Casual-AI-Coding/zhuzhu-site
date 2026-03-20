@@ -23,7 +23,7 @@
         </div>
 
         <!-- Calendar Grid -->
-        <div class="calendar-grid">
+         <div class="calendar-grid">
           <div
             v-for="month in 12"
             :key="month"
@@ -43,24 +43,36 @@
                 v-if="getWishesForMonth(month).length > 0"
                 class="mt-2 flex flex-wrap justify-center gap-1"
               >
+                <!-- In-progress dots (primary color) -->
                 <span
-                  v-for="i in Math.min(getWishesForMonth(month).length, 3)"
-                  :key="i"
+                  v-for="i in Math.min(getInProgressWishesForMonth(month).length, 2)"
+                  :key="'ip-'+i"
+                  class="w-2 h-2 rounded-full bg-primary"
+                />
+                <!-- Completed dots (green) -->
+                <span
+                  v-for="i in Math.min(getCompletedWishesForMonth(month).length, 2)"
+                  :key="'c-'+i"
                   class="w-2 h-2 rounded-full bg-green-500"
                 />
                 <span
-                  v-if="getWishesForMonth(month).length > 3"
+                  v-if="getWishesForMonth(month).length > 4"
                   class="text-[10px] text-text-secondary"
                 >
-                  +{{ getWishesForMonth(month).length - 3 }}
+                  +{{ getWishesForMonth(month).length - 4 }}
                 </span>
               </div>
-              <p 
+              <div 
                 v-if="getWishesForMonth(month).length > 0"
-                class="text-xs text-green-600 mt-1"
+                class="text-xs mt-1 flex items-center justify-center gap-2"
               >
-                {{ getWishesForMonth(month).length }}个
-              </p>
+                <span v-if="getInProgressWishesForMonth(month).length > 0" class="text-primary">
+                  {{ getInProgressWishesForMonth(month).length }}进行中
+                </span>
+                <span v-if="getCompletedWishesForMonth(month).length > 0" class="text-green-600">
+                  {{ getCompletedWishesForMonth(month).length }}已完成
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -132,6 +144,7 @@ function checkMobile() {
 onMounted(() => {
   checkMobile();
   window.addEventListener('resize', checkMobile);
+  window.addEventListener('refresh-data', handleRefresh);
   
   // Auto-select current month if it has wishes
   const now = new Date();
@@ -143,7 +156,14 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkMobile);
+  window.removeEventListener('refresh-data', handleRefresh);
 });
+
+// Handle refresh event
+function handleRefresh() {
+  // Reset selected month and let parent re-fetch data
+  selectedMonth.value = null;
+}
 
 // Get wishes for a specific month (using targetDate for in-progress, completedDate for completed)
 function getWishesForMonth(month) {
@@ -153,6 +173,26 @@ function getWishesForMonth(month) {
     const dateStr = wish.status === '已完成' ? wish.completedDate : wish.targetDate;
     if (!dateStr) return false;
     const date = new Date(dateStr);
+    return date.getFullYear() === currentYear.value && date.getMonth() + 1 === month;
+  });
+}
+
+// Get in-progress wishes for a specific month
+function getInProgressWishesForMonth(month) {
+  return props.wishes.filter(wish => {
+    if (wish.status !== '进行中') return false;
+    if (!wish.targetDate) return false;
+    const date = new Date(wish.targetDate);
+    return date.getFullYear() === currentYear.value && date.getMonth() + 1 === month;
+  });
+}
+
+// Get completed wishes for a specific month
+function getCompletedWishesForMonth(month) {
+  return props.wishes.filter(wish => {
+    if (wish.status !== '已完成') return false;
+    if (!wish.completedDate) return false;
+    const date = new Date(wish.completedDate);
     return date.getFullYear() === currentYear.value && date.getMonth() + 1 === month;
   });
 }
