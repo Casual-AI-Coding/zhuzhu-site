@@ -29,9 +29,12 @@
               {{ wish.description }}
             </p>
             <div class="flex items-center gap-2 mt-1.5">
-              <span class="text-xs text-green-600 flex items-center gap-1">
-                <CheckCircle2 class="w-3 h-3" />
-                {{ formatDate(wish.completedDate) }}
+              <span 
+                class="text-xs flex items-center gap-1"
+                :class="wish.status === '已完成' ? 'text-green-600' : 'text-primary'"
+              >
+                <component :is="wish.status === '已完成' ? CheckCircle2 : Target" class="w-3 h-3" />
+                {{ formatDate(wish.status === '已完成' ? wish.completedDate : wish.targetDate) }}
               </span>
               <span 
                 v-if="wish.priority !== '中'"
@@ -48,14 +51,14 @@
 
     <!-- Empty State -->
     <div v-else class="text-center py-8 text-text-secondary">
-      <p>该月没有完成的愿望</p>
+      <p>该月没有愿望</p>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import { X, CheckCircle2 } from 'lucide-vue-next';
+import { X, CheckCircle2, Target } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
 const props = defineProps({
@@ -77,10 +80,12 @@ defineEmits(['close']);
 
 const { formatDate } = useDaysCount();
 
-// Sort wishes by completed date
+// Sort wishes by date (completedDate for completed, targetDate for in-progress)
 const sortedWishes = computed(() => {
   return [...props.wishes].sort((a, b) => {
-    return new Date(b.completedDate) - new Date(a.completedDate);
+    const dateA = a.status === '已完成' ? a.completedDate : a.targetDate;
+    const dateB = b.status === '已完成' ? b.completedDate : b.targetDate;
+    return new Date(dateB) - new Date(dateA);
   });
 });
 

@@ -100,7 +100,7 @@
         <div v-if="!selectedMonth" class="hidden lg:block">
           <div class="glass-nav rounded-2xl p-8 text-center text-text-secondary">
             <CalendarIcon class="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>点击左侧月份查看完成的愿望</p>
+            <p>点击左侧月份查看愿望</p>
           </div>
         </div>
       </div>
@@ -145,11 +145,14 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkMobile);
 });
 
-// Get wishes completed in a specific month
+// Get wishes for a specific month (using targetDate for in-progress, completedDate for completed)
 function getWishesForMonth(month) {
   return props.wishes.filter(wish => {
-    if (!wish.completedDate) return false;
-    const date = new Date(wish.completedDate);
+    // For completed wishes, use completedDate
+    // For in-progress wishes, use targetDate
+    const dateStr = wish.status === '已完成' ? wish.completedDate : wish.targetDate;
+    if (!dateStr) return false;
+    const date = new Date(dateStr);
     return date.getFullYear() === currentYear.value && date.getMonth() + 1 === month;
   });
 }

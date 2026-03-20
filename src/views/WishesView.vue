@@ -40,34 +40,33 @@
 
       <!-- Filters + Status Filter + View Mode Toggle -->
       <div class="flex items-center justify-between gap-2 mb-6">
-        <div class="flex items-center gap-2">
-          <!-- Filters Button (Icon on mobile, text on desktop) -->
+        <!-- Left: Filters -->
+        <WishFilters
+          :categories="categories"
+          :priorities="priorities"
+          :selected-category="selectedCategory"
+          :selected-priority="selectedPriority"
+          @set-category="setCategory"
+          @set-priority="setPriority"
+          @reset-filters="resetFilters"
+        />
+        
+        <!-- Center: Status Filter -->
+        <div class="flex items-center gap-0.5 p-0.5 bg-card rounded-lg">
           <button
-            @click="showFilterPanel = true"
-            class="flex items-center gap-1 px-3 py-2 rounded-lg bg-card text-text-main hover:bg-primary/10 transition-all"
+            v-for="status in ['全部', '进行中', '已完成']"
+            :key="status"
+            @click="selectedStatus = status"
+            class="px-2 sm:px-3 py-1.5 rounded-md text-sm transition-all flex items-center gap-1"
+            :class="selectedStatus === status ? 'bg-primary text-white' : 'text-text-secondary hover:bg-primary/10'"
+            :title="status"
           >
-            <Filter class="w-4 h-4" />
-            <span class="hidden sm:inline text-sm">筛选</span>
-            <span v-if="selectedCategory !== '全部' || selectedPriority !== '全部'" class="w-2 h-2 rounded-full bg-primary" />
+            <component :is="statusIcon(status)" class="w-4 h-4" />
+            <span class="hidden sm:inline">{{ status }}</span>
           </button>
-          
-          <!-- Status Filter (Icons on mobile, text on desktop) -->
-          <div class="flex items-center gap-0.5 p-0.5 bg-card rounded-lg">
-            <button
-              v-for="status in ['全部', '进行中', '已完成']"
-              :key="status"
-              @click="selectedStatus = status"
-              class="px-2 sm:px-3 py-1.5 rounded-md text-sm transition-all flex items-center gap-1"
-              :class="selectedStatus === status ? 'bg-primary text-white' : 'text-text-secondary hover:bg-primary/10'"
-              :title="status"
-            >
-              <component :is="statusIcon(status)" class="w-4 h-4" />
-              <span class="hidden sm:inline">{{ status }}</span>
-            </button>
-          </div>
         </div>
         
-        <!-- View Mode Toggle -->
+        <!-- Right: View Mode Toggle -->
         <div class="flex items-center gap-1 p-1 bg-card rounded-lg shrink-0">
           <button
             @click="setViewMode('list')"
@@ -85,69 +84,6 @@
           </button>
         </div>
       </div>
-      
-      <!-- Filter Panel Modal -->
-      <Teleport to="body">
-        <Transition name="fade">
-          <div
-            v-if="showFilterPanel"
-            class="fixed inset-0 z-50 flex items-center justify-center p-4"
-          >
-            <div class="absolute inset-0 bg-black/50" @click="showFilterPanel = false" />
-            <div class="relative bg-card rounded-2xl p-6 max-w-sm w-full shadow-xl">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="font-medium text-text-main">筛选</h3>
-                <button
-                  @click="showFilterPanel = false"
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-text-secondary hover:bg-primary/10"
-                >
-                  <X class="w-4 h-4" />
-                </button>
-              </div>
-              
-              <!-- Category -->
-              <div class="mb-4">
-                <p class="text-text-secondary text-xs mb-2">分类</p>
-                <div class="grid grid-cols-3 gap-2">
-                  <button
-                    v-for="cat in categories"
-                    :key="cat"
-                    @click="setCategory(cat); showFilterPanel = false"
-                    class="px-2 py-2 rounded-lg text-sm transition-all"
-                    :class="selectedCategory === cat ? 'bg-primary text-white' : 'bg-background text-text-secondary'"
-                  >
-                    {{ categoryEmoji(cat) }} {{ cat }}
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Priority -->
-              <div class="mb-4">
-                <p class="text-text-secondary text-xs mb-2">优先级</p>
-                <div class="flex gap-2">
-                  <button
-                    v-for="pri in priorities"
-                    :key="pri"
-                    @click="setPriority(pri); showFilterPanel = false"
-                    class="flex-1 px-3 py-2 rounded-lg text-sm transition-all"
-                    :class="selectedPriority === pri ? 'bg-primary text-white' : 'bg-background text-text-secondary'"
-                  >
-                    {{ pri }}
-                  </button>
-                </div>
-              </div>
-              
-              <button
-                v-if="selectedCategory !== '全部' || selectedPriority !== '全部'"
-                @click="resetFilters(); showFilterPanel = false"
-                class="w-full py-2 text-text-secondary text-sm hover:text-primary transition-colors"
-              >
-                重置筛选
-              </button>
-            </div>
-          </div>
-        </Transition>
-      </Teleport>
 
       <!-- Loading -->
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -192,7 +128,7 @@
         <!-- Calendar View -->
         <WishCalendar
           v-else
-          :wishes="filteredWishes.filter(w => w.status === '已完成')"
+          :wishes="filteredWishes"
         />
       </template>
 
@@ -288,9 +224,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Plus, List, Calendar, Filter, X, Layers, Circle, CheckCircle } from 'lucide-vue-next';
+import { Plus, List, Calendar, Layers, Circle, CheckCircle } from 'lucide-vue-next';
 import { useWishes } from '@/composables/useWishes.js';
 import WishCard from '@/components/WishCard.vue';
+import WishFilters from '@/components/WishFilters.vue';
 import WishModal from '@/components/WishModal.vue';
 import WishCalendar from '@/components/WishCalendar.vue';
 import WishEmptyState from '@/components/WishEmptyState.vue';
@@ -336,9 +273,6 @@ const completeDate = ref('');
 // Refresh
 const refreshing = ref(false);
 
-// Filter panel
-const showFilterPanel = ref(false);
-
 // Helper functions
 function statusIcon(status) {
   const icons = {
@@ -347,18 +281,6 @@ function statusIcon(status) {
     '已完成': CheckCircle,
   };
   return icons[status] || Layers;
-}
-
-function categoryEmoji(cat) {
-  const emojis = {
-    '全部': '🌟',
-    '旅行': '✈️',
-    '美食': '🍽️',
-    '体验': '🎯',
-    '家居': '🏠',
-    '其他': '✨',
-  };
-  return emojis[cat] || '✨';
 }
 
 // Empty state type
