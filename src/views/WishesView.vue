@@ -38,30 +38,8 @@
         </div>
       </div>
 
-      <!-- Tabs -->
-      <div class="flex items-center justify-center gap-2 mb-6">
-        <button
-          @click="setTab('进行中')"
-          class="tab-btn px-5 py-2 rounded-full text-sm font-medium transition-all"
-          :class="activeTab === '进行中' 
-            ? 'bg-primary text-white shadow-lg shadow-primary/25' 
-            : 'bg-card text-text-secondary hover:bg-primary/10'"
-        >
-          进行中
-        </button>
-        <button
-          @click="setTab('已完成')"
-          class="tab-btn px-5 py-2 rounded-full text-sm font-medium transition-all"
-          :class="activeTab === '已完成' 
-            ? 'bg-primary text-white shadow-lg shadow-primary/25' 
-            : 'bg-card text-text-secondary hover:bg-primary/10'"
-        >
-          已完成
-        </button>
-      </div>
-
-      <!-- View Mode Toggle + Filters (Completed tab only) -->
-      <div v-if="activeTab === '已完成'" class="flex items-center justify-between gap-3 mb-6">
+      <!-- Filters + View Mode Toggle -->
+      <div class="flex items-center justify-between gap-3 mb-6">
         <WishFilters
           :categories="categories"
           :priorities="priorities"
@@ -89,19 +67,6 @@
         </div>
       </div>
 
-      <!-- Filters (In Progress tab only) -->
-      <div v-else class="mb-6">
-        <WishFilters
-          :categories="categories"
-          :priorities="priorities"
-          :selected-category="selectedCategory"
-          :selected-priority="selectedPriority"
-          @set-category="setCategory"
-          @set-priority="setPriority"
-          @reset-filters="resetFilters"
-        />
-      </div>
-
       <!-- Loading -->
       <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div v-for="i in 4" :key="i" class="animate-pulse">
@@ -127,13 +92,13 @@
       <template v-else>
         <!-- List View -->
         <TransitionGroup
-          v-if="viewMode === 'list' || activeTab === '进行中'"
+          v-if="viewMode === 'list'"
           name="wish"
           tag="div"
           class="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
           <WishCard
-            v-for="wish in displayWishes"
+            v-for="wish in filteredWishes"
             :key="wish.id"
             :wish="wish"
             @complete="handleComplete"
@@ -252,14 +217,12 @@ import WishEmptyState from '@/components/WishEmptyState.vue';
 const {
   wishes,
   loading,
-  activeTab,
   selectedCategory,
   selectedPriority,
   viewMode,
   categories,
   priorities,
   filteredWishes,
-  inProgressWishes,
   completedWishes,
   stats,
   loadWishes,
@@ -267,7 +230,6 @@ const {
   updateWish,
   completeWish,
   deleteWish,
-  setTab,
   setCategory,
   setPriority,
   setViewMode,
@@ -290,15 +252,10 @@ const completeDate = ref('');
 // Refresh
 const refreshing = ref(false);
 
-// Display wishes based on tab
-const displayWishes = computed(() => {
-  return activeTab.value === '进行中' ? inProgressWishes.value : completedWishes.value;
-});
-
 // Empty state type
 const emptyStateType = computed(() => {
   if (wishes.value.length === 0) return 'empty';
-  if (activeTab.value === '已完成') return 'completed';
+  if (viewMode.value === 'calendar' && completedWishes.value.length === 0) return 'completed';
   return 'filtered';
 });
 

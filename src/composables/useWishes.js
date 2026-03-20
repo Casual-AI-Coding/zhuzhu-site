@@ -13,7 +13,6 @@ const loading = ref(false);
 const error = ref(null);
 
 // Filters
-const activeTab = ref('进行中'); // '进行中' | '已完成'
 const selectedCategory = ref('全部');
 const selectedPriority = ref('全部');
 const viewMode = ref('list'); // 'list' | 'calendar'
@@ -25,10 +24,6 @@ const priorities = ['全部', '高', '中', '低'];
 // Filtered wishes
 const filteredWishes = computed(() => {
   return wishes.value.filter(wish => {
-    // Tab filter
-    if (activeTab.value === '进行中' && wish.status !== '进行中') return false;
-    if (activeTab.value === '已完成' && wish.status !== '已完成') return false;
-
     // Category filter
     if (selectedCategory.value !== '全部' && wish.category !== selectedCategory.value) return false;
 
@@ -41,12 +36,12 @@ const filteredWishes = computed(() => {
 
 // In-progress wishes
 const inProgressWishes = computed(() => {
-  return filteredWishes.value.filter(w => w.status === '进行中');
+  return wishes.value.filter(w => w.status === '进行中');
 });
 
 // Completed wishes
 const completedWishes = computed(() => {
-  return filteredWishes.value.filter(w => w.status === '已完成');
+  return wishes.value.filter(w => w.status === '已完成');
 });
 
 // Wishes grouped by year (for calendar view)
@@ -156,10 +151,6 @@ export function useWishes() {
   }
 
   // Set filters
-  function setTab(tab) {
-    activeTab.value = tab;
-  }
-
   function setCategory(category) {
     selectedCategory.value = category;
   }
@@ -184,7 +175,6 @@ export function useWishes() {
     error: readonly(error),
 
     // Filters
-    activeTab,
     selectedCategory,
     selectedPriority,
     viewMode,
@@ -204,7 +194,6 @@ export function useWishes() {
     updateWish,
     completeWish,
     deleteWish,
-    setTab,
     setCategory,
     setPriority,
     setViewMode,
