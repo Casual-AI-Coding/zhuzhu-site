@@ -385,7 +385,17 @@ function handlePullEnd() {
 // Lifecycle
 onMounted(() => {
   loadWishes();
+  window.addEventListener('refresh-data', handleRefresh);
 });
+
+onUnmounted(() => {
+  window.removeEventListener('refresh-data', handleRefresh);
+});
+
+// Handle refresh from navigation
+function handleRefresh() {
+  loadWishes();
+}
 </script>
 
 <style scoped>
