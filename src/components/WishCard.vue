@@ -73,7 +73,7 @@
           <button
             v-if="wish.status === '进行中'"
             @click.stop="handleComplete"
-            class="complete-btn w-10 h-10 rounded-full flex items-center justify-center bg-green-500 text-white shadow-lg shadow-green-500/40 hover:bg-green-400 hover:scale-110 transition-all"
+            class="complete-btn w-10 h-10 rounded-full flex items-center justify-center bg-white/30 backdrop-blur-sm border border-white/40 text-white shadow-lg hover:bg-white/50 hover:scale-110 transition-all"
             title="标记完成"
           >
             <Check class="w-5 h-5" />
@@ -240,15 +240,15 @@ function handleDelete() {
 }
 
 .complete-btn {
-  animation: pulse-green 2s infinite;
+  animation: gentle-pulse 3s ease-in-out infinite;
 }
 
-@keyframes pulse-green {
+@keyframes gentle-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2);
   }
   50% {
-    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+    box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
   }
 }
 
