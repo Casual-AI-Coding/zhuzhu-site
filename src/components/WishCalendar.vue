@@ -1,136 +1,120 @@
 <template>
   <div class="wish-calendar">
-    <!-- Year Navigation -->
-    <div class="flex items-center justify-between mb-4">
-      <button
-        @click="prevYear"
-        class="w-10 h-10 rounded-full flex items-center justify-center text-text-secondary hover:bg-primary/10 hover:text-primary transition-all"
-      >
-        <ChevronLeft class="w-5 h-5" />
-      </button>
-      <h3 class="text-lg font-medium text-text-main">
-        {{ currentYear }}年
-      </h3>
-      <button
-        @click="nextYear"
-        class="w-10 h-10 rounded-full flex items-center justify-center text-text-secondary hover:bg-primary/10 hover:text-primary transition-all"
-      >
-        <ChevronRight class="w-5 h-5" />
-      </button>
-    </div>
-
-    <!-- Calendar Grid -->
-    <div class="calendar-grid">
-      <div
-        v-for="month in 12"
-        :key="month"
-        class="month-cell p-2 sm:p-3 rounded-xl transition-all"
-        :class="{
-          'has-wishes': getWishesForMonth(month).length > 0,
-          'is-current': isCurrentMonth(month),
-        }"
-        @click="showMonthWishes(month)"
-      >
-        <div class="text-center">
-          <p class="text-xs sm:text-sm font-medium text-text-main">
-            {{ month }}月
-          </p>
-          <div
-            v-if="getWishesForMonth(month).length > 0"
-            class="mt-1 flex flex-wrap justify-center gap-0.5"
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- Left: Calendar Grid -->
+      <div class="flex-1">
+        <!-- Year Navigation -->
+        <div class="flex items-center justify-between mb-4">
+          <button
+            @click="prevYear"
+            class="w-10 h-10 rounded-full flex items-center justify-center text-text-secondary hover:bg-primary/10 hover:text-primary transition-all"
           >
-            <span
-              v-for="i in Math.min(getWishesForMonth(month).length, 3)"
-              :key="i"
-              class="w-1.5 h-1.5 rounded-full bg-green-500"
-            />
-            <span
-              v-if="getWishesForMonth(month).length > 3"
-              class="text-[10px] text-text-secondary"
-            >
-              +{{ getWishesForMonth(month).length - 3 }}
-            </span>
-          </div>
+            <ChevronLeft class="w-5 h-5" />
+          </button>
+          <h3 class="text-lg font-medium text-text-main">
+            {{ currentYear }}年
+          </h3>
+          <button
+            @click="nextYear"
+            class="w-10 h-10 rounded-full flex items-center justify-center text-text-secondary hover:bg-primary/10 hover:text-primary transition-all"
+          >
+            <ChevronRight class="w-5 h-5" />
+          </button>
         </div>
-      </div>
-    </div>
 
-    <!-- Month Detail Popup (Mobile) -->
-    <Transition name="fade">
-      <div
-        v-if="selectedMonth && showDetail"
-        class="fixed inset-0 z-50 flex items-end sm:hidden"
-      >
-        <div
-          class="absolute inset-0 bg-black/50"
-          @click="closeDetail"
-        />
-        <div
-          class="relative w-full bg-card rounded-t-2xl p-4 max-h-[60vh] overflow-y-auto"
-          @click.stop
-        >
-          <div class="flex items-center justify-between mb-4">
-            <h4 class="font-medium text-text-main">
-              {{ currentYear }}年{{ selectedMonth }}月完成的愿望
-            </h4>
-            <button
-              @click="closeDetail"
-              class="w-8 h-8 rounded-full flex items-center justify-center text-text-secondary hover:bg-primary/10"
-            >
-              <X class="w-4 h-4" />
-            </button>
-          </div>
-          <div class="space-y-3">
-            <div
-              v-for="wish in getWishesForMonth(selectedMonth)"
-              :key="wish.id"
-              class="p-3 bg-background rounded-xl"
-            >
-              <p class="font-medium text-text-main">{{ wish.title }}</p>
-              <p v-if="wish.description" class="text-sm text-text-secondary mt-1">
-                {{ wish.description }}
+        <!-- Calendar Grid -->
+        <div class="calendar-grid">
+          <div
+            v-for="month in 12"
+            :key="month"
+            class="month-cell p-3 rounded-xl transition-all relative"
+            :class="{
+              'has-wishes': getWishesForMonth(month).length > 0,
+              'is-current': isCurrentMonth(month),
+              'is-selected': selectedMonth === month,
+            }"
+            @click="selectMonth(month)"
+          >
+            <div class="text-center">
+              <p class="text-sm font-medium text-text-main">
+                {{ month }}月
               </p>
-              <p class="text-xs text-green-500 mt-2">
-                {{ formatDate(wish.completedDate) }}
+              <div
+                v-if="getWishesForMonth(month).length > 0"
+                class="mt-2 flex flex-wrap justify-center gap-1"
+              >
+                <span
+                  v-for="i in Math.min(getWishesForMonth(month).length, 3)"
+                  :key="i"
+                  class="w-2 h-2 rounded-full bg-green-500"
+                />
+                <span
+                  v-if="getWishesForMonth(month).length > 3"
+                  class="text-[10px] text-text-secondary"
+                >
+                  +{{ getWishesForMonth(month).length - 3 }}
+                </span>
+              </div>
+              <p 
+                v-if="getWishesForMonth(month).length > 0"
+                class="text-xs text-green-600 mt-1"
+              >
+                {{ getWishesForMonth(month).length }}个
               </p>
             </div>
           </div>
         </div>
       </div>
-    </Transition>
 
-    <!-- Desktop Tooltip -->
-    <div
-      v-if="hoveredMonth && !isMobile"
-      class="hidden sm:block absolute z-10 bg-card rounded-xl shadow-lg border border-border p-3 max-w-[200px]"
-      :style="tooltipStyle"
-    >
-      <p class="text-xs text-text-secondary mb-2">
-        {{ currentYear }}年{{ hoveredMonth }}月
-      </p>
-      <div class="space-y-1.5">
-        <div
-          v-for="wish in getWishesForMonth(hoveredMonth).slice(0, 3)"
-          :key="wish.id"
-          class="text-sm text-text-main truncate"
-        >
-          {{ wish.title }}
+      <!-- Right: Month Detail Panel (Desktop) / Bottom Sheet (Mobile) -->
+      <div 
+        class="lg:w-80 xl:w-96"
+        :class="{ 'hidden': !selectedMonth && !isMobile }"
+      >
+        <!-- Mobile Bottom Sheet -->
+        <Teleport to="body">
+          <Transition name="fade">
+            <div
+              v-if="selectedMonth && isMobile"
+              class="fixed inset-0 z-50 flex items-end sm:hidden"
+            >
+              <div
+                class="absolute inset-0 bg-black/50"
+                @click="closeDetail"
+              />
+              <div
+                class="relative w-full bg-card rounded-t-2xl p-4 max-h-[60vh] overflow-y-auto"
+                @click.stop
+              >
+                <MonthDetail :month="selectedMonth" :year="currentYear" :wishes="getWishesForMonth(selectedMonth)" @close="closeDetail" />
+              </div>
+            </div>
+          </Transition>
+        </Teleport>
+
+        <!-- Desktop Side Panel -->
+        <div v-if="selectedMonth && !isMobile" class="hidden lg:block">
+          <div class="glass-nav rounded-2xl p-4 sticky top-24">
+            <MonthDetail :month="selectedMonth" :year="currentYear" :wishes="getWishesForMonth(selectedMonth)" @close="closeDetail" />
+          </div>
         </div>
-        <p
-          v-if="getWishesForMonth(hoveredMonth).length > 3"
-          class="text-xs text-text-secondary"
-        >
-          还有 {{ getWishesForMonth(hoveredMonth).length - 3 }} 个...
-        </p>
+
+        <!-- Empty State (Desktop) -->
+        <div v-if="!selectedMonth && !isMobile" class="hidden lg:block">
+          <div class="glass-nav rounded-2xl p-8 text-center text-text-secondary">
+            <CalendarIcon class="w-12 h-12 mx-auto mb-3 opacity-50" />
+            <p>点击左侧月份查看完成的愿望</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { ChevronLeft, ChevronRight, X } from 'lucide-vue-next';
-import { useDaysCount } from '@/composables/useDaysCount.js';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-vue-next';
+import MonthDetail from './MonthDetail.vue';
 
 const props = defineProps({
   wishes: {
@@ -139,23 +123,25 @@ const props = defineProps({
   },
 });
 
-const { formatDate } = useDaysCount();
-
 const currentYear = ref(new Date().getFullYear());
 const selectedMonth = ref(null);
-const showDetail = ref(false);
-const hoveredMonth = ref(null);
 const isMobile = ref(false);
-const tooltipStyle = ref({});
 
 // Check mobile
 function checkMobile() {
-  isMobile.value = window.innerWidth < 640;
+  isMobile.value = window.innerWidth < 1024;
 }
 
 onMounted(() => {
   checkMobile();
   window.addEventListener('resize', checkMobile);
+  
+  // Auto-select current month if it has wishes
+  const now = new Date();
+  const currentMonthWishes = getWishesForMonth(now.getMonth() + 1);
+  if (currentMonthWishes.length > 0) {
+    selectedMonth.value = now.getMonth() + 1;
+  }
 });
 
 onUnmounted(() => {
@@ -180,24 +166,24 @@ function isCurrentMonth(month) {
 // Navigation
 function prevYear() {
   currentYear.value--;
+  selectedMonth.value = null;
 }
 
 function nextYear() {
   currentYear.value++;
+  selectedMonth.value = null;
 }
 
-// Show month wishes
-function showMonthWishes(month) {
-  if (getWishesForMonth(month).length === 0) return;
-  
-  if (isMobile.value) {
-    selectedMonth.value = month;
-    showDetail.value = true;
+// Select month
+function selectMonth(month) {
+  if (getWishesForMonth(month).length === 0) {
+    selectedMonth.value = null;
+    return;
   }
+  selectedMonth.value = month;
 }
 
 function closeDetail() {
-  showDetail.value = false;
   selectedMonth.value = null;
 }
 </script>
@@ -209,34 +195,46 @@ function closeDetail() {
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
 }
 
 @media (min-width: 640px) {
   .calendar-grid {
-    grid-template-columns: repeat(6, 1fr);
-    gap: 0.75rem;
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
 .month-cell {
   background: var(--color-card);
   cursor: pointer;
-  min-height: 48px;
+  min-height: 80px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .month-cell:hover {
-  background: var(--color-primary);
-  opacity: 0.1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .month-cell.has-wishes {
   background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.month-cell.has-wishes:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.5);
 }
 
 .month-cell.is-current {
-  border: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.month-cell.is-selected {
+  border-color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.1);
 }
 
 .fade-enter-active,

@@ -60,8 +60,8 @@
         </button>
       </div>
 
-      <!-- Filters -->
-      <div class="mb-6">
+      <!-- View Mode Toggle + Filters (Completed tab only) -->
+      <div v-if="activeTab === '已完成'" class="flex items-center justify-between gap-3 mb-6">
         <WishFilters
           :categories="categories"
           :priorities="priorities"
@@ -71,11 +71,7 @@
           @set-priority="setPriority"
           @reset-filters="resetFilters"
         />
-      </div>
-
-      <!-- View Mode Toggle (Completed tab only) -->
-      <div v-if="activeTab === '已完成'" class="flex justify-end mb-4">
-        <div class="flex items-center gap-1 p-1 bg-card rounded-lg">
+        <div class="flex items-center gap-1 p-1 bg-card rounded-lg shrink-0">
           <button
             @click="setViewMode('list')"
             class="p-2 rounded-md transition-all"
@@ -91,6 +87,19 @@
             <Calendar class="w-4 h-4" />
           </button>
         </div>
+      </div>
+
+      <!-- Filters (In Progress tab only) -->
+      <div v-else class="mb-6">
+        <WishFilters
+          :categories="categories"
+          :priorities="priorities"
+          :selected-category="selectedCategory"
+          :selected-priority="selectedPriority"
+          @set-category="setCategory"
+          @set-priority="setPriority"
+          @reset-filters="resetFilters"
+        />
       </div>
 
       <!-- Loading -->
