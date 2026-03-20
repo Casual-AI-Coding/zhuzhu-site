@@ -99,7 +99,7 @@
               </label>
               <input
                 v-model="form.targetDate"
-                type="month"
+                type="date"
                 class="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-text-main focus:outline-none focus:border-primary transition-colors"
               />
             </div>
