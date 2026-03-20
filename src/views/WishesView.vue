@@ -61,7 +61,7 @@
               :class="selectedStatus === status ? 'bg-primary text-white' : 'text-text-secondary hover:bg-primary/10'"
               :title="status"
             >
-              <span class="sm:hidden">{{ statusEmoji(status) }}</span>
+              <component :is="statusIcon(status)" class="w-4 h-4" />
               <span class="hidden sm:inline">{{ status }}</span>
             </button>
           </div>
@@ -192,7 +192,7 @@
         <!-- Calendar View -->
         <WishCalendar
           v-else
-          :wishes="completedWishes"
+          :wishes="filteredWishes.filter(w => w.status === '已完成')"
         />
       </template>
 
@@ -288,7 +288,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Plus, List, Calendar, Filter, X } from 'lucide-vue-next';
+import { Plus, List, Calendar, Filter, X, Layers, Circle, CheckCircle } from 'lucide-vue-next';
 import { useWishes } from '@/composables/useWishes.js';
 import WishCard from '@/components/WishCard.vue';
 import WishModal from '@/components/WishModal.vue';
@@ -340,13 +340,13 @@ const refreshing = ref(false);
 const showFilterPanel = ref(false);
 
 // Helper functions
-function statusEmoji(status) {
-  const emojis = {
-    '全部': '🌟',
-    '进行中': '💫',
-    '已完成': '✅',
+function statusIcon(status) {
+  const icons = {
+    '全部': Layers,
+    '进行中': Circle,
+    '已完成': CheckCircle,
   };
-  return emojis[status] || '🌟';
+  return icons[status] || Layers;
 }
 
 function categoryEmoji(cat) {
