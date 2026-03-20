@@ -15,11 +15,13 @@ const error = ref(null);
 // Filters
 const selectedCategory = ref('全部');
 const selectedPriority = ref('全部');
+const selectedStatus = ref('全部');
 const viewMode = ref('list'); // 'list' | 'calendar'
 
 // Categories and priorities
 const categories = ['全部', '旅行', '美食', '体验', '家居', '其他'];
 const priorities = ['全部', '高', '中', '低'];
+const statuses = ['全部', '进行中', '已完成'];
 
 // Filtered wishes
 const filteredWishes = computed(() => {
@@ -29,6 +31,9 @@ const filteredWishes = computed(() => {
 
     // Priority filter
     if (selectedPriority.value !== '全部' && wish.priority !== selectedPriority.value) return false;
+
+    // Status filter
+    if (selectedStatus.value !== '全部' && wish.status !== selectedStatus.value) return false;
 
     return true;
   });
@@ -159,6 +164,10 @@ export function useWishes() {
     selectedPriority.value = priority;
   }
 
+  function setStatus(status) {
+    selectedStatus.value = status;
+  }
+
   function setViewMode(mode) {
     viewMode.value = mode;
   }
@@ -166,6 +175,7 @@ export function useWishes() {
   function resetFilters() {
     selectedCategory.value = '全部';
     selectedPriority.value = '全部';
+    selectedStatus.value = '全部';
   }
 
   return {
@@ -177,9 +187,11 @@ export function useWishes() {
     // Filters
     selectedCategory,
     selectedPriority,
+    selectedStatus,
     viewMode,
     categories,
     priorities,
+    statuses,
 
     // Computed
     filteredWishes,

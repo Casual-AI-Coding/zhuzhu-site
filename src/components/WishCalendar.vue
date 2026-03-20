@@ -67,16 +67,13 @@
       </div>
 
       <!-- Right: Month Detail Panel (Desktop) / Bottom Sheet (Mobile) -->
-      <div 
-        class="lg:w-80 xl:w-96"
-        :class="{ 'hidden': !selectedMonth && !isMobile }"
-      >
+      <div class="lg:w-80 xl:w-96">
         <!-- Mobile Bottom Sheet -->
         <Teleport to="body">
           <Transition name="fade">
             <div
               v-if="selectedMonth && isMobile"
-              class="fixed inset-0 z-50 flex items-end sm:hidden"
+              class="fixed inset-0 z-50 flex items-end lg:hidden"
             >
               <div
                 class="absolute inset-0 bg-black/50"
@@ -93,14 +90,14 @@
         </Teleport>
 
         <!-- Desktop Side Panel -->
-        <div v-if="selectedMonth && !isMobile" class="hidden lg:block">
+        <div v-if="selectedMonth" class="hidden lg:block">
           <div class="glass-nav rounded-2xl p-4 sticky top-24">
             <MonthDetail :month="selectedMonth" :year="currentYear" :wishes="getWishesForMonth(selectedMonth)" @close="closeDetail" />
           </div>
         </div>
 
         <!-- Empty State (Desktop) -->
-        <div v-if="!selectedMonth && !isMobile" class="hidden lg:block">
+        <div v-if="!selectedMonth" class="hidden lg:block">
           <div class="glass-nav rounded-2xl p-8 text-center text-text-secondary">
             <CalendarIcon class="w-12 h-12 mx-auto mb-3 opacity-50" />
             <p>点击左侧月份查看完成的愿望</p>

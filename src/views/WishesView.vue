@@ -38,17 +38,31 @@
         </div>
       </div>
 
-      <!-- Filters + View Mode Toggle -->
+      <!-- Filters + Status Filter + View Mode Toggle -->
       <div class="flex items-center justify-between gap-3 mb-6">
-        <WishFilters
-          :categories="categories"
-          :priorities="priorities"
-          :selected-category="selectedCategory"
-          :selected-priority="selectedPriority"
-          @set-category="setCategory"
-          @set-priority="setPriority"
-          @reset-filters="resetFilters"
-        />
+        <div class="flex items-center gap-3">
+          <WishFilters
+            :categories="categories"
+            :priorities="priorities"
+            :selected-category="selectedCategory"
+            :selected-priority="selectedPriority"
+            @set-category="setCategory"
+            @set-priority="setPriority"
+            @reset-filters="resetFilters"
+          />
+          <!-- Status Filter -->
+          <div class="flex items-center gap-1 p-1 bg-card rounded-lg">
+            <button
+              v-for="status in ['全部', '进行中', '已完成']"
+              :key="status"
+              @click="selectedStatus = status"
+              class="px-3 py-1.5 rounded-md text-sm transition-all"
+              :class="selectedStatus === status ? 'bg-primary text-white' : 'text-text-secondary hover:bg-primary/10'"
+            >
+              {{ status }}
+            </button>
+          </div>
+        </div>
         <div class="flex items-center gap-1 p-1 bg-card rounded-lg shrink-0">
           <button
             @click="setViewMode('list')"
@@ -219,9 +233,11 @@ const {
   loading,
   selectedCategory,
   selectedPriority,
+  selectedStatus,
   viewMode,
   categories,
   priorities,
+  statuses,
   filteredWishes,
   completedWishes,
   stats,
@@ -232,6 +248,7 @@ const {
   deleteWish,
   setCategory,
   setPriority,
+  setStatus,
   setViewMode,
   resetFilters,
 } = useWishes();
