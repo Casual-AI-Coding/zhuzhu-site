@@ -221,7 +221,7 @@ export async function fetchWishes() {
       category: page.properties['分类']?.select?.name || '其他',
       targetDate: page.properties['目标日期']?.date?.start || '',
       priority: page.properties['优先级']?.select?.name || '中',
-      status: page.properties['状态']?.select?.name || '进行中',
+      status: page.properties['状态']?.status?.name || '进行中',
       completedDate: page.properties['完成日期']?.date?.start || '',
     }));
   } catch {
@@ -252,9 +252,7 @@ export async function addWish(wish) {
           '优先级': {
             select: { name: wish.priority || '中' },
           },
-          '状态': {
-            select: { name: '进行中' },
-          },
+          // Status 类型会自动使用默认值，无需手动设置
         },
       }),
     });
@@ -266,7 +264,7 @@ export async function addWish(wish) {
       category: wish.category || '其他',
       targetDate: wish.targetDate || '',
       priority: wish.priority || '中',
-      status: '进行中',
+      status: response.properties['状态']?.status?.name || '进行中',
       completedDate: '',
     };
   } catch {
@@ -324,7 +322,7 @@ export async function completeWish(wishId, completedDate) {
       body: JSON.stringify({
         properties: {
           '状态': {
-            select: { name: '已完成' },
+            status: { name: '已完成' },
           },
           '完成日期': {
             date: { start: completedDate },
