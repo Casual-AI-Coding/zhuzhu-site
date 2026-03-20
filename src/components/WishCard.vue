@@ -73,10 +73,10 @@
           <button
             v-if="wish.status === '进行中'"
             @click.stop="handleComplete"
-            class="action-btn w-9 h-9 rounded-full flex items-center justify-center bg-white/20 hover:bg-green-500/80 text-white transition-all"
+            class="complete-btn w-10 h-10 rounded-full flex items-center justify-center bg-green-500 text-white shadow-lg shadow-green-500/40 hover:bg-green-400 hover:scale-110 transition-all"
             title="标记完成"
           >
-            <Sparkles class="w-4 h-4" />
+            <Check class="w-5 h-5" />
           </button>
 
           <!-- 编辑 -->
@@ -112,7 +112,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { Sparkles, Pencil, Trash2, Calendar } from 'lucide-vue-next';
+import { Check, Pencil, Trash2, Calendar } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
 const props = defineProps({
@@ -239,7 +239,21 @@ function handleDelete() {
   transition: all 0.2s ease;
 }
 
-.wish-card:hover .action-btn {
+.complete-btn {
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+}
+
+.wish-card:hover .action-btn,
+.wish-card:hover .complete-btn {
   opacity: 1;
   transform: scale(1);
 }

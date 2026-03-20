@@ -157,6 +157,45 @@
       @submit="handleSubmit"
     />
 
+    <!-- Completion Date Modal -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div
+          v-if="showCompleteModal"
+          class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div class="absolute inset-0 bg-black/50" @click="cancelComplete" />
+          <div class="relative bg-card rounded-2xl p-6 max-w-sm w-full shadow-xl">
+            <h3 class="text-lg font-medium text-text-main mb-2">完成愿望</h3>
+            <p class="text-text-secondary text-sm mb-4">
+              选择完成日期
+            </p>
+            <div class="mb-4">
+              <input
+                v-model="completeDate"
+                type="date"
+                class="w-full px-4 py-2.5 bg-background border border-border rounded-xl text-text-main focus:outline-none focus:border-primary transition-colors"
+              />
+            </div>
+            <div class="flex gap-3">
+              <button
+                @click="cancelComplete"
+                class="flex-1 py-2 bg-background rounded-xl text-text-secondary font-medium"
+              >
+                取消
+              </button>
+              <button
+                @click="confirmComplete"
+                class="flex-1 py-2 bg-green-500 text-white rounded-xl font-medium"
+              >
+                确认完成
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- Delete Confirmation -->
     <Teleport to="body">
       <Transition name="fade">
@@ -234,6 +273,11 @@ const editingWish = ref(null);
 const showDeleteConfirm = ref(false);
 const deletingWishId = ref(null);
 
+// Completion modal
+const showCompleteModal = ref(false);
+const completingWishId = ref(null);
+const completeDate = ref('');
+
 // Refresh
 const refreshing = ref(false);
 
@@ -275,9 +319,26 @@ async function handleSubmit(formData) {
   closeModal();
 }
 
-// Complete handler
-async function handleComplete(wishId) {
-  await completeWish(wishId);
+// Complete handlers
+function handleComplete(wishId) {
+  completingWishId.value = wishId;
+  completeDate.value = new Date().toISOString().split('T')[0]; // Default to today
+  showCompleteModal.value = true;
+}
+
+function cancelComplete() {
+  showCompleteModal.value = false;
+  completingWishId.value = null;
+  completeDate.value = '';
+}
+
+async function confirmComplete() {
+  if (completingWishId.value && completeDate.value) {
+    await completeWish(completingWishId.value, completeDate.value);
+  }
+  showCompleteModal.value = false;
+  completingWishId.value = null;
+  completeDate.value = '';
 }
 
 // Delete handlers
