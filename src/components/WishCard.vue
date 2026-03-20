@@ -1,96 +1,118 @@
 <template>
   <div
-    class="wish-card glass-nav rounded-2xl p-4 sm:p-5 transition-all duration-300"
+    class="wish-card relative rounded-2xl overflow-hidden transition-all duration-300"
     :class="{
       'wish-card--completed': wish.status === '已完成',
-      'wish-card--high-priority': wish.priority === '高' && wish.status === '进行中',
+      'wish-card--in-progress': wish.status === '进行中',
+      'wish-card--high-priority': wish.priority === '高',
     }"
   >
-    <!-- Header -->
-    <div class="flex items-start justify-between gap-2 mb-3">
-      <div class="flex-1 min-w-0">
-        <h3 class="font-medium text-text-main text-base sm:text-lg truncate">
-          {{ wish.title }}
-        </h3>
-        <p v-if="wish.targetDate" class="text-text-secondary text-xs sm:text-sm mt-0.5">
-          目标: {{ formatTargetDate(wish.targetDate) }}
-        </p>
-      </div>
-      
-      <!-- Priority Badge -->
-      <span
-        v-if="wish.priority"
-        class="priority-badge px-2 py-0.5 rounded-full text-xs font-medium shrink-0"
-        :class="priorityClass"
-      >
-        {{ wish.priority }}
-      </span>
+    <!-- 背景装饰 -->
+    <div class="wish-bg absolute inset-0 opacity-50" :class="bgGradientClass" />
+    
+    <!-- 完成后的庆祝装饰 -->
+    <div v-if="wish.status === '已完成'" class="celebration-decoration absolute top-2 right-2">
+      <span class="text-2xl">✨</span>
     </div>
 
-    <!-- Description -->
-    <p
-      v-if="wish.description"
-      class="text-text-secondary text-sm mb-3 line-clamp-2"
-    >
-      {{ wish.description }}
-    </p>
+    <!-- 内容 -->
+    <div class="relative z-10 p-5">
+      <!-- 顶部：分类和优先级 -->
+      <div class="flex items-center gap-2 mb-3">
+        <span class="category-tag px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 backdrop-blur-sm text-white">
+          {{ categoryEmoji }} {{ wish.category }}
+        </span>
+        <span 
+          v-if="wish.priority !== '中'"
+          class="priority-tag px-2 py-0.5 rounded-full text-xs font-medium"
+          :class="priorityClass"
+        >
+          {{ wish.priority }}
+        </span>
+        <span v-if="wish.targetDate" class="target-date text-xs text-white/80 flex items-center gap-1">
+          <Calendar class="w-3 h-3" />
+          {{ formatTargetDate(wish.targetDate) }}
+        </span>
+      </div>
 
-    <!-- Footer -->
-    <div class="flex items-center justify-between">
-      <!-- Category -->
-      <span
-        class="category-badge px-2.5 py-1 rounded-full text-xs"
-        :class="categoryClass"
+      <!-- 标题 -->
+      <h3 class="wish-title font-display text-xl sm:text-2xl text-white mb-2 leading-tight">
+        {{ wish.title }}
+      </h3>
+
+      <!-- 描述 -->
+      <p
+        v-if="wish.description"
+        class="wish-description text-sm text-white/80 mb-4 line-clamp-2"
       >
-        {{ categoryEmoji }} {{ wish.category }}
-      </span>
+        {{ wish.description }}
+      </p>
 
-      <!-- Actions -->
-      <div class="flex items-center gap-2">
-        <!-- Complete Button -->
-        <button
-          v-if="wish.status === '进行中'"
-          @click.stop="handleComplete"
-          class="action-btn w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-green-500/20 text-text-secondary hover:text-green-500"
-          title="标记完成"
-        >
-          <Check class="w-4 h-4" />
-        </button>
+      <!-- 底部：状态和操作 -->
+      <div class="flex items-center justify-between mt-4">
+        <!-- 状态徽章 -->
+        <div class="flex items-center gap-2">
+          <span
+            class="status-badge px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5"
+            :class="statusClass"
+          >
+            <span v-if="wish.status === '进行中'">💫</span>
+            <span v-else>🎉</span>
+            {{ wish.status }}
+          </span>
+          
+          <!-- 完成日期 -->
+          <span v-if="wish.status === '已完成' && wish.completedDate" class="text-xs text-white/70">
+            {{ formatDate(wish.completedDate) }}
+          </span>
+        </div>
 
-        <!-- Edit Button -->
-        <button
-          @click.stop="handleEdit"
-          class="action-btn w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-primary/20 text-text-secondary hover:text-primary"
-          title="编辑"
-        >
-          <Pencil class="w-4 h-4" />
-        </button>
+        <!-- 操作按钮 -->
+        <div class="flex items-center gap-1">
+          <!-- 完成按钮 -->
+          <button
+            v-if="wish.status === '进行中'"
+            @click.stop="handleComplete"
+            class="action-btn w-9 h-9 rounded-full flex items-center justify-center bg-white/20 hover:bg-green-500/80 text-white transition-all"
+            title="标记完成"
+          >
+            <Sparkles class="w-4 h-4" />
+          </button>
 
-        <!-- Delete Button -->
-        <button
-          @click.stop="handleDelete"
-          class="action-btn w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-red-500/20 text-text-secondary hover:text-red-500"
-          title="删除"
-        >
-          <Trash2 class="w-4 h-4" />
-        </button>
+          <!-- 编辑 -->
+          <button
+            @click.stop="handleEdit"
+            class="action-btn w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/30 text-white/80 hover:text-white transition-all"
+            title="编辑"
+          >
+            <Pencil class="w-3.5 h-3.5" />
+          </button>
+
+          <!-- 删除 -->
+          <button
+            @click.stop="handleDelete"
+            class="action-btn w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-red-500/60 text-white/80 hover:text-white transition-all"
+            title="删除"
+          >
+            <Trash2 class="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Completed Date -->
+    <!-- 完成后的印章效果 -->
     <div
-      v-if="wish.status === '已完成' && wish.completedDate"
-      class="completed-badge mt-3 pt-3 border-t border-border/30 flex items-center gap-2 text-green-500"
+      v-if="wish.status === '已完成'"
+      class="completed-stamp absolute -bottom-6 -right-6 w-24 h-24 rounded-full border-4 border-white/30 flex items-center justify-center rotate-[-15deg]"
     >
-      <CheckCircle2 class="w-4 h-4" />
-      <span class="text-xs">完成于 {{ formatDate(wish.completedDate) }}</span>
+      <span class="text-white/30 font-bold text-lg">已完成</span>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
-import { Check, Pencil, Trash2, CheckCircle2 } from 'lucide-vue-next';
+import { Sparkles, Pencil, Trash2, Calendar } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 
 const props = defineProps({
@@ -104,7 +126,19 @@ const emit = defineEmits(['complete', 'edit', 'delete']);
 
 const { formatDate } = useDaysCount();
 
-// Category styling
+// 背景渐变
+const bgGradientClass = computed(() => {
+  const gradients = {
+    '旅行': 'bg-gradient-to-br from-blue-500 to-cyan-400',
+    '美食': 'bg-gradient-to-br from-orange-500 to-amber-400',
+    '体验': 'bg-gradient-to-br from-purple-500 to-pink-400',
+    '家居': 'bg-gradient-to-br from-green-500 to-emerald-400',
+    '其他': 'bg-gradient-to-br from-primary to-pink-400',
+  };
+  return gradients[props.wish.category] || 'bg-gradient-to-br from-primary to-pink-400';
+});
+
+// 分类表情
 const categoryEmoji = computed(() => {
   const emojis = {
     '旅行': '✈️',
@@ -116,35 +150,31 @@ const categoryEmoji = computed(() => {
   return emojis[props.wish.category] || '✨';
 });
 
-const categoryClass = computed(() => {
-  const classes = {
-    '旅行': 'bg-blue-500/10 text-blue-500',
-    '美食': 'bg-orange-500/10 text-orange-500',
-    '体验': 'bg-purple-500/10 text-purple-500',
-    '家居': 'bg-green-500/10 text-green-500',
-    '其他': 'bg-gray-500/10 text-gray-500',
-  };
-  return classes[props.wish.category] || 'bg-gray-500/10 text-gray-500';
-});
-
-// Priority styling
+// 优先级样式
 const priorityClass = computed(() => {
   const classes = {
-    '高': 'bg-red-500/20 text-red-500',
-    '中': 'bg-yellow-500/20 text-yellow-600',
-    '低': 'bg-gray-500/20 text-gray-500',
+    '高': 'bg-red-500/80 text-white',
+    '中': 'bg-yellow-500/80 text-white',
+    '低': 'bg-gray-500/60 text-white',
   };
-  return classes[props.wish.priority] || 'bg-gray-500/20 text-gray-500';
+  return classes[props.wish.priority] || 'bg-gray-500/60 text-white';
 });
 
-// Format target date
+// 状态样式
+const statusClass = computed(() => {
+  return props.wish.status === '已完成'
+    ? 'bg-green-500/80 text-white'
+    : 'bg-white/20 text-white/90';
+});
+
+// 格式化目标日期
 function formatTargetDate(dateStr) {
   if (!dateStr) return '';
   const date = new Date(dateStr);
-  return `${date.getFullYear()}年${date.getMonth() + 1}月`;
+  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
-// Handlers
+// 事件处理
 function handleComplete() {
   emit('complete', props.wish.id);
 }
@@ -161,31 +191,61 @@ function handleDelete() {
 <style scoped>
 .wish-card {
   position: relative;
-  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .wish-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.wish-bg {
+  transition: opacity 0.3s ease;
+}
+
+.wish-card:hover .wish-bg {
+  opacity: 0.6;
+}
+
+.wish-card--completed .wish-bg {
+  opacity: 0.4;
+}
+
+.wish-title {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .wish-card--completed {
-  opacity: 0.8;
+  opacity: 0.9;
+}
+
+.wish-card--completed .wish-title {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 255, 255, 0.4);
+  text-decoration-thickness: 2px;
 }
 
 .wish-card--high-priority {
-  border-left: 3px solid #ef4444;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2), 0 0 0 2px rgba(239, 68, 68, 0.1);
+}
+
+.wish-card--high-priority:hover {
+  box-shadow: 0 12px 40px rgba(239, 68, 68, 0.25), 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
 
 .action-btn {
-  opacity: 0;
-  transform: scale(0.8);
+  opacity: 0.7;
+  transform: scale(0.9);
   transition: all 0.2s ease;
 }
 
 .wish-card:hover .action-btn {
   opacity: 1;
   transform: scale(1);
+}
+
+.action-btn:hover {
+  transform: scale(1.1) !important;
 }
 
 .line-clamp-2 {
@@ -195,20 +255,17 @@ function handleDelete() {
   overflow: hidden;
 }
 
-/* Completed animation */
-@keyframes completeFlash {
-  0% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-  }
+.completed-stamp {
+  pointer-events: none;
 }
 
-.wish-card--completed {
-  animation: completeFlash 0.6s ease-out;
+/* 庆祝动画 */
+@keyframes sparkle {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.celebration-decoration {
+  animation: sparkle 2s ease-in-out infinite;
 }
 </style>

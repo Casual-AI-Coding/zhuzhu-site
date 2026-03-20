@@ -143,9 +143,9 @@
       <!-- Add Button (FAB) -->
       <button
         @click="openModal"
-        class="fab fixed right-4 sm:right-8 bottom-20 sm:bottom-8 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-pink-400 text-white shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-30"
+        class="fab fixed right-4 sm:right-8 bottom-28 sm:bottom-8 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-gradient-to-r from-primary to-pink-400 text-white shadow-lg shadow-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-30"
       >
-        <Plus class="w-6 h-6" />
+        <Plus class="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
     </div>
 
