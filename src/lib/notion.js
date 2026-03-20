@@ -216,7 +216,9 @@ export async function fetchWishes() {
 
     return response.results.map(page => ({
       id: page.id,
-      title: page.properties['标题']?.title[0]?.plain_text || '',
+      title: page.properties['标题']?.title?.[0]?.plain_text 
+        || page.properties['标题']?.rich_text?.[0]?.plain_text 
+        || '',
       description: page.properties['描述']?.rich_text[0]?.plain_text || '',
       category: page.properties['分类']?.select?.name || '其他',
       targetDate: page.properties['目标日期']?.date?.start || '',
@@ -238,7 +240,7 @@ export async function addWish(wish) {
         parent: { database_id: DATABASES.wishes },
         properties: {
           '标题': {
-            title: [{ text: { content: wish.title } }],
+            rich_text: [{ text: { content: wish.title } }],
           },
           '描述': {
             rich_text: [{ text: { content: wish.description || '' } }],
@@ -279,7 +281,7 @@ export async function updateWish(wishId, updates) {
 
     if (updates.title !== undefined) {
       properties['标题'] = {
-        title: [{ text: { content: updates.title } }],
+        rich_text: [{ text: { content: updates.title } }],
       };
     }
     if (updates.description !== undefined) {
