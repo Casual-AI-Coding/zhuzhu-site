@@ -112,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue';
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { Filter, ChevronDown, X, Folder, Flag } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -138,6 +138,19 @@ const emit = defineEmits(['setCategory', 'setPriority', 'resetFilters']);
 
 const showPanel = ref(false);
 const panelPosition = ref({ top: '0px', left: '0px' });
+const windowWidth = ref(window.innerWidth);
+
+function updateWidth() {
+  windowWidth.value = window.innerWidth;
+}
+
+onMounted(() => {
+  window.addEventListener('resize', updateWidth);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateWidth);
+});
 
 // 临时选择状态
 const tempCategory = ref(props.selectedCategory);
@@ -147,8 +160,12 @@ const isActive = computed(() => {
   return props.selectedCategory !== '全部' || props.selectedPriority !== '全部';
 });
 
+const isMobile = computed(() => windowWidth.value < 768);
+
 const buttonText = computed(() => {
   if (!isActive.value) return '筛选';
+  // 移动端只显示"筛选"，不显示已选中的选项
+  if (isMobile.value) return '筛选';
   const parts = [];
   if (props.selectedCategory !== '全部') parts.push(props.selectedCategory);
   if (props.selectedPriority !== '全部') parts.push(props.selectedPriority);

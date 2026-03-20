@@ -59,7 +59,7 @@
             class="stroke-primary timeline-line-animated"
             stroke-width="2"
             stroke-linecap="round"
-            :style="{ strokeDashoffset: lineProgress }"
+            :style="{ strokeDashoffset: lineProgress, strokeDasharray: lineDashArray }"
           />
         </svg>
         
@@ -113,6 +113,7 @@ const itemRefs = ref([]);
 const timelineContainer = ref(null);
 // 时间线绘制进度 - 初始值设为较大值确保初始隐藏
 const lineProgress = ref(10000); // Large enough for typical timelines
+const lineDashArray = ref(1000); // 会根据容器高度动态更新
 
 let observer = null;
 let scrollRafId = null; // For throttling scroll handler
@@ -182,24 +183,27 @@ function updateLineProgress() {
   
   const container = timelineContainer.value;
   const rect = container.getBoundingClientRect();
-  const windowHeight = window.innerHeight;
-  
-  // 计算容器在视口中的可见比例
-  const containerTop = rect.top;
   const containerHeight = rect.height;
   
-  // 线条总长度（像素）
-  const totalLength = containerHeight;
+  // 更新 stroke-dasharray 以匹配容器实际高度
+  lineDashArray.value = containerHeight;
   
-  // 计算已滚过的距离
-  let scrolled = windowHeight - containerTop;
-  scrolled = Math.max(0, Math.min(scrolled, containerHeight + windowHeight));
+  // 动画触发点：当容器底部到达视口高度的 80% 位置时开始绘制
+  // 动画结束点：当容器顶部完全滚出视口时完成绘制
+  const triggerPoint = window.innerHeight * 0.8;
+  const animationStartTop = triggerPoint - containerHeight;
+  const animationDistance = containerHeight;
   
-  // 计算绘制进度 (0 to totalLength)
-  const progress = Math.max(0, Math.min(totalLength, scrolled - windowHeight * 0.2));
+  // 计算容器顶部从动画开始位置滚动了多少
+  const scrolled = animationStartTop - rect.top;
   
-  // stroke-dashoffset = totalLength - progress
-  lineProgress.value = Math.max(0, totalLength - progress);
+  // 计算绘制进度 (0 到 containerHeight)
+  const progress = Math.max(0, Math.min(containerHeight, scrolled));
+  
+  // stroke-dashoffset = containerHeight - progress
+  // 当 progress = 0 时，offset = containerHeight（完全隐藏）
+  // 当 progress = containerHeight 时，offset = 0（完全显示）
+  lineProgress.value = Math.max(0, containerHeight - progress);
 }
 
 function handleRefresh() {
@@ -299,7 +303,6 @@ onUnmounted(() => {
 
 /* 时间线绘制动画 */
 .timeline-line-animated {
-  stroke-dasharray: 1000;
   transition: stroke-dashoffset 0.1s ease-out;
 }
 
