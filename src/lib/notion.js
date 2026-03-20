@@ -246,11 +246,31 @@ export async function fetchWishes() {
 // 添加愿望
 export async function addWish(wish) {
   try {
+    // 查询所有愿望获取最大ID
+    const existing = await notionRequest(`/databases/${DATABASES.wishes}/query`, {
+      method: 'POST',
+      body: JSON.stringify({ page_size: 100 }),
+    });
+    
+    // 计算最大ID
+    let maxId = 0;
+    for (const page of existing.results) {
+      const idText = page.properties['Id']?.title?.[0]?.plain_text || '0';
+      const idNum = parseInt(idText, 10);
+      if (!isNaN(idNum) && idNum > maxId) {
+        maxId = idNum;
+      }
+    }
+    const newId = (maxId + 1).toString();
+
     const response = await notionRequest('/pages', {
       method: 'POST',
       body: JSON.stringify({
         parent: { database_id: DATABASES.wishes },
         properties: {
+          'Id': {
+            title: [{ text: { content: newId } }],
+          },
           '标题': {
             rich_text: [{ text: { content: wish.title } }],
           },
@@ -278,7 +298,7 @@ export async function addWish(wish) {
       category: wish.category || '其他',
       targetDate: wish.targetDate || '',
       priority: wish.priority || '中',
-      status: response.properties['状态']?.status?.name || '进行中',
+      status: STATUS_MAP[response.properties['状态']?.status?.name] || '进行中',
       completedDate: '',
     };
   } catch {
