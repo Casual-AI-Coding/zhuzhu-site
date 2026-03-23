@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #D4A574;
+  --color-primary: #C49464;
   --color-background: #F5EDE4;
   --color-card: #FFF8F0;
-  --color-text-main: #3D3D3D;
-  --color-text-secondary: #8B7355;
-  --color-border: #E8DDD0;
+  --color-text-main: #2D2D2D;
+  --color-text-secondary: #7A6548;
+  --color-border: #E0D5C8;
 
   /* 动画变量 */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -48,18 +48,41 @@
 }
 
 .dark {
-  --color-primary: #E8C9A8;
+  --color-primary: #F0D4A8;
   --color-background: #1A1A2E;
-  --color-card: #252542;
-  --color-text-main: #E8E8E8;
-  --color-text-secondary: #A0A0A0;
-  --color-border: #3D3D5C;
+  --color-card: #2A2A4A;
+  --color-text-main: #F0F0F0;
+  --color-text-secondary: #B8B8B8;
+  --color-border: #4D4D7C;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
+  }
+
+  /* 无障碍：焦点状态优化 */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* 默认去掉轮廓，使用 focus-visible 代替 */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* 减少动效支持 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
   
   /* 深色模式平滑过渡 - 排除首次加载 */
@@ -144,8 +167,8 @@
 
 @layer components {
   .glass-nav {
-    @apply backdrop-blur-md border;
-    background-color: rgb(from var(--color-card) r g b / 80%);
+    @apply backdrop-blur-xl border;
+    background-color: rgb(from var(--color-card) r g b / 85%);
     border-color: rgb(from var(--color-border) r g b / 50%);
   }
   

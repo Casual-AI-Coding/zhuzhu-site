@@ -129,8 +129,8 @@ function handleMouseMove(e) {
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
         
-        const rotateX = (y - centerY) / 15;
-        const rotateY = (centerX - x) / 15;
+        const rotateX = (y - centerY) / 10;
+        const rotateY = (centerX - x) / 10;
         
         transform.value = { rotateX, rotateY };
       }
@@ -248,7 +248,7 @@ onUnmounted(() => {
 }
 
 .photo-card-3d:hover {
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
 }
 
 .is-pressed {

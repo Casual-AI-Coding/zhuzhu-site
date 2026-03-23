@@ -46,6 +46,7 @@ function isActive(path) {
 
 .bottom-nav-item.is-active {
   color: var(--color-primary);
+  background: rgba(212, 165, 116, 0.15);
 }
 
 .bottom-nav-item.is-active .bottom-nav-icon {

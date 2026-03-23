@@ -73,7 +73,7 @@
           <button
             v-if="wish.status === '进行中'"
             @click.stop="handleComplete"
-            class="complete-btn w-10 h-10 rounded-full flex items-center justify-center bg-white/30 backdrop-blur-sm border border-white/40 text-white shadow-lg hover:bg-white/50 hover:scale-110 transition-all"
+            class="complete-btn w-11 h-11 rounded-full flex items-center justify-center bg-white/30 backdrop-blur-sm border border-white/40 text-white shadow-lg hover:bg-white/50 hover:scale-110 transition-all min-w-[44px] min-h-[44px]"
             title="标记完成"
           >
             <Check class="w-5 h-5" />
@@ -82,19 +82,19 @@
           <!-- 编辑 -->
           <button
             @click.stop="handleEdit"
-            class="action-btn w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/30 text-white/80 hover:text-white transition-all"
+            class="action-btn w-11 h-11 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/30 text-white/80 hover:text-white transition-all min-w-[44px] min-h-[44px]"
             title="编辑"
           >
-            <Pencil class="w-3.5 h-3.5" />
+            <Pencil class="w-4 h-4" />
           </button>
 
           <!-- 删除 -->
           <button
             @click.stop="handleDelete"
-            class="action-btn w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-red-500/60 text-white/80 hover:text-white transition-all"
+            class="action-btn w-11 h-11 rounded-full flex items-center justify-center bg-white/10 hover:bg-red-500/60 text-white/80 hover:text-white transition-all min-w-[44px] min-h-[44px]"
             title="删除"
           >
-            <Trash2 class="w-3.5 h-3.5" />
+            <Trash2 class="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -235,8 +235,11 @@ function handleDelete() {
 
 .action-btn {
   opacity: 0.7;
-  transform: scale(0.9);
   transition: all 0.2s ease;
+}
+
+.action-btn:not(:hover) {
+  transform: scale(0.9);
 }
 
 .complete-btn {

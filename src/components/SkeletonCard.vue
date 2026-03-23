@@ -21,16 +21,28 @@ defineProps({
   overflow: hidden;
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
   }
-  50% {
-    opacity: 0.5;
+  100% {
+    background-position: 200% 0;
   }
 }
 
+.skeleton-image,
+.skeleton-content > div {
+  background: linear-gradient(
+    90deg,
+    var(--color-card) 0%,
+    var(--color-border) 50%,
+    var(--color-card) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
 .animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: shimmer 1.8s ease-in-out infinite;
 }
 </style>
