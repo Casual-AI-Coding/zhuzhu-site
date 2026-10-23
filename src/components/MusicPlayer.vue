@@ -25,11 +25,17 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
+const STORAGE_KEY = 'music_enabled';
 const isEnabled = ref(false);
 
 function enableMusic() {
   isEnabled.value = true;
-  
+  try {
+    localStorage.setItem(STORAGE_KEY, '1');
+  } catch {
+    // 隐私模式下忽略
+  }
+
   // 加载 CSS
   const linkEl = document.createElement('link');
   linkEl.rel = 'stylesheet';
@@ -49,16 +55,53 @@ function enableMusic() {
         // 设置音量为 0.2
         playerEl.neteasePlayer.audio.volume = 0.2;
         playerEl.neteasePlayer.volume = 0.2;
-        
+
         // 手动调用播放（用户点击后应该可以播放）
         playerEl.neteasePlayer.play().catch(() => {
           // 静默处理播放失败
         });
-        
+
         clearInterval(checkPlayer);
       }
     }, 100);
-    
+
+    setTimeout(() => clearInterval(checkPlayer), 5000);
+  };
+  document.body.appendChild(scriptEl);
+}
+
+onMounted(() => {
+  // 记住上次的选择: 之前启用过则自动恢复播放器(不自动播放)
+  try {
+    if (localStorage.getItem(STORAGE_KEY) === '1') {
+      isEnabled.value = true;
+      enablePlayerOnly();
+    }
+  } catch {
+    // 忽略
+  }
+});
+
+// 恢复播放器但尝试静音自动播放, 避免浏览器自动播放策略报错
+function enablePlayerOnly() {
+  const linkEl = document.createElement('link');
+  linkEl.rel = 'stylesheet';
+  linkEl.href = '/netease-mini-player-v2.css';
+  linkEl.crossOrigin = 'anonymous';
+  document.head.appendChild(linkEl);
+
+  const scriptEl = document.createElement('script');
+  scriptEl.src = '/netease-mini-player-v2.js';
+  scriptEl.crossOrigin = 'anonymous';
+  scriptEl.onload = () => {
+    const checkPlayer = setInterval(() => {
+      const playerEl = document.querySelector('.music-player');
+      if (playerEl?.neteasePlayer?.audio) {
+        playerEl.neteasePlayer.audio.volume = 0.2;
+        playerEl.neteasePlayer.volume = 0.2;
+        clearInterval(checkPlayer);
+      }
+    }, 100);
     setTimeout(() => clearInterval(checkPlayer), 5000);
   };
   document.body.appendChild(scriptEl);

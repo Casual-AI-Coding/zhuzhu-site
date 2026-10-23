@@ -127,6 +127,18 @@
           </div>
         </div>
         
+        <div v-else-if="error" class="text-center py-12">
+          <div class="text-6xl mb-4">💔</div>
+          <p class="text-text-secondary mb-4">照片加载失败，请稍后再试</p>
+          <button
+            type="button"
+            class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors"
+            @click="handleRefresh"
+          >
+            重新加载
+          </button>
+        </div>
+
         <div v-else-if="photos.length === 0" class="text-center py-12">
           <div class="text-6xl mb-4">📷</div>
           <p class="text-text-secondary">暂无照片</p>
@@ -179,7 +191,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Image } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
-import { fetchPhotos } from '@/lib/notion.js';
+import { fetchPhotos, invalidate } from '@/lib/notion.js';
 import PhotoCarousel from '@/components/PhotoCarousel.vue';
 import FlipClock from '@/components/FlipClock.vue';
 import SharePoster from '@/components/SharePoster.vue';
@@ -189,10 +201,10 @@ const { totalDays, nextMilestone, nextMilestoneDate, nextAnniversary, nextAnnive
 // 天数拆分为数字数组（用于动画）
 const totalDaysDigits = computed(() => String(totalDays.value).split(''));
 
-// 里程碑检测 (100, 200, 300, 365, 500, 666, 777, 888, 999, 1000, etc.)
+// 里程碑检测 (百天整数倍与有特殊含义的日子)
 const milestoneConfig = computed(() => {
   const days = totalDays.value;
-  const milestones = [100, 200, 300, 365, 500, 666, 777, 888, 999, 1000, 1111, 1234, 1314, 1500, 2000, 2500, 3000, 5000, 10000];
+  const milestones = [100, 200, 300, 365, 500, 520, 666, 730, 777, 888, 999, 1000, 1095, 1111, 1234, 1314, 1500, 2000, 2500, 3000, 5000, 10000];
   
   for (const milestone of milestones) {
     if (days === milestone) {
@@ -225,35 +237,27 @@ const milestoneLabel = computed(() => {
 
 const photos = ref([]);
 const loading = ref(true);
+const error = ref(false);
 const countdown = ref(null);
 const milestoneCountdown = ref(null);
 const showSharePoster = ref(false);
 
-// 选择分享海报使用的照片（随机一张轮播照片）
+// 分享海报使用的照片：以天数取模挑选，同一天内稳定不变
 const selectedPosterPhoto = computed(() => {
   if (photos.value.length > 0) {
-    const index = Math.floor(Math.random() * photos.value.length);
-    return photos.value[index].thumbnailUrl || photos.value[index].url;
+    return photos.value[totalDays.value % photos.value.length].url;
   }
   return '';
 });
 
 let countdownTimer = null;
 
-// 响应式窗口宽度
+// 响应式窗口宽度（用于骨架屏数量）
 const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
 function updateWindowWidth() {
   windowWidth.value = window.innerWidth;
 }
-
-// 根据屏幕宽度动态计算列数
-const gridColsClass = computed(() => {
-  const width = windowWidth.value;
-  if (width >= 1024) return 'grid-cols-3';
-  if (width >= 640) return 'grid-cols-2';
-  return 'grid-cols-1';
-});
 
 // 只显示一行的照片数量 (for skeleton)
 const featuredCount = computed(() => {
@@ -277,15 +281,21 @@ function updateCountdown() {
 }
 
 onMounted(async () => {
-  photos.value = await fetchPhotos();
-  loading.value = false;
+  try {
+    photos.value = await fetchPhotos();
+    error.value = false;
+  } catch {
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
   updateCountdown();
   countdownTimer = setInterval(updateCountdown, 1000);
-  
+
   // 监听窗口大小变化
   window.addEventListener('resize', updateWindowWidth);
   window.addEventListener('refresh-data', handleRefresh);
-  
+
   // 如果是里程碑，触发庆祝烟花
   if (isMilestone.value && window.__launchCelebration) {
     setTimeout(() => {
@@ -296,10 +306,18 @@ onMounted(async () => {
 
 function handleRefresh() {
   loading.value = true;
-  fetchPhotos().then(data => {
-    photos.value = data;
-    loading.value = false;
-  });
+  error.value = false;
+  invalidate('photos');
+  fetchPhotos()
+    .then((data) => {
+      photos.value = data;
+    })
+    .catch(() => {
+      error.value = true;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
 
 onUnmounted(() => {

@@ -5,11 +5,11 @@
         v-for="item in navItems"
         :key="item.name"
         :to="item.path"
-        class="bottom-nav-item relative flex flex-col items-center py-1.5 px-3 rounded-xl transition-colors"
+        class="bottom-nav-item relative flex flex-col items-center py-1.5 px-1.5 sm:px-3 rounded-xl transition-colors"
         :class="{ 'is-active': isActive(item.path) }"
       >
         <component :is="item.icon" class="bottom-nav-icon w-5 h-5 mb-0.5 transition-transform" />
-        <span class="bottom-nav-label text-[10px]">{{ item.label }}</span>
+        <span class="bottom-nav-label text-[9px] sm:text-[10px]">{{ item.label }}</span>
       </RouterLink>
     </div>
   </nav>
@@ -17,7 +17,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { Home, Calendar, Image, Clock, MessageCircle, Sparkles } from 'lucide-vue-next';
+import { Home, Calendar, Image, Clock, MessageCircle, Sparkles, Map, BarChart3 } from 'lucide-vue-next';
 
 const route = useRoute();
 
@@ -25,8 +25,10 @@ const navItems = [
   { name: 'home', path: '/', label: '首页', icon: Home },
   { name: 'anniversary', path: '/anniversary', label: '纪念日', icon: Calendar },
   { name: 'gallery', path: '/gallery', label: '相册', icon: Image },
+  { name: 'map', path: '/map', label: '足迹', icon: Map },
   { name: 'timeline', path: '/timeline', label: '时光轴', icon: Clock },
   { name: 'wishes', path: '/wishes', label: '愿望', icon: Sparkles },
+  { name: 'stats', path: '/stats', label: '年报', icon: BarChart3 },
   { name: 'guestbook', path: '/guestbook', label: '留言', icon: MessageCircle },
 ];
 

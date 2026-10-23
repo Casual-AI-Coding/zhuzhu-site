@@ -1,9 +1,7 @@
 <template>
   <div
     class="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8"
-    @touchstart="handlePullStart"
-    @touchmove="handlePullMove"
-    @touchend="handlePullEnd"
+    v-on="pullRefreshHandlers"
   >
     <!-- Pull to refresh indicator -->
     <div
@@ -97,6 +95,19 @@
             <div class="h-4 bg-primary/10 rounded w-3/4" />
           </div>
         </div>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error && wishes.length === 0" class="text-center py-12">
+        <div class="text-6xl mb-4">💔</div>
+        <p class="text-text-secondary mb-4">愿望清单加载失败，请稍后再试</p>
+        <button
+          type="button"
+          class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors"
+          @click="handleRefresh"
+        >
+          重新加载
+        </button>
       </div>
 
       <!-- Empty State -->
@@ -226,6 +237,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Plus, List, Calendar, Layers, Circle, CheckCircle } from 'lucide-vue-next';
 import { useWishes } from '@/composables/useWishes.js';
+import { invalidate } from '@/lib/notion.js';
+import { usePullToRefresh } from '@/composables/usePullToRefresh.js';
 import WishCard from '@/components/WishCard.vue';
 import WishFilters from '@/components/WishFilters.vue';
 import WishModal from '@/components/WishModal.vue';
@@ -235,6 +248,7 @@ import WishEmptyState from '@/components/WishEmptyState.vue';
 const {
   wishes,
   loading,
+  error,
   selectedCategory,
   selectedPriority,
   selectedStatus,
@@ -269,9 +283,6 @@ const deletingWishId = ref(null);
 const showCompleteModal = ref(false);
 const completingWishId = ref(null);
 const completeDate = ref('');
-
-// Refresh
-const refreshing = ref(false);
 
 // Helper functions
 function statusIcon(status) {
@@ -357,30 +368,8 @@ async function confirmDelete() {
   deletingWishId.value = null;
 }
 
-// Pull to refresh
-let pullStartY = 0;
-function handlePullStart(e) {
-  if (window.scrollY === 0) {
-    pullStartY = e.touches[0].clientY;
-  }
-}
-
-function handlePullMove(e) {
-  if (pullStartY > 0 && window.scrollY === 0) {
-    const pullCurrentY = e.touches[0].clientY;
-    if (pullCurrentY - pullStartY > 100 && !refreshing.value && !loading.value) {
-      refreshing.value = true;
-      loadWishes().then(() => {
-        refreshing.value = false;
-      });
-      pullStartY = 0;
-    }
-  }
-}
-
-function handlePullEnd() {
-  pullStartY = 0;
-}
+// Refresh (下拉刷新与导航刷新共用, 先清缓存)
+const { refreshing, handlers: pullRefreshHandlers } = usePullToRefresh(handleRefresh);
 
 // Lifecycle
 onMounted(() => {
@@ -394,6 +383,7 @@ onUnmounted(() => {
 
 // Handle refresh from navigation
 function handleRefresh() {
+  invalidate('wishes');
   loadWishes();
 }
 </script>

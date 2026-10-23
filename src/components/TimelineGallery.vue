@@ -27,10 +27,13 @@
           <!-- 图片 -->
           <img
             v-if="!imgErrors[photo.id]"
-            :src="photo.thumbnailUrl || photo.url"
+            :src="thumbUrl(photo.url, 480)"
+            :srcset="thumbSrcset(photo.url)"
+            sizes="(max-width: 640px) 30vw, (max-width: 1024px) 20vw, 12vw"
             :alt="photo.title"
             class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             loading="lazy"
+            decoding="async"
             @error="markImgError(photo.id)"
           />
           
@@ -58,6 +61,7 @@
 <script setup>
 import { computed, reactive } from 'vue';
 import { Image as ImageIcon } from 'lucide-vue-next';
+import { thumbUrl, thumbSrcset } from '@/lib/imageUrl.js';
 
 const props = defineProps({
   photos: { type: Array, default: () => [] },

@@ -17,7 +17,7 @@
     <!-- Main content -->
     <main class="flex-1 pb-16 md:pb-0">
       <RouterView v-slot="{ Component }">
-        <Transition name="page" mode="out-in">
+        <Transition :name="pageTransition" mode="out-in">
           <component :is="Component" />
         </Transition>
       </RouterView>
@@ -56,8 +56,8 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import Navigation from '@/components/Navigation.vue';
-import FloatingDecorations from '@/components/FloatingDecorations.vue';
 import FallingHearts from '@/components/FallingHearts.vue';
 import ClickHearts from '@/components/ClickHearts.vue';
 import Fireworks from '@/components/Fireworks.vue';
@@ -66,6 +66,21 @@ import SiteFooter from '@/components/SiteFooter.vue';
 import ToastContainer from '@/components/ToastContainer.vue';
 import BottomNav from '@/components/BottomNav.vue';
 import { ArrowUp } from 'lucide-vue-next';
+
+// APP 式方向感知页面切换: 沿导航顺序前进→左滑, 后退→右滑
+const NAV_ORDER = ['home', 'anniversary', 'gallery', 'map', 'timeline', 'wishes', 'stats', 'guestbook'];
+const pageTransition = ref('page-forward');
+const router = useRouter();
+
+router.afterEach((to, from) => {
+  const toIdx = NAV_ORDER.indexOf(to.name);
+  const fromIdx = NAV_ORDER.indexOf(from.name);
+  if (toIdx === -1 || fromIdx === -1 || toIdx >= fromIdx) {
+    pageTransition.value = 'page-forward';
+  } else {
+    pageTransition.value = 'page-back';
+  }
+});
 
 const showBackToTop = ref(false);
 
@@ -87,34 +102,50 @@ onUnmounted(() => {
 </script>
 
 <style>
-/* 页面切换动画 - 淡入淡出 + 轻微滑动 */
-.page-enter-active {
-  animation: pageFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+/* 页面切换动画 - APP 式方向感知: 前进左滑入, 后退右滑入 */
+.page-forward-enter-active,
+.page-back-enter-active {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.page-leave-active {
-  animation: pageFadeOut 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+.page-forward-leave-active,
+.page-back-leave-active {
+  transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes pageFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.page-forward-enter-from {
+  opacity: 0;
+  transform: translateX(32px);
 }
 
-@keyframes pageFadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
+.page-forward-leave-to {
+  opacity: 0;
+  transform: translateX(-32px);
+}
+
+.page-back-enter-from {
+  opacity: 0;
+  transform: translateX(-32px);
+}
+
+.page-back-leave-to {
+  opacity: 0;
+  transform: translateX(32px);
+}
+
+/* 弱动画偏好: 退化为纯淡入淡出 */
+@media (prefers-reduced-motion: reduce) {
+  .page-forward-enter-active,
+  .page-back-enter-active,
+  .page-forward-leave-active,
+  .page-back-leave-active {
+    transition: opacity 0.2s ease;
   }
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
+  .page-forward-enter-from,
+  .page-forward-leave-to,
+  .page-back-enter-from,
+  .page-back-leave-to {
+    transform: none;
   }
 }
 

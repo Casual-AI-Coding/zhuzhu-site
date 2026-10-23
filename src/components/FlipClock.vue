@@ -40,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { computed } from 'vue';
 
 const props = defineProps({
   days: { type: Number, required: true },
@@ -58,14 +58,6 @@ const formatNumber = (num) => String(num).padStart(2, '0');
 
 // Unit definitions with Chinese labels
 const unitLabels = ['天', '时', '分', '秒'];
-
-// Track previous values for smooth transition
-const previousValues = ref({
-  days: props.days,
-  hours: props.hours,
-  minutes: props.minutes,
-  seconds: props.seconds,
-});
 
 // Calculate progress offset for the ring
 const getProgressOffset = (unit) => {
@@ -93,40 +85,23 @@ const getProgressOffset = (unit) => {
 // Display units with smooth transition
 const displayUnits = computed(() => {
   return [
-    { 
-      label: unitLabels[0], 
+    {
+      label: unitLabels[0],
       displayValue: formatNumber(props.days)
     },
-    { 
-      label: unitLabels[1], 
+    {
+      label: unitLabels[1],
       displayValue: formatNumber(props.hours)
     },
-    { 
-      label: unitLabels[2], 
+    {
+      label: unitLabels[2],
       displayValue: formatNumber(props.minutes)
     },
-    { 
-      label: unitLabels[3], 
+    {
+      label: unitLabels[3],
       displayValue: formatNumber(props.seconds)
     },
   ];
-});
-
-// Update previous values
-watch(() => props.days, (newVal) => {
-  previousValues.value.days = newVal;
-});
-
-watch(() => props.hours, (newVal) => {
-  previousValues.value.hours = newVal;
-});
-
-watch(() => props.minutes, (newVal) => {
-  previousValues.value.minutes = newVal;
-});
-
-watch(() => props.seconds, (newVal) => {
-  previousValues.value.seconds = newVal;
 });
 </script>
 

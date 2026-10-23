@@ -14,10 +14,14 @@
             @click="openGallery"
           >
             <img
-              :src="photo.thumbnailUrl || photo.url"
+              :src="thumbUrl(photo.url, 800)"
+              :srcset="thumbSrcset(photo.url, [480, 800])"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 60vw, 800px"
               :alt="photo.title"
               class="w-full h-full object-cover"
               loading="lazy"
+              decoding="async"
+              @error="fallbackToOriginal($event, photo)"
             />
             <!-- Overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
@@ -67,6 +71,16 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { thumbUrl, thumbSrcset } from '@/lib/imageUrl.js';
+
+// CDN 缩略图加载失败时回退原图
+function fallbackToOriginal(event, photo) {
+  const img = event.target;
+  if (img.dataset.fallback || !photo) return;
+  img.dataset.fallback = '1';
+  img.removeAttribute('srcset');
+  img.src = photo.url;
+}
 
 const props = defineProps({
   photos: { type: Array, required: true },

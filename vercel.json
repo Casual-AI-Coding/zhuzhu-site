@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/notion-api/(.*)",
-      "destination": "/api/proxy"
+      "destination": "/api/proxy?path=/$1"
     }
   ]
 }

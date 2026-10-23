@@ -17,13 +17,16 @@
       <ImageIcon class="w-8 h-8 text-gray-300" />
     </div>
     
-    <!-- 图片：进入可视区域后加载 -->
+    <!-- 图片：进入可视区域后加载（CDN 缩略图, 失败回退原图） -->
     <img
       v-show="!loading && !error"
-      :src="visible ? src : undefined"
+      :src="visible ? thumbUrl(src, 480) : undefined"
+      :srcset="visible ? thumbSrcset(src) : undefined"
+      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
       :alt="alt"
       class="w-full h-full object-cover transition-all duration-700 ease-out"
       :class="loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
+      decoding="async"
       @load="onLoad"
       @error="onError"
     />
@@ -78,6 +81,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Image as ImageIcon, MapPin, Eye as EyeIcon } from 'lucide-vue-next';
+import { thumbUrl, thumbSrcset } from '@/lib/imageUrl.js';
 
 const props = defineProps({
   src: { type: String, required: true },
@@ -96,6 +100,7 @@ const loading = ref(true);
 const loaded = ref(false);
 const error = ref(false);
 const visible = ref(false);
+let triedFallback = false;
 const cardRef = ref(null);
 const transform = ref({ rotateX: 0, rotateY: 0 });
 const isPressed = ref(false);
@@ -200,7 +205,15 @@ function onLoad() {
   });
 }
 
-function onError() {
+function onError(event) {
+  // CDN 缩略图失败先回退原图, 原图也失败才进入错误态
+  if (!triedFallback) {
+    triedFallback = true;
+    const img = event.target;
+    img.removeAttribute('srcset');
+    img.src = props.src;
+    return;
+  }
   loading.value = false;
   error.value = true;
 }

@@ -23,7 +23,19 @@ const categories = ['全部', '旅行', '美食', '体验', '家居', '其他'];
 const priorities = ['全部', '高', '中', '低'];
 const statuses = ['全部', '进行中', '已完成'];
 
-// Filtered wishes
+// 优先级排序权重: 高 > 中 > 低, 未知视为中
+const PRIORITY_RANK = { 高: 0, 中: 1, 低: 2 };
+
+function byPriority(a, b) {
+  const rank = (w) => PRIORITY_RANK[w.priority] ?? 1;
+  if (rank(a) !== rank(b)) return rank(a) - rank(b);
+  // 同优先级按目标日期升序（无日期排最后）
+  if (!a.targetDate) return 1;
+  if (!b.targetDate) return -1;
+  return a.targetDate < b.targetDate ? -1 : 1;
+}
+
+// Filtered wishes（优先级排序后的过滤结果）
 const filteredWishes = computed(() => {
   return wishes.value.filter(wish => {
     // Category filter
@@ -36,12 +48,12 @@ const filteredWishes = computed(() => {
     if (selectedStatus.value !== '全部' && wish.status !== selectedStatus.value) return false;
 
     return true;
-  });
+  }).slice().sort(byPriority);
 });
 
-// In-progress wishes
+// In-progress wishes（高 > 中 > 低）
 const inProgressWishes = computed(() => {
-  return wishes.value.filter(w => w.status === '进行中');
+  return wishes.value.filter(w => w.status === '进行中').slice().sort(byPriority);
 });
 
 // Completed wishes
@@ -54,11 +66,14 @@ const wishesByYear = computed(() => {
   const grouped = {};
   completedWishes.value.forEach(wish => {
     if (wish.completedDate) {
-      const year = new Date(wish.completedDate).getFullYear();
-      if (!grouped[year]) {
-        grouped[year] = [];
+      // 'YYYY-MM-DD' 直接取年份, 避免 new Date() 的 UTC 解析偏移
+      const year = Number(wish.completedDate.slice(0, 4));
+      if (Number.isFinite(year)) {
+        if (!grouped[year]) {
+          grouped[year] = [];
+        }
+        grouped[year].push(wish);
       }
-      grouped[year].push(wish);
     }
   });
   return grouped;
@@ -79,9 +94,8 @@ export function useWishes() {
     try {
       wishes.value = await fetchWishesFromNotion();
     } catch (e) {
+      // 保留已有数据, 仅当列表为空时由视图展示错误态
       error.value = e;
-      // Silent failure for display site
-      wishes.value = [];
     } finally {
       loading.value = false;
     }

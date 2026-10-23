@@ -1,9 +1,7 @@
 <template>
-  <div 
+  <div
     class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8"
-    @touchstart="handlePullStart"
-    @touchmove="handlePullMove"
-    @touchend="handlePullEnd"
+    v-on="pullRefreshHandlers"
   >
     <!-- Pull to refresh indicator -->
     <div 
@@ -124,6 +122,19 @@
         </div>
       </div>
       
+      <!-- Error State -->
+      <div v-else-if="error && messages.length === 0" class="text-center py-12">
+        <div class="text-6xl mb-4">💔</div>
+        <p class="text-text-secondary mb-4">留言加载失败，请稍后再试</p>
+        <button
+          type="button"
+          class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors"
+          @click="handleRefresh"
+        >
+          重新加载
+        </button>
+      </div>
+
       <!-- Empty State -->
       <div v-else-if="messages.length === 0" class="text-center py-12">
         <div class="text-6xl mb-4">💌</div>
@@ -213,8 +224,9 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { fetchMessages, addMessage as addMessageToNotion } from '@/lib/notion.js';
+import { fetchMessages, addMessage as addMessageToNotion, invalidate } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
+import { usePullToRefresh } from '@/composables/usePullToRefresh.js';
 
 const { formatDate, formatDateTime, formatRelativeTime } = useDaysCount();
 
@@ -223,8 +235,8 @@ const sender = ref('猪猪');
 const mood = ref('开心');
 const messages = ref([]);
 const loading = ref(true);
+const error = ref(false);
 const sending = ref(false);
-const refreshing = ref(false);
 const textareaRef = ref(null);
 
 // 点赞和表情回复
@@ -382,13 +394,32 @@ const moodEmoji = {
   '甜蜜': '🍯',
 };
 
+async function doRefresh() {
+  invalidate('messages');
+  try {
+    messages.value = await fetchMessages();
+    error.value = false;
+    showToast('刷新成功', 'success');
+  } catch {
+    error.value = true;
+    if (messages.value.length === 0) showToast('刷新失败，请检查网络', 'error');
+  }
+}
+
 function handleRefresh() {
   loading.value = true;
+  error.value = false;
+  invalidate('messages');
   fetchMessages().then(data => {
     messages.value = data;
+  }).catch(() => {
+    error.value = true;
+  }).finally(() => {
     loading.value = false;
   });
 }
+
+const { refreshing, handlers: pullRefreshHandlers } = usePullToRefresh(doRefresh);
 
 async function addMessage() {
   if (!newMessage.value.trim() || sending.value || isOverLimit.value) return;
@@ -461,32 +492,6 @@ function handleContextMenu(e, content) {
   showToast('已复制到剪贴板', 'success');
 }
 
-// 下拉刷新
-let pullStartY = 0;
-function handlePullStart(e) {
-  if (window.scrollY === 0) {
-    pullStartY = e.touches[0].clientY;
-  }
-}
-
-function handlePullMove(e) {
-  if (pullStartY > 0 && window.scrollY === 0) {
-    const pullCurrentY = e.touches[0].clientY;
-    if (pullCurrentY - pullStartY > 100 && !refreshing.value && !loading.value) {
-      refreshing.value = true;
-      fetchMessages().then(() => {
-        refreshing.value = false;
-        showToast('刷新成功', 'success');
-      });
-      pullStartY = 0;
-    }
-  }
-}
-
-function handlePullEnd() {
-  pullStartY = 0;
-}
-
 // 触感反馈
 function triggerHaptic() {
   if (navigator.vibrate) {
@@ -503,8 +508,14 @@ function handleClickOutside(e) {
 
 onMounted(async () => {
   loadInteractions();
-  messages.value = await fetchMessages();
-  loading.value = false;
+  try {
+    messages.value = await fetchMessages();
+    error.value = false;
+  } catch {
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
   window.addEventListener('refresh-data', handleRefresh);
   document.addEventListener('click', handleClickOutside);
 });

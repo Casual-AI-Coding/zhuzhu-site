@@ -29,6 +29,19 @@
         </div>
       </div>
       
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <div class="text-6xl mb-4">💔</div>
+        <p class="text-text-secondary mb-4">时光轴加载失败，请稍后再试</p>
+        <button
+          type="button"
+          class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors"
+          @click="handleRefresh"
+        >
+          重新加载
+        </button>
+      </div>
+
       <!-- Empty State -->
       <EmptyState
         v-else-if="events.length === 0"
@@ -100,7 +113,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
-import { fetchTimeline } from '@/lib/notion.js';
+import { fetchTimeline, invalidate } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import EmptyState from '@/components/EmptyState.vue';
 
@@ -108,6 +121,7 @@ const { formatDate } = useDaysCount();
 
 const events = ref([]);
 const loading = ref(true);
+const error = ref(false);
 const visibleItems = reactive({});
 const itemRefs = ref([]);
 const timelineContainer = ref(null);
@@ -135,11 +149,17 @@ const importanceClasses = {
 };
 
 onMounted(async () => {
-  events.value = await fetchTimeline();
-  loading.value = false;
+  try {
+    events.value = await fetchTimeline();
+    error.value = false;
+  } catch {
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
   window.addEventListener('refresh-data', handleRefresh);
   window.addEventListener('scroll', throttledUpdateLineProgress, { passive: true });
-  
+
   // 设置滚动观察器
   setupObserver();
 });
@@ -208,15 +228,20 @@ function updateLineProgress() {
 
 function handleRefresh() {
   loading.value = true;
+  error.value = false;
+  invalidate('timeline');
   fetchTimeline().then(data => {
     events.value = data;
-    loading.value = false;
     // 重置可见状态
     Object.keys(visibleItems).forEach(key => {
       visibleItems[key] = false;
     });
     // 重新设置观察
     setTimeout(setupObserver, 100);
+  }).catch(() => {
+    error.value = true;
+  }).finally(() => {
+    loading.value = false;
   });
 }
 

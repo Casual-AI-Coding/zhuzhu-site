@@ -19,7 +19,20 @@
       
       <!-- Loading -->
       <SkeletonGrid v-if="loading" :count="6" aspect-class="aspect-[4/3]" />
-      
+
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <div class="text-6xl mb-4">💔</div>
+        <p class="text-text-secondary mb-4">照片加载失败，请稍后再试</p>
+        <button
+          type="button"
+          class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors"
+          @click="handleRefresh"
+        >
+          重新加载
+        </button>
+      </div>
+
       <!-- Empty State -->
       <EmptyState
         v-else-if="photos.length === 0"
@@ -46,7 +59,7 @@
               @click="openLightbox(photo)"
             >
               <PhotoCard
-                :src="photo.thumbnailUrl || photo.url"
+                :src="photo.url"
                 :alt="photo.title"
                 :title="photo.title"
                 :date="formatDate(photo.date)"
@@ -217,7 +230,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { Image as ImageIcon, MapPin, ChevronLeft, ChevronRight, Heart, X } from 'lucide-vue-next';
-import { fetchPhotos } from '@/lib/notion.js';
+import { fetchPhotos, invalidate } from '@/lib/notion.js';
 import { useDaysCount } from '@/composables/useDaysCount.js';
 import { useGalleryView } from '@/composables/useGalleryView.js';
 import PhotoCard from '@/components/PhotoCard.vue';
@@ -231,6 +244,7 @@ const { viewMode, groupBy } = useGalleryView();
 
 const photos = ref([]);
 const loading = ref(true);
+const error = ref(false);
 const selectedPhoto = ref(null);
 const lightboxError = ref(false);
 const currentIndex = ref(0);
@@ -251,11 +265,9 @@ const columnCount = computed(() => {
   return 1;
 });
 
-// Grid 列样式
-const gridColsClass = computed(() => {
-  const cols = columnCount.value;
-  return `grid-cols-${cols}`;
-});
+// Grid 列样式（白名单映射, 避免 Tailwind JIT 无法扫描动态类名）
+const GRID_COLS = { 1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3' };
+const gridColsClass = computed(() => GRID_COLS[columnCount.value] || 'grid-cols-1');
 
 // 将照片均匀分配到各列（从上到下填充，而非从左到右）
 const masonryColumns = computed(() => {
@@ -417,8 +429,14 @@ function handleTouchEnd(e) {
 }
 
 onMounted(async () => {
-  photos.value = await fetchPhotos();
-  loading.value = false;
+  try {
+    photos.value = await fetchPhotos();
+    error.value = false;
+  } catch {
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
   window.addEventListener('keydown', handleKeydown);
   window.addEventListener('resize', updateWindowWidth);
   window.addEventListener('refresh-data', handleRefresh);
@@ -426,8 +444,13 @@ onMounted(async () => {
 
 function handleRefresh() {
   loading.value = true;
+  error.value = false;
+  invalidate('photos');
   fetchPhotos().then(data => {
     photos.value = data;
+  }).catch(() => {
+    error.value = true;
+  }).finally(() => {
     loading.value = false;
   });
 }

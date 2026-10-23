@@ -52,9 +52,9 @@
 - **前端框架**: Vue 3 (Composition API)
 - **路由**: Vue Router
 - **样式**: Tailwind CSS
-- **动画**: VueUse Motion, GSAP
-- **后端**: Notion API
-- **部署**: Vercel
+- **动画**: CSS keyframes + Canvas（无动画库依赖）
+- **后端**: Notion API（经服务端函数代理，token 不进前端）
+- **部署**: Netlify（主）/ Vercel（兼容，两套代理函数同逻辑）
 
 ## 🚀 快速开始
 
@@ -86,12 +86,30 @@ npm run preview
 
 ## 📝 环境变量
 
-在项目根目录创建 `.env.local` 文件：
+在项目根目录创建 `.env.local` 文件（参考 `.env.example`）：
 
 ```env
-NOTION_API_KEY=your_notion_api_key
-NOTION_DATABASE_IDS={"anniversaries":"xxx","photos":"xxx","timeline":"xxx","messages":"xxx","wishes":"xxx"}
+# 服务端(开发时由 Vite 代理使用; 生产配置在 Netlify/Vercel 后台)
+NOTION_TOKEN=your_notion_integration_token
+
+# 前端(仅数据库 ID, 属公开信息)
+VITE_NOTION_DATABASE_ANNIVERSARY=xxx
+VITE_NOTION_DATABASE_PHOTOS=xxx
+VITE_NOTION_DATABASE_TIMELINE=xxx
+VITE_NOTION_DATABASE_MESSAGES=xxx
+VITE_NOTION_DATABASE_WISHES=xxx
 ```
+
+## 🔒 安全说明
+
+浏览器端不携带任何 Notion token：生产环境由 `netlify/functions/notion-proxy.cjs`（Netlify）或 `api/proxy.cjs`（Vercel）在服务端注入鉴权，并同时做 endpoint 白名单、Origin 白名单和限流。
+
+**如果 token 曾以 `VITE_NOTION_TOKEN` 形式部署过**（v1.9.0 及之前），它已泄露在前端产物中，必须轮换：
+
+1. Notion → Settings → Connections → 删除旧 integration 并新建，或在其官网重新生成 token；
+2. 将新 token 配置到 Netlify（Site settings → Environment variables → `NOTION_TOKEN`）；
+3. 新 integration 需重新获得各数据库的访问授权（数据库 → Connections 里添加）；
+4. 重新部署。
 
 ## 📄 许可
 

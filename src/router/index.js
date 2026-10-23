@@ -31,6 +31,16 @@ const routes = [
     name: 'wishes',
     component: () => import('@/views/WishesView.vue'),
   },
+  {
+    path: '/stats',
+    name: 'stats',
+    component: () => import('@/views/StatsView.vue'),
+  },
+  {
+    path: '/map',
+    name: 'map',
+    component: () => import('@/views/MapView.vue'),
+  },
 ];
 
 const router = createRouter({

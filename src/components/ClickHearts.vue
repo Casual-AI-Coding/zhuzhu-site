@@ -1,5 +1,6 @@
 <template>
-  <div class="click-effects-container" @click="handleClick">
+  <!-- 容器 pointer-events:none, 只负责渲染特效; 点击监听挂在 window 上 -->
+  <div class="click-effects-container">
     <!-- 爱心 -->
     <div
       v-for="heart in hearts"
@@ -22,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const hearts = ref([]);
 const stars = ref([]);
@@ -34,20 +35,20 @@ const heartEmojis = ['❤️', '💕', '💗', '💖', '💘', '💞', '💟', '
 function handleClick(event) {
   const x = event.clientX;
   const y = event.clientY;
-  
+
   // 爱心 - 8-15个
   const heartCount = 8 + Math.floor(Math.random() * 8);
   for (let i = 0; i < heartCount; i++) {
     const id = ++heartId;
     const emoji = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
-    
+
     const angle = (Math.PI * 2 * i) / heartCount + (Math.random() - 0.5) * 0.8;
     const distance = 60 + Math.random() * 100;
     const endX = x + Math.cos(angle) * distance;
     const endY = y + Math.sin(angle) * distance - 80;
     const size = 16 + Math.random() * 16;
     const duration = 1.2 + Math.random() * 0.8;
-    
+
     hearts.value.push({
       id,
       emoji,
@@ -60,24 +61,24 @@ function handleClick(event) {
         animationDuration: `${duration}s`,
       },
     });
-    
+
     setTimeout(() => {
       hearts.value = hearts.value.filter(h => h.id !== id);
     }, duration * 1000);
   }
-  
+
   // 星星 - 5-10个
   const starCount = 5 + Math.floor(Math.random() * 6);
   for (let i = 0; i < starCount; i++) {
     const id = ++starId;
-    
+
     const angle = (Math.PI * 2 * i) / starCount + (Math.random() - 0.5);
     const distance = 40 + Math.random() * 60;
     const endX = x + Math.cos(angle) * distance;
     const endY = y + Math.sin(angle) * distance - 60;
     const size = 10 + Math.random() * 12;
     const duration = 0.8 + Math.random() * 0.6;
-    
+
     stars.value.push({
       id,
       style: {
@@ -89,12 +90,20 @@ function handleClick(event) {
         animationDuration: `${duration}s`,
       },
     });
-    
+
     setTimeout(() => {
       stars.value = stars.value.filter(s => s.id !== id);
     }, duration * 1000);
   }
 }
+
+onMounted(() => {
+  window.addEventListener('click', handleClick);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('click', handleClick);
+});
 </script>
 
 <style scoped>

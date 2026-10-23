@@ -1,24 +1,40 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 // 恋爱起始日期: 2024年9月19日
-const START_DATE = new Date('2024-09-19');
+// 必须用本地时区构造。此前写成 new Date('2024-09-19') 会按 UTC 解析,
+// 导致"在一起天数"在北京时间每天早上 8 点才 +1。
+const START_DATE = new Date(2024, 8, 19);
+
+const DAY_MS = 1000 * 60 * 60 * 24;
+
+// 以本地日历日为单位的整数天（以当天 00:00 为界翻转）
+function calendarDay(date) {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / DAY_MS;
+}
+
+// Notion 日期多为 'YYYY-MM-DD'，new Date() 会按 UTC 解析导致偏移一天，这里显式本地解析
+function parseDate(dateString) {
+  if (!dateString) return null;
+  const m = String(dateString).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  const d = new Date(dateString);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
 
 // 模块级单例 - 所有组件共享同一份状态
 const today = ref(new Date());
 let sharedIntervalId = null;
 let intervalRefCount = 0;
 
-// 启动共享的计时器（只在第一个组件挂载时启动）
 function ensureSharedInterval() {
   intervalRefCount++;
   if (sharedIntervalId === null) {
     sharedIntervalId = setInterval(() => {
       today.value = new Date();
-    }, 60000); // 每分钟检查一次
+    }, 60000);
   }
 }
 
-// 停止共享的计时器（只在最后一个组件卸载时停止）
 function releaseSharedInterval() {
   intervalRefCount--;
   if (intervalRefCount <= 0 && sharedIntervalId !== null) {
@@ -29,60 +45,55 @@ function releaseSharedInterval() {
 }
 
 export function useDaysCount() {
-  
-  // 计算在一起的总天数
+
+  // 在一起的总天数（本地日历日差）
   const totalDays = computed(() => {
-    const diffTime = today.value.getTime() - START_DATE.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
+    return Math.max(0, calendarDay(today.value) - calendarDay(START_DATE));
   });
-  
-  // 计算下一个百天纪念日（一定是未来的）
+
+  // 下一个百天纪念日（一定是未来的）
   const nextMilestone = computed(() => {
     const days = totalDays.value;
     const nextHundred = Math.ceil((days + 1) / 100) * 100;
-    const daysUntilNext = nextHundred - days;
     return {
       days: nextHundred,
-      daysUntil: daysUntilNext,
+      daysUntil: nextHundred - days,
       isPast: false,
     };
   });
-  
-  // 计算下一个周年纪念日（一定是未来的）
+
+  // 下次百天纪念日的具体日期（起始日 + N 天）
+  const nextMilestoneDate = computed(() => {
+    const target = new Date(START_DATE);
+    target.setDate(target.getDate() + nextMilestone.value.days);
+    return target;
+  });
+
+  // 下一个周年（按真实日历日期计算，与 FlipClock 显示的日期完全一致）
   const nextAnniversary = computed(() => {
-    const days = totalDays.value;
-    const currentYear = Math.floor(days / 365);
-    const nextYear = currentYear + 1;
-    const daysInCurrentYear = days % 365;
-    const daysUntilNextYear = 365 - daysInCurrentYear;
-    
+    const now = today.value;
+    const yearsElapsed = now.getFullYear() - START_DATE.getFullYear();
+    const notYetThisYear =
+      now.getMonth() < START_DATE.getMonth() ||
+      (now.getMonth() === START_DATE.getMonth() && now.getDate() < START_DATE.getDate());
+    const nextYear = notYetThisYear ? yearsElapsed : yearsElapsed + 1;
+    const anniv = new Date(START_DATE);
+    anniv.setFullYear(START_DATE.getFullYear() + nextYear);
+    const daysUntil = Math.round(calendarDay(anniv) - calendarDay(now));
     return {
       year: nextYear,
-      daysUntil: daysUntilNextYear,
+      daysUntil,
       isPast: false,
     };
   });
-  
-  // 获取最近百天的详细日期
-  const nearestMilestoneDate = computed(() => {
-    const milestone = nearestMilestone.value;
-    const targetDate = new Date(START_DATE);
-    targetDate.setDate(targetDate.getDate() + milestone.days);
-    targetDate.setHours(0, 0, 0, 0);
-    return targetDate;
+
+  // 下次周年的具体日期
+  const nextAnniversaryDate = computed(() => {
+    const target = new Date(START_DATE);
+    target.setFullYear(START_DATE.getFullYear() + nextAnniversary.value.year);
+    return target;
   });
-  
-  // 获取最近周年的详细日期
-  const nearestAnniversaryDate = computed(() => {
-    const anniversary = nearestAnniversary.value;
-    const targetDate = new Date(START_DATE);
-    targetDate.setFullYear(START_DATE.getFullYear() + anniversary.year);
-    targetDate.setHours(0, 0, 0, 0);
-    return targetDate;
-  });
-  
-  // 格式化日期显示
+
   const formattedStartDate = computed(() => {
     return START_DATE.toLocaleDateString('zh-CN', {
       year: 'numeric',
@@ -91,10 +102,9 @@ export function useDaysCount() {
     });
   });
 
-  // 格式化日期
   function formatDate(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
+    const date = parseDate(dateString);
+    if (!date) return '';
     return date.toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: 'long',
@@ -102,10 +112,9 @@ export function useDaysCount() {
     });
   }
 
-  // 格式化日期+时间
   function formatDateTime(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
+    const date = parseDate(dateString);
+    if (!date) return '';
     return date.toLocaleString('zh-CN', {
       year: 'numeric',
       month: 'long',
@@ -117,10 +126,9 @@ export function useDaysCount() {
 
   // 相对时间显示 (刚刚、5分钟前等)
   function formatRelativeTime(dateString) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
+    const date = parseDate(dateString);
+    if (!date) return '';
+    const diffMs = Date.now() - date.getTime();
     const diffSec = Math.floor(diffMs / 1000);
     const diffMin = Math.floor(diffSec / 60);
     const diffHour = Math.floor(diffMin / 60);
@@ -133,56 +141,30 @@ export function useDaysCount() {
     return formatDateTime(dateString);
   }
 
-  // 计算距离某日期还有多少天（可正可负，负数表示已过）
+  // 距离某日期还有多少天（0 表示就是今天，负数表示已过）
   function getDaysUntil(dateString) {
-    if (!dateString) return 0;
-    const target = new Date(dateString);
-    const todayDate = new Date();
-    const diffTime = target.getTime() - todayDate.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    const target = parseDate(dateString);
+    if (!target) return 0;
+    return Math.round(calendarDay(target) - calendarDay(today.value));
   }
-  
-  // 获取详细倒计时（天、时、分、秒）
-  function getCountdown(dateString) {
-    if (!dateString) return null;
-    const target = new Date(dateString);
-    const now = new Date();
-    const diffMs = target.getTime() - now.getTime();
-    
+
+  // 距离某日期的详细倒计时（天、时、分、秒），到期返回 null
+  function getCountdown(date) {
+    if (!date) return null;
+    const diffMs = date.getTime() - Date.now();
     if (diffMs <= 0) return null;
-    
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-    
-    return { days, hours, minutes, seconds };
+    return {
+      days: Math.floor(diffMs / DAY_MS),
+      hours: Math.floor((diffMs % DAY_MS) / (1000 * 60 * 60)),
+      minutes: Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((diffMs % (1000 * 60)) / 1000),
+    };
   }
-  
-  // 获取下次纪念日的详细日期
-  const nextAnniversaryDate = computed(() => {
-    const anniversary = nextAnniversary.value;
-    const targetDate = new Date(START_DATE);
-    targetDate.setFullYear(START_DATE.getFullYear() + anniversary.year);
-    targetDate.setHours(0, 0, 0, 0);
-    return targetDate;
-  });
-  
-  // 获取下次百天纪念日的详细日期
-  const nextMilestoneDate = computed(() => {
-    const milestone = nextMilestone.value;
-    const targetDate = new Date(START_DATE);
-    targetDate.setDate(targetDate.getDate() + milestone.days);
-    targetDate.setHours(0, 0, 0, 0);
-    return targetDate;
-  });
-  
-  // 使用共享的计时器
+
   onMounted(() => {
     ensureSharedInterval();
   });
-  
+
   onUnmounted(() => {
     releaseSharedInterval();
   });

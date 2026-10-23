@@ -76,6 +76,19 @@
         </div>
       </div>
       
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <div class="text-6xl mb-4">💔</div>
+        <p class="text-text-secondary mb-4">纪念日加载失败，请稍后再试</p>
+        <button
+          type="button"
+          class="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-sm font-medium transition-colors"
+          @click="handleRefresh"
+        >
+          重新加载
+        </button>
+      </div>
+
       <!-- Empty State -->
       <EmptyState
         v-else-if="anniversaries.length === 0"
@@ -173,13 +186,14 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Heart } from 'lucide-vue-next';
 import { useDaysCount } from '@/composables/useDaysCount.js';
-import { fetchAnniversaries } from '@/lib/notion.js';
+import { fetchAnniversaries, invalidate } from '@/lib/notion.js';
 import EmptyState from '@/components/EmptyState.vue';
 
 const { totalDays, nextMilestone, formatDate, getDaysUntil } = useDaysCount();
 
 const anniversaries = ref([]);
 const loading = ref(true);
+const error = ref(false);
 
 // Progress ring calculations
 const circumference = 2 * Math.PI * 52;
@@ -205,15 +219,26 @@ const futureAnniversaries = computed(() => {
 });
 
 onMounted(async () => {
-  anniversaries.value = await fetchAnniversaries();
-  loading.value = false;
+  try {
+    anniversaries.value = await fetchAnniversaries();
+    error.value = false;
+  } catch {
+    error.value = true;
+  } finally {
+    loading.value = false;
+  }
   window.addEventListener('refresh-data', handleRefresh);
 });
 
 function handleRefresh() {
   loading.value = true;
+  error.value = false;
+  invalidate('anniversaries');
   fetchAnniversaries().then(data => {
     anniversaries.value = data;
+  }).catch(() => {
+    error.value = true;
+  }).finally(() => {
     loading.value = false;
   });
 }

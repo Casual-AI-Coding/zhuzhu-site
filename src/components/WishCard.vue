@@ -82,7 +82,7 @@
           <!-- 编辑 -->
           <button
             @click.stop="handleEdit"
-            class="action-btn w-11 h-11 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/30 text-white/80 hover:text-white transition-all min-w-[44px] min-h-[44px]"
+            class="action-btn w-11 h-11 rounded-full flex items-center justify-center bg-black/20 backdrop-blur-sm hover:bg-white/30 text-white/80 hover:text-white transition-all min-w-[44px] min-h-[44px]"
             title="编辑"
           >
             <Pencil class="w-4 h-4" />
@@ -91,7 +91,7 @@
           <!-- 删除 -->
           <button
             @click.stop="handleDelete"
-            class="action-btn w-11 h-11 rounded-full flex items-center justify-center bg-white/10 hover:bg-red-500/60 text-white/80 hover:text-white transition-all min-w-[44px] min-h-[44px]"
+            class="action-btn w-11 h-11 rounded-full flex items-center justify-center bg-black/20 backdrop-blur-sm hover:bg-red-500/60 text-white/80 hover:text-white transition-all min-w-[44px] min-h-[44px]"
             title="删除"
           >
             <Trash2 class="w-4 h-4" />
@@ -100,12 +100,12 @@
       </div>
     </div>
 
-    <!-- 完成后的印章效果 -->
+    <!-- 完成后的印章效果：外移+调淡, 避免与右下角操作按钮视觉重叠 -->
     <div
       v-if="wish.status === '已完成'"
-      class="completed-stamp absolute -bottom-6 -right-6 w-24 h-24 rounded-full border-4 border-white/30 flex items-center justify-center rotate-[-15deg]"
+      class="completed-stamp absolute -bottom-8 -right-8 w-28 h-28 rounded-full border-4 border-white/20 flex items-center justify-center rotate-[-15deg]"
     >
-      <span class="text-white/30 font-bold text-lg">已完成</span>
+      <span class="text-white/20 font-bold text-base">已完成</span>
     </div>
   </div>
 </template>
